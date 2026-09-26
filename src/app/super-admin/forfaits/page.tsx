@@ -31,6 +31,7 @@ export default async function SuperAdminForfaitsPage() {
     max_boutiques: f.max_boutiques,
     max_employes_par_boutique: f.max_employes_par_boutique,
     prix_mensuel: f.prix_mensuel,
+    duree_jours: f.duree_jours,
     actif: f.actif,
     _count: f._count,
   }));

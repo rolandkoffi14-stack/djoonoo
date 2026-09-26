@@ -12,6 +12,7 @@ import {
   Filter,
   ArrowRight,
   ShieldCheck,
+  Zap,
 } from "lucide-react";
 import { StatutFactureAbonnement } from "@prisma/client";
 import { confirmerPaiementAbonnementAction } from "@/app/actions/super-admin";
@@ -35,6 +36,7 @@ export interface FactureAbonnementItem {
     forfait: {
       nom: string;
       prix_mensuel: number;
+      duree_jours?: number;
     };
   };
 }
@@ -47,14 +49,18 @@ export default function PaiementsAbonnementManager({
   initialFactures,
 }: PaiementsAbonnementManagerProps) {
   const [factures, setFactures] = useState<FactureAbonnementItem[]>(initialFactures);
-  const [filtreStatut, setFiltreStatut] = useState<string>("en_attente");
+  const [filtreStatut, setFiltreStatut] = useState<string>("tous");
   const [recherche, setRecherche] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const handleConfirmerPaiement = (factureId: string, nomEntreprise: string) => {
+  const handleConfirmerPaiement = (
+    factureId: string,
+    nomEntreprise: string,
+    dureeJours: number = 30
+  ) => {
     if (
       !confirm(
-        `Confirmer la réception du paiement pour ${nomEntreprise} ?\nCette action activera le compte et prolongera l'abonnement de 30 jours.`
+        `Confirmer manuellement la réception du paiement pour ${nomEntreprise} ?\nCette action exceptionnelle activera le compte et prolongera l'abonnement de ${dureeJours} jours.`
       )
     ) {
       return;
@@ -90,7 +96,7 @@ export default function PaiementsAbonnementManager({
         };
       case "en_attente":
         return {
-          label: "En attente de validation",
+          label: "En attente",
           className: "bg-amber-50 text-amber-800 border-amber-300 font-bold",
           icon: Clock,
         };
@@ -113,7 +119,9 @@ export default function PaiementsAbonnementManager({
     const matchQuery =
       f.compte.nom_entreprise.toLowerCase().includes(recherche.toLowerCase()) ||
       f.compte.code.toLowerCase().includes(recherche.toLowerCase()) ||
-      f.compte.email_principal.toLowerCase().includes(recherche.toLowerCase());
+      f.compte.email_principal.toLowerCase().includes(recherche.toLowerCase()) ||
+      (f.reference_externe && f.reference_externe.toLowerCase().includes(recherche.toLowerCase())) ||
+      f.fournisseur_paiement.toLowerCase().includes(recherche.toLowerCase());
 
     const matchStatut =
       filtreStatut === "tous" || f.statut === filtreStatut;
@@ -122,8 +130,11 @@ export default function PaiementsAbonnementManager({
   });
 
   const totalEnAttente = factures.filter((f) => f.statut === "en_attente").length;
-  const montantEnAttente = factures
-    .filter((f) => f.statut === "en_attente")
+  const totalPayeesFedaPay = factures.filter(
+    (f) => f.statut === "payee" && f.fournisseur_paiement === "fedapay"
+  ).length;
+  const montantTotalEncaisse = factures
+    .filter((f) => f.statut === "payee")
     .reduce((acc, curr) => acc + curr.montant, 0);
 
   return (
@@ -133,10 +144,10 @@ export default function PaiementsAbonnementManager({
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
             <CreditCard className="w-6 h-6 text-emerald-600" />
-            <span>Validation des Paiements d&apos;Abonnement</span>
+            <span>Supervision des Abonnements &amp; Paiements</span>
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Confirmation manuelle des règlements d&apos;abonnements (Mobile Money MTN / Moov / Espèces)
+            Suivi temps réel des règlements FedaPay (MTN MoMo, Moov Money, CB) et régularisations manuelles
           </p>
         </div>
       </div>
@@ -145,32 +156,32 @@ export default function PaiementsAbonnementManager({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-            En Attente de Confirmation
+            Encaissé via FedaPay
+          </div>
+          <div className="text-2xl font-black text-emerald-600 font-mono">
+            {totalPayeesFedaPay} transaction(s)
+          </div>
+          <div className="text-xs text-slate-500 mt-1">Paiements 100% automatisés</div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+            Volume Total Encaissé
+          </div>
+          <div className="text-2xl font-black text-slate-900 font-mono">
+            {montantTotalEncaisse.toLocaleString("fr-FR")} FCFA
+          </div>
+          <div className="text-xs text-slate-500 mt-1">Revenus d&apos;abonnements validés</div>
+        </div>
+
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+            En Attente de Règlement
           </div>
           <div className="text-2xl font-black text-amber-600 font-mono">
             {totalEnAttente} facture(s)
           </div>
-          <div className="text-xs text-slate-500 mt-1">Nécessite votre validation</div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-            Volume en attente (FCFA)
-          </div>
-          <div className="text-2xl font-black text-slate-900 font-mono">
-            {montantEnAttente.toLocaleString("fr-FR")} FCFA
-          </div>
-          <div className="text-xs text-slate-500 mt-1">À encaisser</div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-            Période Automatique
-          </div>
-          <div className="text-2xl font-black text-emerald-600 font-mono">
-            +30 Jours
-          </div>
-          <div className="text-xs text-slate-500 mt-1">Prolongation à chaque validation</div>
+          <div className="text-xs text-slate-500 mt-1">Initiées ou à régulariser</div>
         </div>
       </div>
 
@@ -180,7 +191,7 @@ export default function PaiementsAbonnementManager({
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Rechercher par nom d'entreprise, code, email..."
+            placeholder="Rechercher par référence FedaPay, entreprise, email, code..."
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
@@ -194,8 +205,8 @@ export default function PaiementsAbonnementManager({
           className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:border-emerald-600"
         >
           <option value="tous">Tous les statuts</option>
-          <option value="en_attente">En attente (prioritaire)</option>
-          <option value="payee">Payées</option>
+          <option value="payee">Payées (validées)</option>
+          <option value="en_attente">En attente</option>
           <option value="echouee">Échouées</option>
           <option value="annulee">Annulées</option>
         </select>
@@ -207,9 +218,11 @@ export default function PaiementsAbonnementManager({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                <th className="py-3 px-4">Entreprise</th>
-                <th className="py-3 px-4">Forfait &amp; Montant</th>
-                <th className="py-3 px-4">Mode / Fournisseur</th>
+                <th className="py-3 px-4">Réf. FedaPay</th>
+                <th className="py-3 px-4">Entreprise cliente</th>
+                <th className="py-3 px-4">Forfait</th>
+                <th className="py-3 px-4">Montant</th>
+                <th className="py-3 px-4">Moyen de paiement</th>
                 <th className="py-3 px-4">Échéance</th>
                 <th className="py-3 px-4">Statut</th>
                 <th className="py-3 px-4 text-right">Action</th>
@@ -218,7 +231,7 @@ export default function PaiementsAbonnementManager({
             <tbody className="divide-y divide-slate-100 text-sm">
               {facturesFiltrees.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-slate-500">
+                  <td colSpan={8} className="py-10 text-center text-slate-500">
                     Aucune facture d&apos;abonnement trouvée.
                   </td>
                 </tr>
@@ -227,10 +240,27 @@ export default function PaiementsAbonnementManager({
                   const badge = getStatutBadge(f.statut);
                   const Icon = badge.icon;
                   const isEnAttente = f.statut === "en_attente";
+                  const duree = f.compte.forfait.duree_jours || 30;
 
                   return (
                     <tr key={f.id} className="hover:bg-slate-50/60 transition-colors">
-                      {/* Entreprise */}
+                      {/* Référence FedaPay */}
+                      <td className="py-3.5 px-4">
+                        {f.reference_externe ? (
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 font-mono font-bold text-xs text-slate-800">
+                            {f.fournisseur_paiement === "fedapay" && (
+                              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                            )}
+                            <span>#{f.reference_externe}</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-mono italic">
+                            Hors passerelle
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Entreprise cliente */}
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900">
                           {f.compte.nom_entreprise}
@@ -240,21 +270,36 @@ export default function PaiementsAbonnementManager({
                         </div>
                       </td>
 
-                      {/* Forfait & Montant */}
+                      {/* Forfait */}
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-800">
+                          {f.compte.forfait.nom}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          Validité : {duree} j
+                        </div>
+                      </td>
+
+                      {/* Montant */}
                       <td className="py-3.5 px-4">
                         <div className="font-mono font-bold text-slate-900">
                           {f.montant.toLocaleString("fr-FR")} FCFA
                         </div>
-                        <div className="text-xs text-slate-500">
-                          Forfait {f.compte.forfait.nom}
-                        </div>
                       </td>
 
-                      {/* Fournisseur */}
+                      {/* Moyen de paiement */}
                       <td className="py-3.5 px-4">
-                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 uppercase">
-                          {f.fournisseur_paiement}
-                        </span>
+                        {f.fournisseur_paiement === "fedapay" ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+                            <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>FedaPay (MoMo/Moov/CB)</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700">
+                            <ShieldCheck className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Manuel</span>
+                          </span>
+                        )}
                       </td>
 
                       {/* Échéance */}
@@ -277,19 +322,24 @@ export default function PaiementsAbonnementManager({
                         {isEnAttente ? (
                           <button
                             onClick={() =>
-                              handleConfirmerPaiement(f.id, f.compte.nom_entreprise)
+                              handleConfirmerPaiement(
+                                f.id,
+                                f.compte.nom_entreprise,
+                                duree
+                              )
                             }
                             disabled={isPending}
-                            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-xs cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-xs cursor-pointer"
+                            title="Validation manuelle de secours"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Confirmer Paiement</span>
+                            <span>Valider (secours)</span>
                           </button>
                         ) : (
                           <span className="text-xs text-slate-400 font-mono">
                             {f.date_confirmation
                               ? `Validé le ${new Date(f.date_confirmation).toLocaleDateString("fr-FR")}`
-                              : "Traité"}
+                              : "Automatique"}
                           </span>
                         )}
                       </td>

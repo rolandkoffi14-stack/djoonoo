@@ -29,6 +29,7 @@ export default async function SuperAdminAbonnementsPage() {
             select: {
               nom: true,
               prix_mensuel: true,
+              duree_jours: true,
             },
           },
         },

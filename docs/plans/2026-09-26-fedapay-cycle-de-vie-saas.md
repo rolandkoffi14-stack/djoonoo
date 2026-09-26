@@ -1030,18 +1030,18 @@ Permettre au futur commerçant de sélectionner dès le formulaire d'inscription
 
 ### Micro-étapes TDD :
 
-- [ ] **8.1 Mettre à jour `src/app/actions/super-admin.ts`**
+- [x] **8.1 Mettre à jour `src/app/actions/super-admin.ts`**
   - Modifier `creerForfaitAction` et `modifierForfaitAction` pour accepter et valider `duree_jours` (nombre entier > 0, défaut 30).
   - Lors de la confirmation manuelle de paiement de secours, prolonger `date_fin_periode_courante` de `forfait.duree_jours` au lieu d'un 30 en dur.
 
-- [ ] **8.2 Mettre à jour les formulaires de gestion de forfaits dans l'interface Super-Admin**
+- [x] **8.2 Mettre à jour les formulaires de gestion de forfaits dans l'interface Super-Admin**
   - Ajouter le champ "Durée de validité (en jours)" avec valeur par défaut 30.
 
-- [ ] **8.3 Créer la vue de supervision des paiements FedaPay dans le Super-Admin**
+- [x] **8.3 Créer la vue de supervision des paiements FedaPay dans le Super-Admin**
   - Afficher les colonnes : Référence FedaPay, Entreprise cliente, Forfait, Montant (FCFA), Date d'échéance, Statut (`payee`, `en_attente`, `echouee`), Moyen de paiement.
   - Maintenir le bouton de validation manuelle exceptionnelle pour les cas hors passerelle.
 
-- [ ] **8.4 Commit Git atomique**
+- [x] **8.4 Commit Git atomique**
   ```powershell
   git add src/app/actions/super-admin.ts src/app/super-admin/forfaits/page.tsx src/app/super-admin/abonnements/page.tsx
   git commit -m "feat(super-admin): supervision des paiements fedapay et configuration dynamique duree_jours forfaits"

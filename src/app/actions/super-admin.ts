@@ -184,7 +184,13 @@ export async function confirmerPaiementAbonnementAction(
 
     const facture = await prisma.factures_abonnement.findUnique({
       where: { id: factureAbonnementId },
-      include: { compte: true },
+      include: {
+        compte: {
+          include: {
+            forfait: true,
+          },
+        },
+      },
     });
 
     if (!facture) {
@@ -196,7 +202,7 @@ export async function confirmerPaiementAbonnementAction(
     }
 
     const maintenant = new Date();
-    // Période courante de 30 jours
+    // Période courante basée sur la durée configurée du forfait (décision H24)
     let dateDebut = maintenant;
     if (
       facture.compte.date_fin_periode_courante &&
@@ -205,8 +211,9 @@ export async function confirmerPaiementAbonnementAction(
       dateDebut = facture.compte.date_debut_periode_courante || maintenant;
     }
 
+    const dureeJours = facture.compte.forfait?.duree_jours || 30;
     const dateFin = new Date(dateDebut);
-    dateFin.setDate(dateFin.getDate() + 30);
+    dateFin.setDate(dateFin.getDate() + dureeJours);
 
     await prisma.$transaction(async (tx) => {
       // 1. Clôture de la facture en statut payee
@@ -258,7 +265,7 @@ export async function confirmerPaiementAbonnementAction(
 }
 
 /**
- * Création ou modification d'un forfait (Décision B7 : NULL = Illimité)
+ * Création ou modification d'un forfait (Décision B7 : NULL = Illimité & Décision H24 : duree_jours dynamique)
  */
 export async function enregistrerForfaitAction(
   prevState: any,
@@ -273,6 +280,8 @@ export async function enregistrerForfaitAction(
     const id = (formData.get("id") as string)?.trim();
     const nom = (formData.get("nom") as string)?.trim();
     const prixMensuel = parseInt((formData.get("prix_mensuel") as string) || "0", 10);
+    const dureeJoursVal = parseInt((formData.get("duree_jours") as string) || "30", 10);
+    const duree_jours = isNaN(dureeJoursVal) || dureeJoursVal <= 0 ? 30 : dureeJoursVal;
     const illimiteBoutiques = formData.get("illimite_boutiques") === "on";
     const maxBoutiquesVal = parseInt((formData.get("max_boutiques") as string) || "1", 10);
     const illimiteEmployes = formData.get("illimite_employes") === "on";
@@ -294,6 +303,7 @@ export async function enregistrerForfaitAction(
         data: {
           nom,
           prix_mensuel: prixMensuel,
+          duree_jours,
           max_boutiques,
           max_employes_par_boutique,
           actif,
@@ -304,7 +314,7 @@ export async function enregistrerForfaitAction(
         data: {
           super_admin_id: session.superAdminId,
           action: "modification_forfait",
-          details: { forfait_id: id, nom, prix_mensuel: prixMensuel, max_boutiques, max_employes_par_boutique, actif },
+          details: { forfait_id: id, nom, prix_mensuel: prixMensuel, duree_jours, max_boutiques, max_employes_par_boutique, actif },
         },
       });
     } else {
@@ -312,6 +322,7 @@ export async function enregistrerForfaitAction(
         data: {
           nom,
           prix_mensuel: prixMensuel,
+          duree_jours,
           max_boutiques,
           max_employes_par_boutique,
           actif,
@@ -322,7 +333,7 @@ export async function enregistrerForfaitAction(
         data: {
           super_admin_id: session.superAdminId,
           action: "creation_forfait",
-          details: { forfait_id: forfait.id, nom, prix_mensuel: prixMensuel, max_boutiques, max_employes_par_boutique, actif },
+          details: { forfait_id: forfait.id, nom, prix_mensuel: prixMensuel, duree_jours, max_boutiques, max_employes_par_boutique, actif },
         },
       });
     }

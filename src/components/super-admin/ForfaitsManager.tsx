@@ -12,6 +12,7 @@ import {
   CreditCard,
   Infinity as InfinityIcon,
   ShieldCheck,
+  Clock,
 } from "lucide-react";
 import { enregistrerForfaitAction } from "@/app/actions/super-admin";
 
@@ -21,6 +22,7 @@ export interface ForfaitItem {
   max_boutiques: number | null;
   max_employes_par_boutique: number | null;
   prix_mensuel: number;
+  duree_jours: number;
   actif: boolean;
   _count?: {
     comptes: number;
@@ -41,6 +43,7 @@ export default function ForfaitsManager({
   // États du formulaire
   const [nom, setNom] = useState("");
   const [prixMensuel, setPrixMensuel] = useState("10000");
+  const [dureeJours, setDureeJours] = useState("30");
   const [illimiteBoutiques, setIllimiteBoutiques] = useState(false);
   const [maxBoutiques, setMaxBoutiques] = useState("1");
   const [illimiteEmployes, setIllimiteEmployes] = useState(false);
@@ -53,6 +56,7 @@ export default function ForfaitsManager({
     setEditionForfait(null);
     setNom("");
     setPrixMensuel("15000");
+    setDureeJours("30");
     setIllimiteBoutiques(false);
     setMaxBoutiques("1");
     setIllimiteEmployes(false);
@@ -65,6 +69,7 @@ export default function ForfaitsManager({
     setEditionForfait(f);
     setNom(f.nom);
     setPrixMensuel(f.prix_mensuel.toString());
+    setDureeJours((f.duree_jours || 30).toString());
     setIllimiteBoutiques(f.max_boutiques === null);
     setMaxBoutiques(f.max_boutiques ? f.max_boutiques.toString() : "1");
     setIllimiteEmployes(f.max_employes_par_boutique === null);
@@ -84,6 +89,7 @@ export default function ForfaitsManager({
     }
     formData.set("nom", nom);
     formData.set("prix_mensuel", prixMensuel);
+    formData.set("duree_jours", dureeJours);
     if (illimiteBoutiques) {
       formData.set("illimite_boutiques", "on");
     } else {
@@ -219,6 +225,16 @@ export default function ForfaitsManager({
                       )}
                     </span>
                   </div>
+
+                  <div className="flex items-center justify-between text-slate-700">
+                    <span className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      <span>Durée de validité</span>
+                    </span>
+                    <span className="font-bold font-mono text-[#C1652D]">
+                      {f.duree_jours || 30} jours
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -282,6 +298,25 @@ export default function ForfaitsManager({
                   onChange={(e) => setPrixMensuel(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:border-[#C1652D]"
                 />
+              </div>
+
+              {/* Durée de validité (Décision H24) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                  Durée de validité (en jours)
+                </label>
+                <input
+                  type="number"
+                  required
+                  min={1}
+                  value={dureeJours}
+                  onChange={(e) => setDureeJours(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:border-[#C1652D]"
+                  placeholder="30"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Ex: 30 pour 1 mois, 90 pour 1 trimestre, 365 pour 1 an.
+                </p>
               </div>
 
               {/* Quota Boutiques (Décision B7) */}
