@@ -34,10 +34,10 @@
 - Liste des impayés en cours
 
 ### 1.7 Forfaits & abonnement
-Voir section 5 — refonte complète par rapport au cahier d'origine (abonnement automatique avec passerelle différée, décision A2).
+Voir section 5 — intégration complète et automatisée de la passerelle de paiement FedaPay (MTN MoMo, Moov Money, Carte bancaire). Le compte est activé/renouvelé automatiquement dès validation du paiement en ligne sans intervention requise du Super-Admin (décision H21). Période d'essai stricte de 14 jours, délai de grâce réservé aux renouvellements, et mode lecture seule pour les comptes suspendus.
 
 ### 1.8 Sécurité
-Détail complet en section 7.
+Détail complet en section 7 (incluant la sécurité cryptographique des webhooks FedaPay).
 
 ## 1 bis. Hors périmètre MVP — ne pas implémenter
 
@@ -51,4 +51,4 @@ Détail complet en section 7.
 | Stockage de fichiers (photos produit, logo) | Schéma extensible sans migration structurante (`photo_url`/`logo_url` nullable admis dès maintenant, sans logique d'upload) |
 | Table "Gérant multi-boutique" | Un gérant reste rattaché à une seule boutique à la fois, comme un vendeur |
 | **Remboursement d'une vente déjà payée (partiellement ou totalement)** | Ajouté à cette liste suite à l'audit (point A1) — seule l'annulation d'une vente **non payée** est au MVP (section 1.3) |
-| **Intégration effective d'une passerelle de paiement d'abonnement (Fedapay, Kkiapay)** | Ajouté à cette liste suite à la décision A2 — l'architecture (section 5) doit permettre cet ajout sans réécriture, mais aucune intégration réelle n'est attendue à cette itération |
+| Passerelle Kkiapay | Réservée pour une itération ultérieure — FedaPay est la passerelle retenue et intégrée au MVP (décision H21) |

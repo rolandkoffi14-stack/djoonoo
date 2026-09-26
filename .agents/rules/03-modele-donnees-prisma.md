@@ -127,28 +127,27 @@ model forfaits {
   max_boutiques              Int?     // NULL = illimité — décision B7, jamais -1 (voir note ci-dessous)
   max_employes_par_boutique  Int?     // NULL = illimité — idem
   prix_mensuel               Int      // FCFA, entier
+  duree_jours                Int      @default(30) // Durée du forfait en jours (ex: 30 pour 1 mois, 365 pour 1 an) — décision H24
   actif                      Boolean  @default(true)
 
   comptes                    comptes[]
 }
-// Note d'implémentation (décision B7) : NULL plutôt qu'une valeur sentinelle
-// numérique (-1) pour "illimité" — une comparaison numérique mal écrite sur
-// une sentinelle peut silencieusement laisser passer une limite censée
-// s'appliquer. NULL oblige un traitement explicite :
-// if (forfait.max_boutiques !== null && compteActuel >= forfait.max_boutiques) { refuser }
+// Note d'implémentation (décision B7 & H24) : NULL plutôt qu'une valeur sentinelle
+// numérique (-1) pour "illimité". duree_jours permet de configurer dynamiquement
+// la périodicité du forfait (30 jours, 90 jours, etc.) sans rien coder en dur.
 
 // Suivi de chaque cycle de facturation d'abonnement — distinct des factures
-// de vente (ventes.numero_facture). Nouveau modèle, résolution du point A2.
+// de vente (ventes.numero_facture). Modèle avec passerelle FedaPay intégrée.
 model factures_abonnement {
   id                    String                   @id @default(uuid())
   compte_id             String
   montant               Int                      // FCFA
   statut                StatutFactureAbonnement  @default(en_attente)
-  // String plutôt qu'enum Prisma : ajouter un fournisseur (fedapay, kkiapay)
-  // ne doit pas nécessiter de migration de type enum PostgreSQL.
-  fournisseur_paiement  String                   @default("manuel") // "manuel" au MVP ; "fedapay"/"kkiapay" une fois intégrés
-  reference_externe     String?                  // id de transaction chez le fournisseur, une fois une passerelle branchée
-  confirme_par_super_admin_id String?             // renseigné uniquement si fournisseur_paiement = "manuel"
+  // "fedapay" pour les paiements en ligne automatisés (MoMo/Moov/CB), ou "manuel" pour régularisation Super-Admin
+  fournisseur_paiement  String                   @default("fedapay")
+  reference_externe     String?                  // id de transaction FedaPay (ex: 123456)
+  cle_idempotence       String?                  @unique // token ou signature webhook pour garantir l'idempotence stricte
+  confirme_par_super_admin_id String?             // renseigné uniquement en cas de régularisation manuelle par Super-Admin
   date_echeance         DateTime
   date_confirmation     DateTime?
 

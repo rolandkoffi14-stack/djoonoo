@@ -41,5 +41,4 @@ Fourni séparément par le porteur du projet — ne pas en générer.
 
 ### Portée
 - Zone de lancement : **Bénin uniquement**. Langue : **français uniquement**.
-- Moyens de paiement **sur une vente** : Espèces, MTN Mobile Money, Moov Money — saisie manuelle du mode utilisé, aucune intégration API à ce niveau.
-- Moyens de paiement **de l'abonnement SaaS** : voir section 5 — architecture différente, avec intégration de passerelle prévue mais différée.
+- Moyens de paiement **de l'abonnement SaaS** : voir section 5 — intégration automatisée de la passerelle FedaPay (MTN Mobile Money, Moov Money, Cartes bancaires) avec activation instantanée sans validation manuelle obligatoire du Super-Admin (décision H21).

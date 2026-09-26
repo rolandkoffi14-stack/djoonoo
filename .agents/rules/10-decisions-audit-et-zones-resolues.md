@@ -1,4 +1,4 @@
-## 14. Récapitulatif des décisions prises lors de l'audit (traçabilité)
+## 14. Récapitulatif des décisions prises lors de l'audit & évolutions (traçabilité)
 
 | # | Sujet | Décision |
 |---|---|---|
@@ -19,12 +19,14 @@
 | F17 | Type monétaire | `Int` (FCFA) partout, plus de `Decimal` |
 | G18/19 | Boutique désactivée / compte suspendu | Comportements précisés (section 8 bis) |
 | H20 | Transfert Gérant | Confirmé identique au Vendeur |
+| **H21** | **Passerelle FedaPay intégrée** | **Intégration directe de FedaPay (MTN/Moov/CB) au MVP. Activation 100% autonome dès paiement, plus de blocage Super-Admin obligatoire (sections 1.7, 5, 6, 7)** |
+| **H22** | **Fin de la grâce sur l'essai** | **14 jours d'essai stricts. Le délai de grâce de 7 jours est réservé exclusivement aux renouvellements de forfaits payés (section 5.2)** |
+| **H23** | **Compte suspendu en lecture seule** | **Connexion permise pour tous, consultation intégrale des données historiques, blocage strict des opérations d'écriture et CTA de réactivation vers FedaPay (section 8 bis.2)** |
+| **H24** | **Durée de forfait configurable** | **Ajout de `forfaits.duree_jours` (30 jours par défaut) pour rendre la périodicité dynamique et non codée en dur (section 3)** |
 
 ---
 
-## 16. Zones d'ombre — toutes résolues à ce tour
-
-Les 7 points ci-dessous étaient encore ouverts après l'audit précédent. Chacun a désormais une décision tranchée et implémentée dans les sections indiquées — traçabilité complète, dans le même esprit que le tableau de la section 14.
+## 16. Zones d'ombre — toutes résolues
 
 | # | Sujet | Décision | Détail |
 |---|---|---|---|
@@ -35,5 +37,4 @@ Les 7 points ci-dessous étaient encore ouverts après l'audit précédent. Chac
 | 5 | Fournisseur d'email | Resend | Section 10 |
 | 6 | Durée d'essai / délai de grâce | 14 jours / 7 jours | Section 5.2 |
 | 7 | Configuration des paramètres plateforme | Table clé-valeur `parametres_plateforme` | Schéma section 3 |
-
-Plus aucune zone d'ombre non résolue à ce tour. Si une nouvelle ambiguïté apparaît en cours de construction (section 15), elle doit être signalée de la même façon plutôt que tranchée silencieusement.
+| 8 | Activation sans friction SaaS | Webhook FedaPay automatisé + signature HMAC SHA-256 + idempotence | Section 5.3, 7.2 |
