@@ -20,6 +20,13 @@ async function main() {
   await prisma.clients.deleteMany();
   await prisma.comptes.deleteMany();
 
+  // Nettoyage des forfaits temporaires de test
+  await prisma.forfaits.deleteMany({
+    where: {
+      nom: { notIn: ["Solo", "Réseau", "Empire"] },
+    },
+  });
+
   console.log("✨ Toutes les tables métier sont désormais 100% vides.");
 }
 

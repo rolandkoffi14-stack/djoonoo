@@ -1,110 +1,70 @@
-import { ShieldCheck, Lock, Smartphone, FileText, CheckCircle2 } from "lucide-react";
+import { Shield, Lock, Clock } from "lucide-react";
 
 export default function SecuritySection() {
   return (
-    <section id="securite" className="py-20 sm:py-28 bg-[#F3ECE2]/60 border-t border-[rgba(43,33,25,0.08)]">
+    <section className="py-16 sm:py-24 bg-[#FAF6F1] border-t border-[rgba(43,33,25,0.08)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Texte explicatif */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#C1652D]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#C1652D]" />
-              Sécurité non négociable
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#2B2119]">
-              Tes données de vente et de stock protégées à chaque instant
-            </h2>
-            <p className="text-base text-[#6B5C52] leading-relaxed">
-              Dans un environnement commercial où le Mobile Money est central, la sécurité ne doit
-              laisser aucune place au hasard. djoonoo intègre une protection robuste et éprouvée.
-            </p>
+        <div className="mx-auto max-w-3xl text-center mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(193,101,45,0.2)] bg-[#F5EDE3] px-3.5 py-1 text-xs font-semibold text-[#C1652D] mb-3">
+            <span>Sérénité & protection</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#2B2119]">
+            Tes chiffres de vente et ton argent restent strictement confidentiels
+          </h2>
+          <p className="mt-4 text-base sm:text-lg text-[#6B5C52]">
+            Nous savons combien la discrétion et la confiance sont essentielles dans le commerce.
+            Voici comment tes données sont protégées chaque jour.
+          </p>
+        </div>
 
-            <div className="space-y-4 pt-2">
-              <div className="flex items-start gap-3.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF6F1] border border-[rgba(43,33,25,0.1)] text-[#C1652D]">
-                  <Smartphone className="h-5 w-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#2B2119]">
-                    Authentification 2FA par TOTP obligatoire
-                  </h4>
-                  <p className="text-xs text-[#6B5C52] mt-0.5 leading-relaxed">
-                    Connexion sécurisée par Google Authenticator ou Authy pour le Patron et le Gérant.
-                    Protège efficacement contre les attaques par échange de carte SIM (SIM-swap).
-                  </p>
-                </div>
+        <div className="mx-auto max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Pilier 1 : Double vérification 2FA */}
+          <div className="rounded-2xl border border-[rgba(43,33,25,0.12)] bg-[#F5EDE3]/50 p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF6F1] border border-[rgba(43,33,25,0.1)] text-[#C1652D] mb-4">
+                <Shield className="h-5 w-5" />
               </div>
-
-              <div className="flex items-start gap-3.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF6F1] border border-[rgba(43,33,25,0.1)] text-[#C1652D]">
-                  <Lock className="h-5 w-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#2B2119]">
-                    Isolation étanche par compte (Multi-tenant)
-                  </h4>
-                  <p className="text-xs text-[#6B5C52] mt-0.5 leading-relaxed">
-                    Chaque compte Patron possède son cloisonnement strict via <code className="bg-[#FAF6F1] px-1 py-0.5 rounded text-[#2B2119]">compte_id</code>. Aucun autre commerçant ne peut accéder à tes chiffres.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF6F1] border border-[rgba(43,33,25,0.1)] text-[#C1652D]">
-                  <FileText className="h-5 w-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#2B2119]">
-                    Journal d'audit inaltérable
-                  </h4>
-                  <p className="text-xs text-[#6B5C52] mt-0.5 leading-relaxed">
-                    Chaque annulation de vente, changement de prix ou transfert de personnel est tracé
-                    avec horodatage pour une transparence totale.
-                  </p>
-                </div>
-              </div>
+              <h3 className="text-lg font-bold text-[#2B2119] mb-2">
+                Double vérification (2FA)
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6B5C52] leading-relaxed">
+                Le sigle 2FA désigne une double vérification : en plus de ton mot de passe, un code
+                temporaire généré sur ton téléphone est demandé pour confirmer que c'est bien toi,
+                bloquant tout accès non autorisé même si quelqu'un devine ton mot de passe.
+              </p>
             </div>
           </div>
 
-          {/* Carte visuelle de sécurité */}
-          <div className="lg:col-span-6">
-            <div className="rounded-2xl border border-[rgba(43,33,25,0.12)] bg-[#FFFFFF] p-8 shadow-[0_4px_16px_rgba(43,33,25,0.06)] space-y-6">
-              <div className="flex items-center justify-between pb-6 border-b border-[rgba(43,33,25,0.08)]">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EDF7EE] text-[#1E7E34]">
-                    <ShieldCheck className="h-7 w-7" />
-                  </div>
-                  <div>
-                    <h4 className="text-base font-bold text-[#2B2119]">Protection active</h4>
-                    <p className="text-xs text-[#6B5C52]">Normes de sécurité bancaire & RGPD / APDP</p>
-                  </div>
-                </div>
-                <span className="rounded-full bg-[#EDF7EE] px-3 py-1 text-xs font-bold text-[#1E7E34]">
-                  100% Vérifié
-                </span>
+          {/* Pilier 2 : Données privées et isolées */}
+          <div className="rounded-2xl border border-[rgba(43,33,25,0.12)] bg-[#F5EDE3]/50 p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF6F1] border border-[rgba(43,33,25,0.1)] text-[#C1652D] mb-4">
+                <Lock className="h-5 w-5" />
               </div>
+              <h3 className="text-lg font-bold text-[#2B2119] mb-2">
+                Espace entièrement privé
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6B5C52] leading-relaxed">
+                Chaque compte commerçant est hermétiquement séparé des autres. Aucun autre
+                boutiquier ni aucun concurrent ne peut apercevoir tes ventes, ton inventaire
+                ou le nom de tes clients.
+              </p>
+            </div>
+          </div>
 
-              <div className="space-y-3 text-xs">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#FAF6F1] border border-[rgba(43,33,25,0.06)]">
-                  <span className="text-[#6B5C52]">Sessions sécurisées :</span>
-                  <span className="font-bold text-[#2B2119]">Cookies HttpOnly & JWT signés</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#FAF6F1] border border-[rgba(43,33,25,0.06)]">
-                  <span className="text-[#6B5C52]">Mots de passe :</span>
-                  <span className="font-bold text-[#2B2119]">Hachage fort bcrypt/argon2</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#FAF6F1] border border-[rgba(43,33,25,0.06)]">
-                  <span className="text-[#6B5C52]">Rate limiting anti-brute-force :</span>
-                  <span className="font-bold text-[#2B2119]">Double couche (Caddy + Postgres)</span>
-                </div>
-                <div className="flex items-center justify-between p-3 rounded-lg bg-[#FAF6F1] border border-[rgba(43,33,25,0.06)]">
-                  <span className="text-[#6B5C52]">Sauvegardes quotidiennes :</span>
-                  <span className="font-bold text-[#2B2119]">Automatisées Supabase</span>
-                </div>
+          {/* Pilier 3 : Traçabilité complète */}
+          <div className="rounded-2xl border border-[rgba(43,33,25,0.12)] bg-[#F5EDE3]/50 p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#FAF6F1] border border-[rgba(43,33,25,0.1)] text-[#C1652D] mb-4">
+                <Clock className="h-5 w-5" />
               </div>
-
-              <p className="text-[11px] text-[#6B5C52] text-center pt-2">
-                Édité et maintenu par <strong>ETS. 2KR DIGITAL</strong> • Cocotomey, République du Bénin
+              <h3 className="text-lg font-bold text-[#2B2119] mb-2">
+                Rien ne s'efface en cachette
+              </h3>
+              <p className="text-xs sm:text-sm text-[#6B5C52] leading-relaxed">
+                Chaque annulation de facture, chaque mouvement de stock ou modification importante
+                est enregistrée avec le nom de la personne et l'heure précise. Tu gardes un contrôle
+                complet sur ce qui se passe dans tes boutiques.
               </p>
             </div>
           </div>

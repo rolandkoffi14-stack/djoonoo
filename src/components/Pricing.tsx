@@ -1,88 +1,90 @@
 import Link from "next/link";
-import { Check, ArrowRight, HelpCircle } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
-interface ForfaitPlan {
+interface Forfait {
   id: string;
   nom: string;
+  prix: number;
   badge?: string;
-  prixMensuel: number;
   description: string;
-  maxBoutiques: string;
-  maxEmployes: string;
+  boutiques: string;
+  employes: string;
   avantages: string[];
 }
 
-const FORFAITS: ForfaitPlan[] = [
+const FORFAITS: Forfait[] = [
   {
     id: "solo",
     nom: "Solo",
-    prixMensuel: 5000,
-    description: "Pour le commerçant indépendant qui pilote une boutique unique.",
-    maxBoutiques: "1 boutique",
-    maxEmployes: "Jusqu'à 3 employés",
+    prix: 5000,
+    description: "Idéal pour le commerçant indépendant gérant une boutique unique.",
+    boutiques: "1 boutique",
+    employes: "1 employé inclus",
     avantages: [
-      "1 boutique incluse",
+      "1 boutique unique",
+      "1 compte employé (gérant ou vendeur)",
       "Gestion complète du stock et alertes",
-      "Émission de factures numérotées FAC",
+      "Émission de factures numérotées",
       "Suivi des impayés et créances clients",
       "Rapports de ventes quotidiens",
-      "Sécurité 2FA pour le Patron",
     ],
   },
   {
     id: "reseau",
     nom: "Réseau",
-    badge: "Idéal commerces en expansion",
-    prixMensuel: 15000,
-    description: "Pour les commerçants disposant de plusieurs points de vente à gérer.",
-    maxBoutiques: "Jusqu'à 5 boutiques",
-    maxEmployes: "Employés illimités",
+    prix: 15000,
+    badge: "Le plus choisi",
+    description: "Pour les commerces en développement avec plusieurs points de vente.",
+    boutiques: "Jusqu'à 3 boutiques",
+    employes: "Jusqu'à 5 employés par boutique",
     avantages: [
-      "Jusqu'à 5 boutiques distinctes",
-      "Rapports financiers consolidés ou par boutique",
-      "Transferts d'employés tracés sans perte d'historique",
-      "Base clients unifiée à l'ensemble du compte",
-      "Rôles Patron, Gérants et Vendeurs dédiés",
-      "Sécurité 2FA pour Patron et Gérants",
+      "Jusqu'à 3 boutiques distinctes",
+      "Jusqu'à 5 employés par boutique",
+      "Base de clients unifiée entre boutiques",
+      "Transferts d'employés avec historique intact",
+      "Rapports consolidés ou boutique par boutique",
+      "Sécurité à double vérification incluse",
     ],
   },
   {
     id: "empire",
     nom: "Empire",
-    prixMensuel: 35000,
-    description: "Pour les grossistes, demi-grossistes et réseaux commerciaux d'envergure.",
-    maxBoutiques: "Boutiques illimitées",
-    maxEmployes: "Employés illimités",
+    prix: 35000,
+    description: "Pour les grossistes, demi-grossistes et grands réseaux commerciaux.",
+    boutiques: "Boutiques illimitées",
+    employes: "Employés illimités",
     avantages: [
-      "Boutiques illimitées",
+      "Nombre de boutiques illimité",
+      "Nombre d'employés illimité",
       "Volume de ventes et produits sans restriction",
-      "Journal d'audit complet de toutes les actions",
-      "Rapprochement téléphonique instantané",
-      "Accompagnement et support direct 2KR DIGITAL",
-      "Accès prioritaire aux nouvelles fonctionnalités",
+      "Historique et traçabilité de toutes les actions",
+      "Rapprochement immédiat des clients par téléphone",
+      "Assistance prioritaire 2KR DIGITAL",
     ],
   },
 ];
 
 export default function Pricing() {
   return (
-    <section id="forfaits" className="py-20 sm:py-28 bg-[#FAF6F1]">
+    <section id="tarifs" className="py-20 sm:py-28 bg-[#FAF6F1] border-t border-[rgba(43,33,25,0.08)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center mb-16">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#C1652D] mb-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#C1652D]" />
-            Tarifs clairs & en Francs CFA
+          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(193,101,45,0.2)] bg-[#F5EDE3] px-3.5 py-1 text-xs font-semibold text-[#C1652D] mb-3">
+            <span>Tarifs en Francs CFA</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#2B2119]">
-            Choisis le forfait adapté à la taille de ton commerce
+            Choisis la formule adaptée à ton commerce
           </h2>
           <p className="mt-4 text-base sm:text-lg text-[#6B5C52]">
-            Commence par <strong>14 jours d'essai gratuit</strong>. Aucun engagement préalable.
-            Règlement facile par MTN Mobile Money ou Moov Money.
+            Commence par <strong>14 jours d'essai gratuit</strong>, sans engagement.
+            Règle ensuite facilement chaque mois par MTN Mobile Money ou Moov Money.
+          </p>
+          <p className="mt-2 text-xs text-[#6B5C52]/80 italic">
+            (Montants indicatifs en Francs CFA — à confirmer avec le porteur de projet avant mise en ligne)
           </p>
         </div>
 
-        {/* Grille des forfaits */}
+        {/* 3 cartes de tarifs */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {FORFAITS.map((forfait) => {
             const isFeatured = Boolean(forfait.badge);
@@ -90,50 +92,51 @@ export default function Pricing() {
             return (
               <div
                 key={forfait.id}
-                className={`relative flex flex-col justify-between rounded-2xl border p-8 transition-all ${
+                className={`relative flex flex-col justify-between rounded-2xl p-7 sm:p-8 transition-all ${
                   isFeatured
-                    ? "border-[#C1652D] bg-[#FFFFFF] shadow-[0_4px_24px_rgba(193,101,45,0.12)]"
-                    : "border-[rgba(43,33,25,0.12)] bg-[#FFFFFF] hover:border-[rgba(43,33,25,0.25)]"
+                    ? "border-2 border-[#C1652D] bg-[#F5EDE3]/70 shadow-[0_4px_20px_rgba(193,101,45,0.12)]"
+                    : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1] hover:border-[rgba(43,33,25,0.22)]"
                 }`}
               >
                 <div>
                   {forfait.badge && (
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-[#F5EAE3] px-3 py-1 text-xs font-bold text-[#C1652D] mb-4">
-                      {forfait.badge}
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                      <span className="rounded-full bg-[#C1652D] px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FAF6F1] shadow-sm">
+                        {forfait.badge}
+                      </span>
                     </div>
                   )}
 
-                  <h3 className="text-2xl font-bold text-[#2B2119]">{forfait.nom}</h3>
-                  <p className="mt-2 text-xs text-[#6B5C52] leading-relaxed min-h-[36px]">
+                  <div className="flex items-center justify-between gap-4 mb-3">
+                    <h3 className="text-xl font-bold text-[#2B2119]">{forfait.nom}</h3>
+                    <div className="text-right">
+                      <span className="text-2xl sm:text-3xl font-bold text-[#2B2119]">
+                        {forfait.prix.toLocaleString("fr-FR")}
+                      </span>
+                      <span className="text-xs font-semibold text-[#6B5C52] ml-1">FCFA/mois</span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-[#6B5C52] leading-relaxed mb-6">
                     {forfait.description}
                   </p>
 
-                  {/* Prix */}
-                  <div className="mt-6 flex items-baseline gap-1.5 pb-6 border-b border-[rgba(43,33,25,0.08)]">
-                    <span className="text-4xl font-bold tracking-tight text-[#2B2119]">
-                      {forfait.prixMensuel.toLocaleString("fr-FR")}
-                    </span>
-                    <span className="text-sm font-semibold text-[#6B5C52]">FCFA / mois</span>
-                  </div>
-
-                  {/* Limites clés */}
-                  <div className="my-6 space-y-2 text-xs font-semibold text-[#2B2119]">
-                    <div className="flex items-center justify-between py-1 border-b border-[rgba(43,33,25,0.05)]">
+                  <div className="rounded-xl border border-[rgba(43,33,25,0.08)] bg-[#FAF6F1] p-3 text-xs mb-6 space-y-1">
+                    <div className="flex justify-between font-semibold text-[#2B2119]">
                       <span className="text-[#6B5C52]">Boutiques :</span>
-                      <span>{forfait.maxBoutiques}</span>
+                      <span>{forfait.boutiques}</span>
                     </div>
-                    <div className="flex items-center justify-between py-1 border-b border-[rgba(43,33,25,0.05)]">
-                      <span className="text-[#6B5C52]">Employés :</span>
-                      <span>{forfait.maxEmployes}</span>
+                    <div className="flex justify-between font-semibold text-[#2B2119]">
+                      <span className="text-[#6B5C52]">Équipe :</span>
+                      <span>{forfait.employes}</span>
                     </div>
                   </div>
 
-                  {/* Avantages */}
-                  <ul className="space-y-3 text-xs text-[#2B2119] mb-8">
-                    {forfait.avantages.map((av, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5">
-                        <Check className="h-4 w-4 text-[#1E7E34] shrink-0 mt-0.5" />
-                        <span>{av}</span>
+                  <ul className="space-y-3 text-xs sm:text-sm text-[#2B2119] mb-8">
+                    {forfait.avantages.map((avantage, i) => (
+                      <li key={i} className="flex items-start gap-2.5">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#C1652D] shrink-0" />
+                        <span className="leading-snug">{avantage}</span>
                       </li>
                     ))}
                   </ul>
@@ -141,13 +144,13 @@ export default function Pricing() {
 
                 <Link
                   href="/inscription"
-                  className={`flex items-center justify-center gap-2 rounded-lg py-3.5 px-4 text-sm font-semibold transition-all min-h-[44px] ${
+                  className={`w-full inline-flex items-center justify-center gap-2 rounded-xl py-3.5 px-6 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C1652D] ${
                     isFeatured
-                      ? "bg-[#C1652D] text-[#FAF6F1] shadow-[0_2px_4px_rgba(193,101,45,0.2)] hover:bg-[#A85422]"
-                      : "border border-[rgba(43,33,25,0.2)] text-[#2B2119] hover:bg-[#F3ECE2]"
+                      ? "bg-[#C1652D] text-[#FAF6F1] shadow-[0_2px_8px_rgba(193,101,45,0.25)] hover:bg-[#A85422] active:scale-[0.98]"
+                      : "border border-[rgba(43,33,25,0.22)] bg-transparent text-[#2B2119] hover:bg-[rgba(43,33,25,0.05)]"
                   }`}
                 >
-                  <span>Tester 14 jours gratuitement</span>
+                  <span>Essai gratuit 14 jours</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -155,21 +158,14 @@ export default function Pricing() {
           })}
         </div>
 
-        {/* Note sur le délai de grâce et la flexibilité */}
-        <div className="mt-12 rounded-xl border border-[rgba(43,33,25,0.08)] bg-[#FFFFFF] p-6 max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-4 text-xs text-[#6B5C52]">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#F5EAE3] text-[#C1652D]">
-            <HelpCircle className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-semibold text-[#2B2119]">
-              Délai de grâce de 7 jours après échéance
-            </p>
-            <p className="mt-0.5 leading-relaxed">
-              En cas de retard de paiement, ton compte ne se coupe pas brutalement. Tu disposes de 7
-              jours pour effectuer ton versement Mobile Money et laisser le temps de confirmation
-              sans bloquer tes ventes du jour.
-            </p>
-          </div>
+        {/* Note de réassurance sous les cartes */}
+        <div className="mt-12 rounded-xl border border-[rgba(43,33,25,0.1)] bg-[#F5EDE3]/50 p-5 text-center max-w-2xl mx-auto">
+          <p className="text-xs sm:text-sm text-[#6B5C52] leading-relaxed">
+            <strong className="text-[#2B2119]">Tranquillité garantie :</strong> En cas de retard de
+            paiement, ton compte n'est jamais coupé brutalement. Un délai de grâce de{" "}
+            <strong className="text-[#2B2119]">7 jours</strong> t'est toujours accordé pour
+            régulariser sereinement ton abonnement.
+          </p>
         </div>
       </div>
     </section>

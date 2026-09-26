@@ -4,6 +4,7 @@ import InteractiveDemo from "@/components/InteractiveDemo";
 import Features from "@/components/Features";
 import Pricing from "@/components/Pricing";
 import SecuritySection from "@/components/SecuritySection";
+import CtaFinal from "@/components/CtaFinal";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
         <Features />
         <Pricing />
         <SecuritySection />
+        <CtaFinal />
       </main>
       <Footer />
     </div>
