@@ -1061,22 +1061,22 @@ Valider l'ensemble du cycle de vie via des tests automatisés de bout en bout :
 
 ### Micro-étapes TDD :
 
-- [ ] **9.1 Écrire le test d'intégration du cycle complet**
+- [x] **9.1 Écrire le test d'intégration du cycle complet**
   Créer `tests/e2e-subscription-flow.test.ts` simulant l'ensemble de la machine à états et des requêtes.
 
-- [ ] **9.2 Exécuter l'intégralité de la suite de tests**
+- [x] **9.2 Exécuter l'intégralité de la suite de tests**
   ```powershell
   npx vitest run
   ```
   Vérifier que 100% des tests passent au vert.
 
-- [ ] **9.3 Vérification de la compilation TypeScript et Next.js**
+- [x] **9.3 Vérification de la compilation TypeScript et Next.js**
   ```powershell
   npm run build
   ```
   S'assurer qu'aucune erreur de type ou de lint n'apparaît.
 
-- [ ] **9.4 Commit Git final**
+- [x] **9.4 Commit Git final**
   ```powershell
   git add .
   git commit -m "feat(release): cycle de vie saas moderne 100% automatisé avec fedapay et lecture seule"

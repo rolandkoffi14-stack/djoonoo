@@ -207,8 +207,14 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
   for (const compte of comptesImpayes) {
     const facturePlusAncienne = compte.factures_abonnement[0];
 
-    // Si la facture en attente a dépassé sa date d'échéance (incluant la grâce)
-    if (facturePlusAncienne && facturePlusAncienne.date_echeance < maintenant) {
+    // Vérifier si le délai de grâce est dépassé soit par la facture en attente, soit par la fin de période + 7 jours
+    const graceDepasseeParFacture = facturePlusAncienne ? facturePlusAncienne.date_echeance < maintenant : false;
+    const dateFinPlusGrace = compte.date_fin_periode_courante
+      ? new Date(compte.date_fin_periode_courante.getTime() + delaiGraceJours * 24 * 60 * 60 * 1000)
+      : null;
+    const graceDepasseeParDateFin = dateFinPlusGrace ? dateFinPlusGrace < maintenant : false;
+
+    if (graceDepasseeParFacture || graceDepasseeParDateFin) {
       await prisma.comptes.update({
         where: { id: compte.id },
         data: {

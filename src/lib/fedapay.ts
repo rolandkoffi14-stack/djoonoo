@@ -206,17 +206,27 @@ export async function traiterWebhookFedaPay(payload: any) {
         { cle_idempotence: `fedapay_${transactionId}` },
       ],
     },
-    include: { compte: { include: { forfait: true } } },
+    include: {
+      compte: {
+        include: {
+          forfait: true,
+          utilisateurs: {
+            where: { role: "patron" },
+            take: 1,
+          },
+        },
+      },
+    },
   });
 
   if (!facture) {
     console.error("[FedaPay Webhook] Aucune facture trouvée pour la transaction :", transactionId);
-    return { succes: false, message: "Facture introuvable." };
+    return { success: false, succes: false, message: "Facture introuvable." };
   }
 
   if (facture.statut === StatutFactureAbonnement.payee) {
     // Déjà traité, réponse idempotente 200
-    return { succes: true, message: "Transaction déjà validée." };
+    return { success: true, succes: true, message: "Transaction déjà validée." };
   }
 
   const targetForfaitId = forfaitId || facture.compte.forfait_id;
@@ -253,25 +263,28 @@ export async function traiterWebhookFedaPay(payload: any) {
       },
     });
 
-    // 3. Journaliser l'encaissement automatique
-    await tx.journal_audit.create({
-      data: {
-        compte_id: facture.compte_id,
-        utilisateur_id: facture.compte_id, // Identifiant système
-        action: "paiement_abonnement_fedapay",
-        entite_concernee: "abonnements",
-        entite_id: facture.id,
-        details: {
-          montant: facture.montant,
-          transaction_id: transactionId,
-          forfait_nom: forfait?.nom,
-          duree_jours: dureeJours,
-          nouvelle_echeance: dateFin.toISOString(),
+    // 3. Journaliser l'encaissement automatique si un utilisateur (Patron) existe
+    const utilisateurId = facture.compte.utilisateurs[0]?.id;
+    if (utilisateurId) {
+      await tx.journal_audit.create({
+        data: {
+          compte_id: facture.compte_id,
+          utilisateur_id: utilisateurId,
+          action: "paiement_abonnement_fedapay",
+          entite_concernee: "abonnements",
+          entite_id: facture.id,
+          details: {
+            montant: facture.montant,
+            transaction_id: transactionId,
+            forfait_nom: forfait?.nom,
+            duree_jours: dureeJours,
+            nouvelle_echeance: dateFin.toISOString(),
+          },
         },
-      },
-    });
+      });
+    }
   });
 
   console.log(`✅ [FedaPay] Compte ${facture.compte_id} activé/renouvelé avec succès jusqu'au ${dateFin.toLocaleDateString()}`);
-  return { succes: true, message: "Abonnement activé avec succès.", compteId: facture.compte_id };
+  return { success: true, succes: true, message: "Abonnement activé avec succès.", compteId: facture.compte_id };
 }
