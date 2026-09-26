@@ -115,11 +115,23 @@ export default function ComptesManager({
           className: "bg-rose-50 text-rose-700 border-rose-300 font-bold",
           icon: XCircle,
         };
+      case "expire":
+        return {
+          label: "Expiré (Lecture seule)",
+          className: "bg-orange-50 text-orange-700 border-orange-200",
+          icon: Clock,
+        };
       case "resilie":
         return {
           label: "Résilié",
           className: "bg-slate-100 text-slate-700 border-slate-300",
           icon: XCircle,
+        };
+      default:
+        return {
+          label: statut,
+          className: "bg-slate-100 text-slate-700 border-slate-300",
+          icon: Clock,
         };
     }
   };

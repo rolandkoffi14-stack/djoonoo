@@ -36,7 +36,7 @@ export default function BannerAbonnement({
           </div>
           {isPatron ? (
             <Link
-              href="/dashboard/abonnements"
+              href="/dashboard/abonnement"
               className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#C1652D] font-medium text-xs sm:text-sm rounded-lg hover:bg-[#FAF6F1] transition shadow-sm shrink-0"
             >
               <span>Choisir un forfait & réactiver</span>
@@ -73,7 +73,7 @@ export default function BannerAbonnement({
           </div>
           {isPatron && (
             <Link
-              href="/dashboard/abonnements"
+              href="/dashboard/abonnement"
               className="inline-flex items-center gap-2 px-4 py-2 bg-white text-[#D97706] font-medium text-xs sm:text-sm rounded-lg hover:bg-amber-50 transition shadow-sm shrink-0"
             >
               <span>Régulariser par MoMo/Carte</span>

@@ -913,7 +913,7 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
 
 ### Micro-étapes TDD :
 
-- [ ] **6.1 Créer l'action serveur `src/app/actions/subscription.ts`**
+- [x] **6.1 Créer l'action serveur `src/app/actions/subscription.ts`**
   ```typescript
   "use server";
 
@@ -963,22 +963,22 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
   }
   ```
 
-- [ ] **6.2 Créer la vue `/dashboard/abonnement/page.tsx`**
+- [x] **6.2 Créer la vue `/dashboard/abonnement/page.tsx`**
   - Affichage de la situation actuelle : badge de statut (`essai`, `actif`, `impaye`, `suspendu`), date d'échéance formatée.
   - Grille responsive des 3 forfaits (Solo, Réseau, Empire) avec leurs limites (boutiques, employés), prix en FCFA/mois.
   - Bouton interactif avec indicateur de chargement appelant `initierPaiementAbonnementAction` et redirigeant vers l'URL FedaPay (`window.location.href = urlPaiement`).
   - Bloc de réassurance : logos Mobile Money (MTN MoMo, Moov Money) et Cartes bancaires sécurisées par FedaPay.
 
-- [ ] **6.3 Intégrer le lien "Mon Abonnement" dans la navigation du dashboard**
+- [x] **6.3 Intégrer le lien "Mon Abonnement" dans la navigation du dashboard**
   Ajouter l'onglet dans la sidebar ou navbar du dashboard pour un accès direct au suivi d'abonnement.
 
-- [ ] **6.4 Tester via requête HTTP locale**
+- [x] **6.4 Tester via requête HTTP locale**
   Vérifier que la route répond correctement en statut 200 :
   ```powershell
   curl -I http://localhost:3000/dashboard/abonnement
   ```
 
-- [ ] **6.5 Commit Git atomique**
+- [x] **6.5 Commit Git atomique**
   ```powershell
   git add src/app/actions/subscription.ts src/app/dashboard/abonnement/page.tsx src/components/Sidebar.tsx
   git commit -m "feat(subscription): page de choix de forfait et initiation de paiement en ligne FedaPay"
