@@ -104,17 +104,40 @@ export async function inscrirePatronAction(
       };
     }
 
-    // Récupération ou fallback du forfait Solo
-    let forfait = await prisma.forfaits.findFirst({
-      where: { nom: "Solo", actif: true },
-    });
+    // Récupération dynamique du forfait choisi (Tâche 7) ou fallback sur Solo
+    const forfaitIdOuNom = (formData.get("forfait_id") as string)?.trim() || (formData.get("forfait_nom") as string)?.trim();
+    let forfait = null;
+    if (forfaitIdOuNom) {
+      forfait = await prisma.forfaits.findFirst({
+        where: {
+          OR: [
+            { id: forfaitIdOuNom },
+            { nom: { equals: forfaitIdOuNom, mode: "insensitive" } },
+          ],
+          actif: true,
+        },
+      });
+    }
 
     if (!forfait) {
-      // Fallback si seed non encore exécuté
+      forfait = await prisma.forfaits.findFirst({
+        where: { nom: "Solo", actif: true },
+      });
+    }
+
+    if (!forfait) {
+      forfait = await prisma.forfaits.findFirst({
+        where: { actif: true },
+      });
+    }
+
+    if (!forfait) {
+      // Fallback ultime si base vide
       forfait = await prisma.forfaits.create({
         data: {
           nom: "Solo",
           prix_mensuel: 5000,
+          duree_jours: 30,
           max_boutiques: 1,
           max_employes_par_boutique: 1,
           actif: true,

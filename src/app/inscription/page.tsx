@@ -34,6 +34,7 @@ export default function InscriptionPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [copiedSecret, setCopiedSecret] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedForfait, setSelectedForfait] = useState("Réseau");
 
   // Données de l'étape 2 (2FA)
   const [deuxFaData, setDeuxFaData] = useState<{
@@ -328,6 +329,74 @@ export default function InscriptionPage() {
                       className="w-full px-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                     />
                   </div>
+                </div>
+
+                {/* Choix du forfait pour l'essai gratuit de 14 jours (Tâche 7) */}
+                <div className="pt-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-[#6D5D52]">
+                      Forfait souhaité après essai *
+                    </label>
+                    <span className="text-[11px] font-semibold text-[#C1652D] bg-[#C1652D]/10 px-2.5 py-0.5 rounded-full">
+                      14 jours d&apos;essai gratuit inclus
+                    </span>
+                  </div>
+                  <input type="hidden" name="forfait_nom" value={selectedForfait} />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {[
+                      {
+                        nom: "Solo",
+                        prix: "5 000",
+                        boutiques: "1 boutique",
+                        employes: "1 employé",
+                      },
+                      {
+                        nom: "Réseau",
+                        prix: "15 000",
+                        boutiques: "3 boutiques",
+                        employes: "5 employés/btq",
+                        recommande: true,
+                      },
+                      {
+                        nom: "Empire",
+                        prix: "35 000",
+                        boutiques: "Illimitées",
+                        employes: "Illimités",
+                      },
+                    ].map((f) => {
+                      const isSelected = selectedForfait === f.nom;
+                      return (
+                        <button
+                          key={f.nom}
+                          type="button"
+                          onClick={() => setSelectedForfait(f.nom)}
+                          className={`relative text-left p-3 rounded-xl border-2 transition-all ${
+                            isSelected
+                              ? "border-[#C1652D] bg-[#C1652D]/5 ring-2 ring-[#C1652D]/20 shadow-sm"
+                              : "border-[#E5DACF] hover:border-neutral-300 bg-white"
+                          }`}
+                        >
+                          {f.recommande && (
+                            <span className="absolute -top-2 right-2 text-[10px] font-bold uppercase bg-[#C1652D] text-white px-1.5 py-0.2 rounded-full">
+                              Recommandé
+                            </span>
+                          )}
+                          <div className="font-bold text-sm text-[#2B2119]">{f.nom}</div>
+                          <div className="text-xs font-semibold text-[#C1652D] mt-0.5">
+                            {f.prix} F<span className="text-[10px] text-[#6D5D52]">/mois</span>
+                          </div>
+                          <div className="text-[11px] text-[#6D5D52] mt-1.5 leading-tight">
+                            <div>{f.boutiques}</div>
+                            <div>{f.employes}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[11px] text-[#8C7A6B] mt-1.5 italic">
+                    Aucun paiement n&apos;est requis aujourd&apos;hui. Tu testeras l&apos;intégralité des fonctionnalités gratuitement pendant 14 jours.
+                  </p>
                 </div>
 
                 <div className="pt-4">

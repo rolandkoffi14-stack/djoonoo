@@ -997,20 +997,20 @@ Permettre au futur commerçant de sélectionner dès le formulaire d'inscription
 
 ### Micro-étapes TDD :
 
-- [ ] **7.1 Adapter l'action `inscrirePatronAction` dans `src/app/actions/auth.ts`**
+- [x] **7.1 Adapter l'action `inscrirePatronAction` dans `src/app/actions/auth.ts`**
   - Récupérer `forfaitId` depuis `formData.get("forfait_id")`.
   - Si fourni, valider son existence dans `prisma.forfaits`.
   - Si absent, fallback gracieux sur le premier forfait actif (Solo).
   - Assigner ce forfait au compte créé.
 
-- [ ] **7.2 Ajouter le sélecteur de forfait dans `src/app/inscription/page.tsx`**
+- [x] **7.2 Ajouter le sélecteur de forfait dans `src/app/inscription/page.tsx`**
   - Ajouter une étape ou un bloc épuré de sélection de forfait avec les 3 options (Solo 5 000 F / Réseau 15 000 F / Empire 35 000 F).
   - Badge "14 jours d'essai gratuit inclus sur le forfait de ton choix".
 
-- [ ] **7.3 Vérifier la validation du formulaire**
+- [x] **7.3 Vérifier la validation du formulaire**
   S'assurer que la validation Zod côté serveur accepte le champ optionnel/obligatoire `forfait_id`.
 
-- [ ] **7.4 Commit Git atomique**
+- [x] **7.4 Commit Git atomique**
   ```powershell
   git add src/app/inscription/page.tsx src/app/actions/auth.ts
   git commit -m "feat(onboarding): sélection du forfait souhaité dès l'inscription du Patron"
