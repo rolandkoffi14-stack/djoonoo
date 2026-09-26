@@ -790,7 +790,7 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
 
 ### Micro-étapes TDD :
 
-- [ ] **5.1 Écrire le test unitaire du garde de mutation lecture seule**
+- [x] **5.1 Écrire le test unitaire du garde de mutation lecture seule**
   Créer `tests/read-only-guard.test.ts` :
   ```typescript
   import { describe, it, expect } from "vitest";
@@ -828,12 +828,12 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
   });
   ```
 
-- [ ] **5.2 Exécuter le test et vérifier son échec**
+- [x] **5.2 Exécuter le test et vérifier son échec**
   ```powershell
   npx vitest run tests/read-only-guard.test.ts
   ```
 
-- [ ] **5.3 Créer `src/lib/subscription-guard.ts`**
+- [x] **5.3 Créer `src/lib/subscription-guard.ts`**
   ```typescript
   export function verifierStatutAbonnementPourEcriture(statut: string | undefined): {
     autorise: boolean;
@@ -862,7 +862,7 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
   }
   ```
 
-- [ ] **5.4 Adapter `src/app/actions/auth.ts`**
+- [x] **5.4 Adapter `src/app/actions/auth.ts`**
   - Conserver le blocage strict à la connexion pour `suspendu` :
     ```typescript
     if (user.compte.statut_abonnement === "suspendu") {
@@ -874,29 +874,28 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
     ```
   - Pour `expire`, la connexion n'est pas bloquée : l'utilisateur accède au dashboard en lecture seule.
 
-- [ ] **5.5 Protéger les Server Actions de mutation**
+- [x] **5.5 Protéger les Server Actions de mutation**
   Intégrer l'appel `verifierStatutAbonnementPourEcriture(session.statutAbonnement)` au début de :
-  - `creerVenteAction` (`src/app/actions/sales.ts`)
-  - `enregistrerPaiementVenteAction` (`src/app/actions/sales.ts`)
-  - `creerProduitAction` (`src/app/actions/products.ts`)
-  - `modifierPrixAction` (`src/app/actions/products.ts`)
-  - `creerBoutiqueAction` (`src/app/actions/shops.ts`)
+  - `creerVenteAction` (`src/app/actions/ventes.ts`)
+  - `enregistrerReglementImpayeAction` (`src/app/actions/impayes.ts`)
+  - `creerProduitAction` / `modifierProduitAction` (`src/app/actions/produits.ts`)
+  - `creerBoutiqueAction` / `changerStatutBoutiqueAction` (`src/app/actions/boutiques.ts`)
 
-- [ ] **5.6 Créer la bannière UI `src/components/BannerAbonnement.tsx`**
+- [x] **5.6 Créer la bannière UI `src/components/BannerAbonnement.tsx`**
   Composant affichant l'état selon `statut_abonnement` :
   - Si `expire` : Bannière `#C1652D` chaude invitant à régulariser en 1 clic avec bouton "Choisir un forfait & réactiver".
   - Si `impaye` : Bannière d'avertissement de délai de grâce avec décompte des jours restants.
   - Intégrer la bannière en haut du layout `src/app/dashboard/layout.tsx`.
 
-- [ ] **5.7 Exécuter les tests et vérifier le passage au vert**
+- [x] **5.7 Exécuter les tests et vérifier le passage au vert**
   ```powershell
   npx vitest run tests/read-only-guard.test.ts
   ```
 
-- [ ] **5.8 Commit Git atomique**
+- [x] **5.8 Commit Git atomique**
   ```powershell
-  git add src/lib/subscription-guard.ts src/app/actions/auth.ts src/app/actions/sales.ts src/app/actions/products.ts src/app/actions/shops.ts src/components/BannerAbonnement.tsx src/app/dashboard/layout.tsx tests/read-only-guard.test.ts
-  git commit -m "feat(security): mode lecture seule pour les comptes suspendus et déblocage de connexion"
+  git add src/lib/subscription-guard.ts src/app/actions/auth.ts src/app/actions/ventes.ts src/app/actions/impayes.ts src/app/actions/produits.ts src/app/actions/boutiques.ts src/components/BannerAbonnement.tsx src/app/dashboard/layout.tsx tests/read-only-guard.test.ts
+  git commit -m "feat(security): mode lecture seule pour les comptes expires et sanctuarisation de suspendu"
   ```
 
 ---

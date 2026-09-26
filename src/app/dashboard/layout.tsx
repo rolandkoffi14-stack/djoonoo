@@ -5,6 +5,7 @@ import { getCurrentSession } from "@/lib/auth";
 import { prisma, getScopedPrisma } from "@/lib/prisma";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
+import BannerAbonnement from "@/components/BannerAbonnement";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,11 @@ export default async function DashboardLayout({
       nom_entreprise: true,
       statut_abonnement: true,
       date_fin_essai: true,
+      factures_abonnement: {
+        where: { statut: "en_attente" },
+        orderBy: { date_echeance: "asc" },
+        take: 1,
+      },
     },
   });
 
@@ -56,6 +62,13 @@ export default async function DashboardLayout({
     joursEssaiRestants = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
   }
 
+  // Calcul des jours de grâce restants en cas d'impayé
+  let joursGraceRestants = 0;
+  if (compte?.statut_abonnement === "impaye" && compte.factures_abonnement[0]?.date_echeance) {
+    const diff = new Date(compte.factures_abonnement[0].date_echeance).getTime() - Date.now();
+    joursGraceRestants = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  }
+
   return (
     <div className="min-h-screen bg-[#FAF6F1] flex">
       {/* Sidebar latérale adaptative */}
@@ -74,6 +87,12 @@ export default async function DashboardLayout({
           boutiqueActiveId={activeBoutique?.id}
           statutAbonnement={compte?.statut_abonnement || "essai"}
           joursEssaiRestants={joursEssaiRestants}
+        />
+
+        <BannerAbonnement
+          statutAbonnement={compte?.statut_abonnement || "essai"}
+          joursGraceRestants={joursGraceRestants}
+          userRole={session.role}
         />
 
         <main className="flex-1 p-6 md:p-8 overflow-y-auto">

@@ -3,6 +3,7 @@
 import { getCurrentSession } from "@/lib/auth";
 import { prisma, getScopedPrisma } from "@/lib/prisma";
 import { enregistrerAudit } from "@/lib/business-rules";
+import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
 
 export interface ProduitActionResult {
@@ -29,6 +30,11 @@ export async function creerProduitAction(
   const session = await getCurrentSession();
   if (!session) {
     return { success: false, error: "Session expirée. Veuillez vous reconnecter." };
+  }
+
+  const guard = verifierStatutAbonnementPourEcriture(session.statutAbonnement);
+  if (!guard.autorise) {
+    return { success: false, error: guard.erreur };
   }
 
   // Seuls le Patron et le Gérant ont le droit d'ajouter des produits (Section 2)
@@ -148,6 +154,11 @@ export async function modifierProduitAction(
     return { success: false, error: "Action non autorisée." };
   }
 
+  const guard = verifierStatutAbonnementPourEcriture(session.statutAbonnement);
+  if (!guard.autorise) {
+    return { success: false, error: guard.erreur };
+  }
+
   const produitId = (formData.get("produit_id") as string)?.trim();
   const nom = (formData.get("nom") as string)?.trim();
   const prixUnitaireRaw = formData.get("prix_unitaire") as string;
@@ -231,6 +242,11 @@ export async function reapprovisionnerStockAction(
     return { success: false, error: "Action non autorisée. Seuls le Patron et le Gérant peuvent réapprovisionner le stock." };
   }
 
+  const guard = verifierStatutAbonnementPourEcriture(session.statutAbonnement);
+  if (!guard.autorise) {
+    return { success: false, error: guard.erreur };
+  }
+
   const produitId = (formData.get("produit_id") as string)?.trim();
   const quantiteAjouteeRaw = formData.get("quantite_ajoutee") as string;
   const motif = (formData.get("motif") as string)?.trim() || "Livraison fournisseur";
@@ -305,6 +321,11 @@ export async function supprimerProduitAction(
   const session = await getCurrentSession();
   if (!session || (session.role !== "patron" && session.role !== "gerant")) {
     return { success: false, error: "Action non autorisée." };
+  }
+
+  const guard = verifierStatutAbonnementPourEcriture(session.statutAbonnement);
+  if (!guard.autorise) {
+    return { success: false, error: guard.erreur };
   }
 
   try {

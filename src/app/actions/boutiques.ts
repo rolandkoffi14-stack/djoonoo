@@ -3,6 +3,7 @@
 import { getCurrentSession } from "@/lib/auth";
 import { prisma, getScopedPrisma } from "@/lib/prisma";
 import { genererCodeBoutique, enregistrerAudit } from "@/lib/business-rules";
+import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
 import { StatutBoutique } from "@prisma/client";
 
@@ -28,6 +29,11 @@ export async function creerBoutiqueAction(
   const session = await getCurrentSession();
   if (!session) {
     return { success: false, error: "Session expirée. Veuillez vous reconnecter." };
+  }
+
+  const guard = verifierStatutAbonnementPourEcriture(session.statutAbonnement);
+  if (!guard.autorise) {
+    return { success: false, error: guard.erreur };
   }
 
   // Seul le Patron a le droit de créer une boutique (Section 2)
@@ -132,6 +138,11 @@ export async function changerStatutBoutiqueAction(
   const session = await getCurrentSession();
   if (!session || session.role !== "patron") {
     return { success: false, error: "Action réservée au Patron." };
+  }
+
+  const guard = verifierStatutAbonnementPourEcriture(session.statutAbonnement);
+  if (!guard.autorise) {
+    return { success: false, error: guard.erreur };
   }
 
   try {

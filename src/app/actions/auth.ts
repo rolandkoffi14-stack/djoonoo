@@ -398,7 +398,7 @@ export async function connexionAction(
     if (user.compte.statut_abonnement === "suspendu") {
       return {
         error:
-          "Ton compte djoonoo est suspendu en raison d'un abonnement impayé. Merci de régulariser ton paiement auprès du support pour rétablir ton accès.",
+          "Ton compte djoonoo est suspendu pour des raisons administratives ou de sécurité. Merci de contacter le support.",
       };
     }
 
@@ -460,6 +460,14 @@ export async function validerDeuxFaConnexionAction(
     const isValid = verifyTotpCode(code, user.deux_fa_secret);
     if (!isValid) {
       return { success: false, error: "Code à 6 chiffres incorrect ou expiré." };
+    }
+
+    if (user.compte.statut_abonnement === "suspendu") {
+      return {
+        success: false,
+        error:
+          "Ton compte djoonoo est suspendu pour des raisons administratives ou de sécurité. Merci de contacter le support.",
+      };
     }
 
     await setSessionCookie({

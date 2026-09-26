@@ -3,6 +3,7 @@
 import { getCurrentSession } from "@/lib/auth";
 import { prisma, getScopedPrisma } from "@/lib/prisma";
 import { enregistrerAudit } from "@/lib/business-rules";
+import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
 import { ModePaiement, StatutPaiementVente } from "@prisma/client";
 
@@ -29,6 +30,11 @@ export async function enregistrerReglementImpayeAction(
   const session = await getCurrentSession();
   if (!session) {
     return { success: false, error: "Session expirée. Veuillez vous reconnecter." };
+  }
+
+  const guard = verifierStatutAbonnementPourEcriture(session.statutAbonnement);
+  if (!guard.autorise) {
+    return { success: false, error: guard.erreur };
   }
 
   const { vente_id, montant, mode_paiement } = payload;
