@@ -19,6 +19,8 @@ export const metadata = {
   description: "Console centrale d'administration de la plateforme djoonoo",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function SuperAdminLayout({
   children,
 }: {
