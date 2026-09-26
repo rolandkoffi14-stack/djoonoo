@@ -177,7 +177,7 @@ Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Af
 
 ### Micro-étapes TDD :
 
-- [ ] **2.1 Écrire le test unitaire du cycle de vie**
+- [x] **2.1 Écrire le test unitaire du cycle de vie**
   Créer `tests/subscriptions-cron.test.ts` :
   ```typescript
   import { describe, it, expect, beforeEach } from "vitest";
@@ -256,13 +256,13 @@ Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Af
   });
   ```
 
-- [ ] **2.2 Exécuter le test et vérifier son échec**
+- [x] **2.2 Exécuter le test et vérifier son échec**
   ```powershell
   npx vitest run tests/subscriptions-cron.test.ts
   ```
   *Erreur attendue : AssertionError: expected 'impaye' to be 'expire' pour le premier test.*
 
-- [ ] **2.3 Implémenter la logique corrigée dans `src/lib/subscriptions-cron.ts`**
+- [x] **2.3 Implémenter la logique corrigée dans `src/lib/subscriptions-cron.ts`**
   Dans `executerCycleAbonnements()` :
   - **Phase 1 (Essais expirés)** :
     ```typescript
@@ -299,12 +299,12 @@ Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Af
   - **Phase 2 (Périodes actives échues)** : maintien du passage en `impaye` avec création d'une facture de renouvellement ayant pour date d'échéance `maintenant + delaiGraceJours`.
   - **Phase 3 (Grâce dépassée)** : passage des comptes `impaye` en `expire` (lecture seule, consultation autorisée).
 
-- [ ] **2.4 Exécuter le test et vérifier le passage au vert**
+- [x] **2.4 Exécuter le test et vérifier le passage au vert**
   ```powershell
   npx vitest run tests/subscriptions-cron.test.ts
   ```
 
-- [ ] **2.5 Commit Git atomique**
+- [x] **2.5 Commit Git atomique**
   ```powershell
   git add src/lib/subscriptions-cron.ts tests/subscriptions-cron.test.ts
   git commit -m "fix(subscription): fin de la grâce sur essai gratuit, transition directe en expire (lecture seule)"

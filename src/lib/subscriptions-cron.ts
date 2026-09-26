@@ -12,19 +12,23 @@ export interface RapportCycleAbonnements {
     comptesPassesEnImpaye: number;
     facturesGenerees: number;
     comptesSuspendus: number;
+    comptesExpires: number;
   };
   details: {
     essaisExpires: { compteId: string; nomEntreprise: string }[];
     periodesExpirees: { compteId: string; nomEntreprise: string }[];
     suspensions: { compteId: string; nomEntreprise: string; dateEcheance: Date }[];
+    expirations: { compteId: string; nomEntreprise: string; dateEcheance: Date }[];
   };
 }
 
 /**
- * Moteur d'exécution quotidien du cycle de vie des abonnements (Section 5.2, 5.4, 8 bis)
- * - Transitions : essai -> impaye -> suspendu
- * - Génération idempotente des factures d'abonnement
- * - Suspension automatique dès dépassement du délai de grâce
+ * Moteur d'exécution quotidien du cycle de vie des abonnements (Section 5.2, 5.4, 8 bis, Décisions H22 & H23)
+ * - Transitions :
+ *   1. essai expiré -> expire DIRECT (mode lecture seule, zéro grâce indue sur l'essai gratuit)
+ *   2. actif échu -> impaye (facture générée avec délai de grâce de 7 jours)
+ *   3. impaye avec grâce dépassée -> expire (mode lecture seule)
+ *   Le statut suspendu est sanctuarisé pour les décisions administratives manuelles du Super-Admin.
  */
 export async function executerCycleAbonnements(): Promise<RapportCycleAbonnements> {
   const maintenant = new Date();
@@ -46,11 +50,13 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
       comptesPassesEnImpaye: 0,
       facturesGenerees: 0,
       comptesSuspendus: 0,
+      comptesExpires: 0,
     },
     details: {
       essaisExpires: [],
       periodesExpirees: [],
       suspensions: [],
+      expirations: [],
     },
   };
 
@@ -61,7 +67,8 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
   const adminId = superAdminSysteme?.id || "systeme";
 
   // =====================================================================
-  // PHASE 1 : Périodes d'essai expirées (essai -> impaye)
+  // PHASE 1 : Périodes d'essai expirées (essai -> expire direct, mode lecture seule)
+  // Résolution H22 & H23 : zéro délai de grâce sur l'essai gratuit
   // =====================================================================
   const comptesEssaiExpires = await prisma.comptes.findMany({
     where: {
@@ -76,55 +83,35 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
   });
 
   for (const compte of comptesEssaiExpires) {
-    const echeance = new Date(maintenant);
-    echeance.setDate(echeance.getDate() + delaiGraceJours);
-
-    // Vérification d'idempotence : aucune facture en attente existante
-    const factureExistante = await prisma.factures_abonnement.findFirst({
-      where: {
-        compte_id: compte.id,
-        statut: StatutFactureAbonnement.en_attente,
-      },
-    });
-
-    if (!factureExistante) {
-      await prisma.factures_abonnement.create({
-        data: {
-          compte_id: compte.id,
-          montant: compte.forfait.prix_mensuel,
-          statut: StatutFactureAbonnement.en_attente,
-          fournisseur_paiement: "manuel",
-          date_echeance: echeance,
-        },
-      });
-      rapport.stats.facturesGenerees++;
-    }
-
-    // Progression du compte en impaye
+    // Les comptes en essai dont la date_fin_essai est dépassée passent directement en EXPIRE (Décisions H22 & H23)
     await prisma.comptes.update({
       where: { id: compte.id },
       data: {
-        statut_abonnement: StatutAbonnement.impaye,
+        statut_abonnement: StatutAbonnement.expire,
       },
     });
 
-    // Audit plateforme
     if (superAdminSysteme) {
       await prisma.journal_audit_plateforme.create({
         data: {
           super_admin_id: adminId,
-          action: "passage_impaye_fin_essai",
+          action: "expiration_fin_essai",
           compte_cible_id: compte.id,
           details: {
             nom_entreprise: compte.nom_entreprise,
             date_fin_essai: compte.date_fin_essai?.toISOString(),
-            delai_grace_accorde_jours: delaiGraceJours,
+            motif: "Fin des 14 jours d'essai sans souscription — passage en lecture seule",
           },
         },
       });
     }
 
-    rapport.stats.comptesPassesEnImpaye++;
+    rapport.stats.comptesExpires++;
+    rapport.details.expirations.push({
+      compteId: compte.id,
+      nomEntreprise: compte.nom_entreprise,
+      dateEcheance: compte.date_fin_essai || maintenant,
+    });
     rapport.details.essaisExpires.push({
       compteId: compte.id,
       nomEntreprise: compte.nom_entreprise,
@@ -132,7 +119,7 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
   }
 
   // =====================================================================
-  // PHASE 2 : Périodes payées échues (actif -> impaye)
+  // PHASE 2 : Périodes payées échues (actif -> impaye avec 7 jours de grâce)
   // =====================================================================
   const comptesActifsExpires = await prisma.comptes.findMany({
     where: {
@@ -150,7 +137,7 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
     const echeance = new Date(maintenant);
     echeance.setDate(echeance.getDate() + delaiGraceJours);
 
-    // Vérification d'idempotence
+    // Vérification d'idempotence : aucune facture en attente existante
     const factureExistante = await prisma.factures_abonnement.findFirst({
       where: {
         compte_id: compte.id,
@@ -164,7 +151,7 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
           compte_id: compte.id,
           montant: compte.forfait.prix_mensuel,
           statut: StatutFactureAbonnement.en_attente,
-          fournisseur_paiement: "manuel",
+          fournisseur_paiement: "fedapay",
           date_echeance: echeance,
         },
       });
@@ -201,8 +188,9 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
   }
 
   // =====================================================================
-  // PHASE 3 : Dépassement du délai de grâce (impaye -> suspendu)
-  // Section 8 bis : blocage total de connexion
+  // PHASE 3 : Dépassement du délai de grâce (impaye -> expire en lecture seule)
+  // Résolution H22 & H23 : le compte passe en EXPIRE (lecture seule, connexion permise).
+  // Le statut SUSPENDU est sanctuarisé pour les décisions administratives du Super-Admin.
   // =====================================================================
   const comptesImpayes = await prisma.comptes.findMany({
     where: {
@@ -224,7 +212,7 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
       await prisma.comptes.update({
         where: { id: compte.id },
         data: {
-          statut_abonnement: StatutAbonnement.suspendu,
+          statut_abonnement: StatutAbonnement.expire,
         },
       });
 
@@ -232,20 +220,21 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
         await prisma.journal_audit_plateforme.create({
           data: {
             super_admin_id: adminId,
-            action: "suspension_grace_depassee",
+            action: "expiration_grace_depassee",
             compte_cible_id: compte.id,
             details: {
               nom_entreprise: compte.nom_entreprise,
               facture_id: facturePlusAncienne.id,
               date_echeance: facturePlusAncienne.date_echeance.toISOString(),
               delai_grace_jours: delaiGraceJours,
+              motif: "Délai de grâce dépassé après impayé — passage en lecture seule",
             },
           },
         });
       }
 
-      rapport.stats.comptesSuspendus++;
-      rapport.details.suspensions.push({
+      rapport.stats.comptesExpires++;
+      rapport.details.expirations.push({
         compteId: compte.id,
         nomEntreprise: compte.nom_entreprise,
         dateEcheance: facturePlusAncienne.date_echeance,
