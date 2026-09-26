@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  --djoonoo-accent: #C1652D;
+  --djoonoo-accent-hover: #A85422;
+  --djoonoo-accent-subtle: #F5EAE3;
+  --djoonoo-bg: #FAF6F1;
+  --djoonoo-surface: #FFFFFF;
+  --djoonoo-surface-alt: #F3ECE2;
+  --djoonoo-text: #2B2119;
+  --djoonoo-text-muted: #6B5C52;
+  --djoonoo-border: rgba(43, 33, 25, 0.1);
+  --djoonoo-border-strong: rgba(43, 33, 25, 0.2);
+
+  /* Statuts métier stricts (règle 0 & règle 11) */
+  --statut-paye: #1E7E34;
+  --statut-paye-bg: #EDF7EE;
+  --statut-partiel: #DD6B20;
+  --statut-partiel-bg: #FEF3EB;
+  --statut-impaye: #C53030;
+  --statut-impaye-bg: #FDE8E8;
+}
+
+@theme {
+  --color-accent: var(--djoonoo-accent);
+  --color-accent-hover: var(--djoonoo-accent-hover);
+  --color-accent-subtle: var(--djoonoo-accent-subtle);
+  --color-bg: var(--djoonoo-bg);
+  --color-surface: var(--djoonoo-surface);
+  --color-surface-alt: var(--djoonoo-surface-alt);
+  --color-text-main: var(--djoonoo-text);
+  --color-text-muted: var(--djoonoo-text-muted);
+  --color-border-subtle: var(--djoonoo-border);
+  --color-border-strong: var(--djoonoo-border-strong);
+  
+  --color-statut-paye: var(--statut-paye);
+  --color-statut-paye-bg: var(--statut-paye-bg);
+  --color-statut-partiel: var(--statut-partiel);
+  --color-statut-partiel-bg: var(--statut-partiel-bg);
+  --color-statut-impaye: var(--statut-impaye);
+  --color-statut-impaye-bg: var(--statut-impaye-bg);
+
+  --font-montserrat: var(--font-montserrat), sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--djoonoo-bg);
+  color: var(--djoonoo-text);
+  font-family: var(--font-montserrat), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--djoonoo-accent);
+  color: #FAF6F1;
+}
+
+:focus-visible {
+  outline: 2px solid var(--djoonoo-accent);
+  outline-offset: 2px;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #ticket-caisse, #ticket-caisse * {
+    visibility: visible;
+  }
+  #ticket-caisse {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0 auto;
+    padding: 10px !important;
+    font-size: 11px !important;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

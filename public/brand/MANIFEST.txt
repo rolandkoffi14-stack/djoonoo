@@ -1,0 +1,23 @@
+01_horizontal_logos/djoonoo_logo_clair_on_white.png | (1560, 576) | RGB | PNG
+01_horizontal_logos/djoonoo_logo_clair_transparent.svg | SVG/TXT |  | 
+01_horizontal_logos/djoonoo_logo_clair_transparent@1x.png | (520, 192) | RGBA | PNG
+01_horizontal_logos/djoonoo_logo_clair_transparent@2x.png | (1040, 384) | RGBA | PNG
+01_horizontal_logos/djoonoo_logo_clair_transparent@3x.png | (1560, 576) | RGBA | PNG
+01_horizontal_logos/djoonoo_logo_sombre_on_terracotta.png | (1560, 576) | RGB | PNG
+01_horizontal_logos/djoonoo_logo_sombre_transparent.svg | SVG/TXT |  | 
+01_horizontal_logos/djoonoo_logo_sombre_transparent@1x.png | (520, 192) | RGBA | PNG
+01_horizontal_logos/djoonoo_logo_sombre_transparent@2x.png | (1040, 384) | RGBA | PNG
+01_horizontal_logos/djoonoo_logo_sombre_transparent@3x.png | (1560, 576) | RGBA | PNG
+02_icons/djoonoo_icon_squircle_clair.svg | SVG/TXT |  | 
+02_icons/djoonoo_icon_squircle_clair@1x.png | (512, 512) | RGBA | PNG
+02_icons/djoonoo_icon_squircle_clair@2x.png | (1024, 1024) | RGBA | PNG
+02_icons/djoonoo_icon_squircle_clair@3x.png | (1536, 1536) | RGBA | PNG
+02_icons/djoonoo_icon_squircle_terracotta.svg | SVG/TXT |  | 
+02_icons/djoonoo_icon_squircle_terracotta@1x.png | (512, 512) | RGBA | PNG
+02_icons/djoonoo_icon_squircle_terracotta@2x.png | (1024, 1024) | RGBA | PNG
+02_icons/djoonoo_icon_squircle_terracotta@3x.png | (1536, 1536) | RGBA | PNG
+03_web_pwa/android-chrome-192x192.png | (192, 192) | RGBA | PNG
+03_web_pwa/android-chrome-512x512.png | (512, 512) | RGBA | PNG
+03_web_pwa/apple-touch-icon.png | (180, 180) | RGBA | PNG
+03_web_pwa/favicon.ico | (48, 48) | RGBA | ICO
+README.txt | SVG/TXT |  | 
