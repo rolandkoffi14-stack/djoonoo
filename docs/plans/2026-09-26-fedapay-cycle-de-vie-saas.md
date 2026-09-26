@@ -329,13 +329,13 @@ Créer le module central FedaPay encapsulant :
 
 ### Micro-étapes TDD :
 
-- [ ] **3.1 Installer la dépendance officielle ou module helper**
+- [x] **3.1 Installer la dépendance officielle ou module helper**
   Vérifier ou installer `fedapay` :
   ```powershell
   npm install fedapay
   ```
 
-- [ ] **3.2 Écrire le test unitaire de sécurité cryptographique FedaPay**
+- [x] **3.2 Écrire le test unitaire de sécurité cryptographique FedaPay**
   Créer `tests/fedapay-security.test.ts` :
   ```typescript
   import { describe, it, expect } from "vitest";
@@ -379,7 +379,7 @@ Créer le module central FedaPay encapsulant :
   });
   ```
 
-- [ ] **3.3 Exécuter le test et vérifier son échec initial**
+- [x] **3.3 Exécuter le test et vérifier son échec initial**
   ```powershell
   npx vitest run tests/fedapay-security.test.ts
   ```
@@ -663,12 +663,12 @@ Créer le module central FedaPay encapsulant :
   }
   ```
 
-- [ ] **3.5 Exécuter le test et vérifier le passage au vert**
+- [x] **3.5 Exécuter le test et vérifier le passage au vert**
   ```powershell
   npx vitest run tests/fedapay-security.test.ts
   ```
 
-- [ ] **3.6 Commit Git atomique**
+- [x] **3.6 Commit Git atomique**
   ```powershell
   git add src/lib/fedapay.ts tests/fedapay-security.test.ts package.json package-lock.json
   git commit -m "feat(fedapay): module d'initiation et vérification sécurisée des paiements en ligne"
