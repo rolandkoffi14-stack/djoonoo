@@ -687,7 +687,7 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
 
 ### Micro-étapes TDD :
 
-- [ ] **4.1 Écrire le test d'intégration du Webhook API**
+- [x] **4.1 Écrire le test d'intégration du Webhook API**
   Créer `tests/fedapay-webhook-route.test.ts` :
   ```typescript
   import { describe, it, expect } from "vitest";
@@ -707,12 +707,12 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
   });
   ```
 
-- [ ] **4.2 Exécuter le test et vérifier son échec initial**
+- [x] **4.2 Exécuter le test et vérifier son échec initial**
   ```powershell
   npx vitest run tests/fedapay-webhook-route.test.ts
   ```
 
-- [ ] **4.3 Implémenter `src/app/api/webhooks/fedapay/route.ts`**
+- [x] **4.3 Implémenter `src/app/api/webhooks/fedapay/route.ts`**
   ```typescript
   import { NextRequest, NextResponse } from "next/server";
   import { verifierSignatureFedaPay, traiterWebhookFedaPay } from "@/lib/fedapay";
@@ -760,12 +760,12 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
   }
   ```
 
-- [ ] **4.4 Exécuter le test et vérifier le passage au vert**
+- [x] **4.4 Exécuter le test et vérifier le passage au vert**
   ```powershell
   npx vitest run tests/fedapay-webhook-route.test.ts
   ```
 
-- [ ] **4.5 Commit Git atomique**
+- [x] **4.5 Commit Git atomique**
   ```powershell
   git add src/app/api/webhooks/fedapay/route.ts tests/fedapay-webhook-route.test.ts
   git commit -m "feat(api): route handler webhook fedapay avec vérification signature et idempotence"
