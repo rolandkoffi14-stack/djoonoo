@@ -21,11 +21,12 @@ datasource db {
 // ---------- ENUMS ----------
 
 enum StatutAbonnement {
-  essai
-  actif
-  impaye     // échéance dépassée, en attente de régularisation avant suspension — voir section 5
-  suspendu
-  resilie
+  essai      // période d'essai initiale (14 jours stricts)
+  actif      // abonnement à jour et payé
+  impaye     // échéance dépassée d'un abonnement payé : délai de grâce (7 jours) avec accès complet
+  expire     // fin d'essai ou fin de grâce sans paiement : mode LECTURE SEULE (connexion permise, données consultables, écritures bloquées)
+  suspendu   // blocage administratif / fraude décidé par Super-Admin : CONNEXION INTERDITE
+  resilie    // résiliation définitive
 }
 
 enum RoleUtilisateur {

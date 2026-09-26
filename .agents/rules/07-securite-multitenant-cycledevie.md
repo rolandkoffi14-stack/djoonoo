@@ -45,14 +45,20 @@ Filtrage `compte_id` centralisé (règle 5) comme mécanisme principal, Row-Leve
 - Données historiques restent consultables en lecture seule.
 - Les utilisateurs rattachés ne peuvent plus y agir tant qu'elle n'est pas réactivée ou qu'ils ne sont pas transférés.
 
-### 8 bis.2 Compte suspendu (`statut_abonnement = suspendu`) — Mode Lecture Seule (décision H23)
-Contrairement aux spécifications initiales restrictives, le standard SaaS moderne impose de préserver l'accès aux données du commerçant :
+### 8 bis.2 Compte expiré (`statut_abonnement = expire`) — Mode Lecture Seule (décision H23)
+Appliqué automatiquement à l'échéance des 14 jours d'essai sans paiement ou à la fin des 7 jours de grâce d'un compte impayé :
 - **Connexion AUTORISÉE** : Le Patron et tous les utilisateurs peuvent se connecter normalement à leur compte.
 - **Consultation intégrale (Read-Only)** : Accès sans restriction en lecture seule aux rapports passés, au journal des ventes, à la liste des clients, aux factures et à l'état des stocks.
 - **Blocage strict des écritures** :
   - Interdiction d'enregistrer de nouvelles ventes ou de nouveaux paiements.
   - Interdiction de créer ou modifier des produits, boutiques ou utilisateurs.
-  - Tout appel de mutation serveur retourne une erreur explicite avec le code `COMPTE_SUSPENDU`.
+  - Tout appel de mutation serveur retourne une erreur explicite avec le code `COMPTE_EXPIRE`.
 - **Bannière et parcours de réactivation** :
-  - Une bannière d'information visible sur toutes les pages signale la suspension.
-  - Un bouton d'action directe redirige le Patron vers la sélection de forfait et le règlement FedaPay pour débloquer immédiatement le compte.
+  - Une bannière d'information visible sur toutes les pages signale que l'abonnement a pris fin.
+  - Un bouton d'action directe redirige le Patron vers la sélection de forfait et le règlement FedaPay pour réactiver instantanément le compte.
+
+### 8 bis.3 Compte suspendu (`statut_abonnement = suspendu`) — Blocage administratif Super-Admin
+Mesure disciplinaire ou conservatoire décidée manuellement par le Super-Admin (fraude avérée, litige juridique, non-respect des conditions d'utilisation) :
+- **Connexion TOTALEMENT INTERDITE** pour tous les utilisateurs du compte, Patron inclus.
+- L'écran de connexion rejette la tentative avec un message invitant à contacter le support djoonoo.
+- Aucune interface n'est accessible tant que le Super-Admin n'a pas réactivé manuellement le compte.

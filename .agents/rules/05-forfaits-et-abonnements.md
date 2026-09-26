@@ -15,30 +15,35 @@ Parcours SaaS moderne 100% automatisé avec intégration directe de la passerell
   ┌────────────────────────────────────────────────────────┐
   │                                                        │
   ▼                                                        │
-essai ──(14 jours expirés sans paiement)──► suspendu (read-only)
-  │                                           ▲
-  │ (Paiement FedaPay)                        │ (Grâce de 7 jours expirée)
-  ▼                                           │
-actif ──(Échéance atteinte)──► impaye (grâce 7 jours)
+essai ──(14 jours expirés sans paiement)───────────────┐   │
+  │                                                    │   │
+  │ (Paiement FedaPay)                                 ▼   │
+actif ──(Échéance atteinte)──► impaye (grâce 7j) ──► expire (read-only)
   ▲                                │
   └───────(Paiement FedaPay)───────┘
+
+suspendu : mesure administrative Super-Admin / fraude (connexion refusée)
+resilie  : clôture définitive du compte
 ```
 
 #### Définition des états :
 1. **`essai`** : Période d'essai gratuite de **14 jours stricts** (`parametres_plateforme.duree_essai_jours`).
    - L'utilisateur a accès aux fonctionnalités de vente et de gestion selon les limites du forfait sélectionné.
-   - **Règle stricte (décision H22)** : **Le délai de grâce ne s'applique JAMAIS à la fin d'une période d'essai gratuite**. Un utilisateur qui n'a jamais payé ne bénéficie pas de 7 jours supplémentaires gratuits (fin de l'effet 21 jours gratuits). À l'issue des 14 jours, le compte passe directement en `suspendu`.
+   - **Règle stricte (décision H22)** : **Le délai de grâce ne s'applique JAMAIS à la fin d'une période d'essai gratuite**. Un utilisateur qui n'a jamais payé ne bénéficie pas de 7 jours supplémentaires gratuits (fin de l'effet 21 jours gratuits). À l'issue des 14 jours, le compte passe directement en **`expire`**.
 2. **`actif`** : Abonnement en cours de validité (paiement validé par FedaPay ou régularisé). `date_fin_periode_courante` est fixée à `date_actuelle + forfait.duree_jours`.
 3. **`impaye`** : État intermédiaire réservé **exclusivement aux comptes ayant déjà payé un abonnement** arrivé à échéance sans renouvellement.
    - Un **délai de grâce de 7 jours** (`parametres_plateforme.delai_grace_jours`) s'applique.
    - Le compte reste pleinement fonctionnel durant ces 7 jours pour absorber les délais de rechargement Mobile Money, avec une bannière d'avertissement incitant au renouvellement.
-4. **`suspendu`** : Appliqué dès la fin des 14 jours d'essai pour un prospect sans paiement, ou dès la fin du délai de grâce de 7 jours pour un abonné non renouvelé.
-   - **Comportement SaaS standard — Mode Lecture Seule (décision H23)** :
+4. **`expire`** : Appliqué dès la fin des 14 jours d'essai pour un prospect sans paiement, ou dès la fin du délai de grâce de 7 jours pour un abonné non renouvelé (décision H23).
+   - **Comportement SaaS standard — Mode Lecture Seule** :
      - **Connexion AUTORISÉE** : Tous les utilisateurs du compte (Patron, Gérant, Vendeur) peuvent se connecter. Le compte n'est pas banni du système.
      - **Consultation intégrale** : Les commerçants conservent un accès complet en lecture à leurs données historiques (rapports financiers passés, ventes, factures émises, catalogue de produits, liste des clients).
      - **Blocage strict des écritures** : Aucune nouvelle vente ne peut être enregistrée, aucun stock décrémenté, aucun nouveau produit/boutique/employé créé.
-     - **Bannière et guichet de réactivation** : Une bannière persistante et une page dédiée affichent un bouton de réactivation immédiate redirigeant vers FedaPay pour régler le forfait et réactiver le compte à la seconde.
-5. **`resilie`** : Résiliation définitive demandée par le commerçant ou pour motif de fraude.
+     - **Bannière et guichet de réactivation** : Une bannière persistante et une page dédiée affichent un bouton de réactivation immédiate redirigeant vers FedaPay pour régler le forfait et réactiver le compte à la seconde (passage immédiat à `actif`).
+5. **`suspendu`** : Mesure administrative ou disciplinaire (fraude, litige grave, décision manuelle du Super-Admin).
+   - **Connexion TOTALEMENT INTERDITE** pour tous les utilisateurs du compte, Patron inclus.
+   - Message à la connexion invitant à contacter le support djoonoo.
+6. **`resilie`** : Clôture définitive du compte demandée par le commerçant ou actée par la direction.
 
 ---
 
@@ -104,7 +109,7 @@ export interface FournisseurPaiementAbonnement {
 
 ### 5.4 Job planifié de cycle de vie (Cron quotidien)
 Exécuté chaque nuit via `/api/cron/cycle-abonnements` (sécurisé par `CRON_SECRET`) :
-1. **Essais expirés** : Tous les comptes avec `statut_abonnement = essai` et `date_fin_essai < now()` passent immédiatement à `statut_abonnement = suspendu` (mode lecture seule). Aucune période de grâce n'est accordée.
+1. **Essais expirés** : Tous les comptes avec `statut_abonnement = essai` et `date_fin_essai < now()` passent immédiatement à `statut_abonnement = expire` (mode lecture seule, connexion autorisée). Aucune période de grâce n'est accordée.
 2. **Périodes payées échues** : Tous les comptes avec `statut_abonnement = actif` et `date_fin_periode_courante < now()` passent à `statut_abonnement = impaye`. Une facture de renouvellement `factures_abonnement` est émise avec une date d'échéance à `maintenant + delai_grace_jours` (7 jours).
-3. **Grâces expirées** : Tous les comptes avec `statut_abonnement = impaye` dont la date d'échéance de la facture de renouvellement est antérieure à `now()` passent à `statut_abonnement = suspendu` (mode lecture seule).
+3. **Grâces expirées** : Tous les comptes avec `statut_abonnement = impaye` dont la date d'échéance de la facture de renouvellement est antérieure à `now()` passent à `statut_abonnement = expire` (mode lecture seule, consultation préservée).
 4. **Idempotence & Audit** : Chaque transition est journalisée dans `journal_audit_plateforme`.

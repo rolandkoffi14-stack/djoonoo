@@ -21,7 +21,7 @@
 | H20 | Transfert Gérant | Confirmé identique au Vendeur |
 | **H21** | **Passerelle FedaPay intégrée** | **Intégration directe de FedaPay (MTN/Moov/CB) au MVP. Activation 100% autonome dès paiement, plus de blocage Super-Admin obligatoire (sections 1.7, 5, 6, 7)** |
 | **H22** | **Fin de la grâce sur l'essai** | **14 jours d'essai stricts. Le délai de grâce de 7 jours est réservé exclusivement aux renouvellements de forfaits payés (section 5.2)** |
-| **H23** | **Compte suspendu en lecture seule** | **Connexion permise pour tous, consultation intégrale des données historiques, blocage strict des opérations d'écriture et CTA de réactivation vers FedaPay (section 8 bis.2)** |
+| **H23** | **Statut 'expire' en lecture seule & 'suspendu' sanctuarisé** | **Création du statut 'expire' (lecture seule, connexion permise, consultation totale, écriture bloquée, réactivation FedaPay) et sanctuarisation de 'suspendu' pour les blocages administratifs stricts (connexion interdite) (sections 3, 5, 8 bis)** |
 | **H24** | **Durée de forfait configurable** | **Ajout de `forfaits.duree_jours` (30 jours par défaut) pour rendre la périodicité dynamique et non codée en dur (section 3)** |
 
 ---

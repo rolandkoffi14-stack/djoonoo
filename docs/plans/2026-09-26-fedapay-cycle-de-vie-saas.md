@@ -2,12 +2,13 @@
 
 > **Pour l'agent d'exécution :** Chaque tâche est jalonnée de cases à cocher (`- [ ]`). Validez chaque micro-étape séquentiellement en respectant le protocole TDD strict (test en échec → code minimal → test au vert → commit).
 
-**Objectif :** Transformer le cycle de vie des abonnements de djoonoo en un parcours SaaS moderne, autonome et sécurisé : choix du forfait par le Patron, intégration de la passerelle de paiement FedaPay (MTN MoMo, Moov Money, Cartes bancaires), fin du délai de grâce indu sur la période d'essai (14 jours stricts), mode lecture seule pour les comptes suspendus (accès conservé aux données historiques) et durée de forfait dynamique en base.
+**Objectif :** Transformer le cycle de vie des abonnements de djoonoo en un parcours SaaS moderne, autonome et sécurisé : choix du forfait par le Patron, intégration de la passerelle de paiement FedaPay (MTN MoMo, Moov Money, Cartes bancaires), fin du délai de grâce indu sur la période d'essai (14 jours stricts), introduction du statut dédié `expire` en mode lecture seule (connexion autorisée, données historiques consultables, écritures bloquées avec CTA FedaPay), sanctuarisation du statut `suspendu` pour les blocages administratifs stricts (connexion refusée) et durée de forfait dynamique en base.
 
 **Architecture :**
 - Architecture adaptateur de paiement autour du SDK/API REST FedaPay avec vérification cryptographique des signatures Webhook (HMAC SHA-256) et protection anti-rejeu par horodatage.
-- Découplage strict entre la période d'essai (14 jours sans grâce) et les renouvellements de clients payants (7 jours de grâce en cas d'impayé).
-- Protection applicative uniforme du mode lecture seule : connexion autorisée, consultation préservée, blocage serveur des mutations (`COMPTE_SUSPENDU`).
+- Découplage strict entre la période d'essai (14 jours stricts sans grâce), le renouvellement (7 jours de grâce en `impaye`), et la fin de validité (`expire` en lecture seule).
+- Sanctuarisation du statut `suspendu` réservé aux décisions administratives/sécurité du Super-Admin avec interdiction totale de se connecter.
+- Protection applicative uniforme du mode lecture seule pour les comptes `expire` : connexion autorisée, consultation préservée, blocage serveur des mutations (`COMPTE_EXPIRE`).
 - Traçabilité et supervision temps réel sur le tableau de bord Super-Admin sans blocage sur l'activation.
 
 **Pile technique :**
@@ -34,8 +35,8 @@
 ## Focus de Revue Critique (Top 5 des angles morts potentiels)
 1. **Attaque par rejeu de webhook FedaPay** : Un attaquant qui capture une requête webhook valide tente de la rejouer pour prolonger indûment un abonnement. *Contremesure : vérification de l'horodatage signed timestamp (< 300s) + vérification d'idempotence sur l'ID de transaction unique.*
 2. **Latence réseau et retries FedaPay** : FedaPay réémet les webhooks jusqu'à 9 fois en cas de réponse lente. *Contremesure : traitement idempotent atomique dans une transaction Prisma et réponse HTTP 200 immédiate.*
-3. **Contournement du mode lecture seule** : Un utilisateur avec un compte suspendu qui tente de court-circuiter l'UI via des requêtes API/Server Actions directes. *Contremesure : vérification systématique de `statut_abonnement !== 'suspendu'` au tout début de chaque Server Action de mutation (`creerVente`, `ajouterProduit`, `modifierPrix`, `creerBoutique`, etc.).*
-4. **Transition d'essai non payé** : S'assurer que le cron quotidien ne bascule jamais un essai expiré en `impaye` (qui donnerait 7 jours gratuits de plus), mais bien directement en `suspendu`.
+3. **Contournement du mode lecture seule (`expire`)** : Un utilisateur avec un compte expiré qui tente de court-circuiter l'UI via des requêtes API/Server Actions directes. *Contremesure : vérification systématique de `statut_abonnement !== 'expire'` au tout début de chaque Server Action de mutation (`creerVente`, `ajouterProduit`, `modifierPrix`, `creerBoutique`, etc.).*
+4. **Transition d'essai non payé** : S'assurer que le cron quotidien bascule un essai expiré directement en `expire` (lecture seule, connexion permise) et non en `impaye` (qui donnerait 7 jours gratuits indus) ni en `suspendu` (qui couperait indûment la connexion).
 5. **Comptes existants et rétrocompatibilité** : La colonne `forfaits.duree_jours` doit avoir une valeur par défaut de `30` pour ne pas casser les forfaits existants en base.
 
 ---
@@ -95,8 +96,17 @@ Ajouter la colonne `duree_jours` au modèle `forfaits` et la colonne `cle_idempo
   *Erreur attendue : Property 'duree_jours' does not exist on type 'forfaits'.*
 
 - [ ] **1.3 Mettre à jour `prisma/schema.prisma`**
-  Modifier les modèles `forfaits` et `factures_abonnement` :
+  Modifier l'enum `StatutAbonnement` et les modèles `forfaits` et `factures_abonnement` :
   ```prisma
+  enum StatutAbonnement {
+    essai
+    actif
+    impaye
+    expire
+    suspendu
+    resilie
+  }
+
   model forfaits {
     id                        String  @id @default(uuid())
     nom                       String
@@ -156,9 +166,10 @@ Ajouter la colonne `duree_jours` au modèle `forfaits` et la colonne `cle_idempo
 
 ### Description & Objectif
 Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Africavibecoding/facturepro/djoonoo/src/lib/subscriptions-cron.ts) :
-1. Les comptes dont l'essai de 14 jours est expiré (`date_fin_essai < maintenant`) passent **directement en `suspendu`** (mode lecture seule) sans aucune période de grâce.
+1. Les comptes dont l'essai de 14 jours est expiré (`date_fin_essai < maintenant`) passent **directement en `expire`** (mode lecture seule) sans aucune période de grâce.
 2. Les comptes dont l'abonnement payé est expiré (`date_fin_periode_courante < maintenant`) passent en `impaye` avec une période de grâce de 7 jours (`delai_grace_jours`).
-3. Les comptes en `impaye` dont la grâce est dépassée passent en `suspendu`.
+3. Les comptes en `impaye` dont la grâce est dépassée passent en `expire` (mode lecture seule).
+4. Le statut `suspendu` n'est jamais activé automatiquement par le cron (réservé exclusivement à une sanction/mesure administrative du Super-Admin).
 
 ### Contrat d'Interface
 - **Consomme :** `prisma.comptes`, `prisma.parametres_plateforme`, `prisma.factures_abonnement`
@@ -175,7 +186,7 @@ Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Af
   import { StatutAbonnement } from "@prisma/client";
 
   describe("Moteur du Cycle de Vie des Abonnements", () => {
-    it("doit suspendre DIRECTEMENT un compte d'essai expiré sans lui accorder de délai de grâce", async () => {
+    it("doit passer DIRECTEMENT un compte d'essai expiré en EXPIRE sans lui accorder de délai de grâce", async () => {
       const forfait = await prisma.forfaits.findFirst();
       const codeTest = "TST" + Math.floor(Math.random() * 899 + 100);
       
@@ -200,11 +211,11 @@ Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Af
       const rapport = await executerCycleAbonnements();
       expect(rapport.success).toBe(true);
 
-      // Vérification : le compte doit être 'suspendu' et NON 'impaye'
+      // Vérification : le compte doit être 'expire' et NON 'impaye' ni 'suspendu'
       const compteApres = await prisma.comptes.findUnique({
         where: { id: compteTest.id },
       });
-      expect(compteApres?.statut_abonnement).toBe(StatutAbonnement.suspendu);
+      expect(compteApres?.statut_abonnement).toBe(StatutAbonnement.expire);
 
       // Nettoyage
       await prisma.comptes.delete({ where: { id: compteTest.id } });
@@ -249,36 +260,36 @@ Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Af
   ```powershell
   npx vitest run tests/subscriptions-cron.test.ts
   ```
-  *Erreur attendue : AssertionError: expected 'impaye' to be 'suspendu' pour le premier test.*
+  *Erreur attendue : AssertionError: expected 'impaye' to be 'expire' pour le premier test.*
 
 - [ ] **2.3 Implémenter la logique corrigée dans `src/lib/subscriptions-cron.ts`**
   Dans `executerCycleAbonnements()` :
   - **Phase 1 (Essais expirés)** :
     ```typescript
-    // Les comptes en essai dont la date_fin_essai est dépassée passent directement en SUSPENDU (Décision H22)
+    // Les comptes en essai dont la date_fin_essai est dépassée passent directement en EXPIRE (Décisions H22 & H23)
     for (const compte of comptesEssaiExpires) {
       await prisma.comptes.update({
         where: { id: compte.id },
-        data: { statut_abonnement: StatutAbonnement.suspendu },
+        data: { statut_abonnement: StatutAbonnement.expire },
       });
 
       if (superAdminSysteme) {
         await prisma.journal_audit_plateforme.create({
           data: {
             super_admin_id: adminId,
-            action: "suspension_fin_essai",
+            action: "expiration_fin_essai",
             compte_cible_id: compte.id,
             details: {
               nom_entreprise: compte.nom_entreprise,
               date_fin_essai: compte.date_fin_essai?.toISOString(),
-              motif: "Fin des 14 jours d'essai sans souscription",
+              motif: "Fin des 14 jours d'essai sans souscription — passage en lecture seule",
             },
           },
         });
       }
 
-      rapport.stats.comptesSuspendus++;
-      rapport.details.suspensions.push({
+      rapport.stats.comptesExpires++;
+      rapport.details.expirations.push({
         compteId: compte.id,
         nomEntreprise: compte.nom_entreprise,
         dateEcheance: compte.date_fin_essai || maintenant,
@@ -286,7 +297,7 @@ Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Af
     }
     ```
   - **Phase 2 (Périodes actives échues)** : maintien du passage en `impaye` avec création d'une facture de renouvellement ayant pour date d'échéance `maintenant + delaiGraceJours`.
-  - **Phase 3 (Grâce dépassée)** : passage des comptes `impaye` en `suspendu`.
+  - **Phase 3 (Grâce dépassée)** : passage des comptes `impaye` en `expire` (lecture seule, consultation autorisée).
 
 - [ ] **2.4 Exécuter le test et vérifier le passage au vert**
   ```powershell
@@ -296,7 +307,7 @@ Corriger [`src/lib/subscriptions-cron.ts`](file:///c:/Users/Cédric/Downloads/Af
 - [ ] **2.5 Commit Git atomique**
   ```powershell
   git add src/lib/subscriptions-cron.ts tests/subscriptions-cron.test.ts
-  git commit -m "fix(subscription): fin de la grâce sur essai gratuit, transition directe en suspendu"
+  git commit -m "fix(subscription): fin de la grâce sur essai gratuit, transition directe en expire (lecture seule)"
   ```
 
 ---
@@ -762,19 +773,20 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
 
 ---
 
-## Tâche 5 : Mode Lecture Seule pour Comptes Suspendus & Déblocage Connexion
+## Tâche 5 : Mode Lecture Seule pour Comptes Expirés & Sanctuarisation du Blocage des Comptes Suspendus
 
 ### Description & Objectif
-1. Supprimer le blocage de connexion dans `src/app/actions/auth.ts` : les utilisateurs de comptes suspendus peuvent se connecter.
-2. Ajouter le garde d'écriture `COMPTE_SUSPENDU` dans les Server Actions de mutation :
+1. Sanctuariser le blocage de connexion dans `src/app/actions/auth.ts` pour les comptes `suspendu` : interdiction absolue de connexion pour motif administratif/sécurité.
+2. Autoriser la connexion pour les comptes `expire` : les utilisateurs accèdent à leur espace en mode lecture seule.
+3. Ajouter le garde d'écriture `COMPTE_EXPIRE` dans les Server Actions de mutation pour bloquer toute création de données lorsque `statutAbonnement === 'expire'` :
    - `creerVenteAction` / `enregistrerPaiementVenteAction` dans [`src/app/actions/sales.ts`](file:///c:/Users/Cédric/Downloads/Africavibecoding/facturepro/djoonoo/src/app/actions/sales.ts)
    - `creerProduitAction` / `modifierPrixAction` dans [`src/app/actions/products.ts`](file:///c:/Users/Cédric/Downloads/Africavibecoding/facturepro/djoonoo/src/app/actions/products.ts)
    - `creerBoutiqueAction` dans [`src/app/actions/shops.ts`](file:///c:/Users/Cédric/Downloads/Africavibecoding/facturepro/djoonoo/src/app/actions/shops.ts)
-3. Créer le composant UI de bannière d'alerte et de réactivation [`src/components/BannerAbonnement.tsx`](file:///c:/Users/Cédric/Downloads/Africavibecoding/facturepro/djoonoo/src/components/BannerAbonnement.tsx).
+4. Créer le composant UI de bannière d'alerte et de réactivation [`src/components/BannerAbonnement.tsx`](file:///c:/Users/Cédric/Downloads/Africavibecoding/facturepro/djoonoo/src/components/BannerAbonnement.tsx).
 
 ### Contrat d'Interface
 - **Consomme :** Cookie de session `djoonoo_session`, statut de compte `comptes.statut_abonnement`
-- **Produit :** Connexion non bloquante, mutations rejetées si suspendu avec message explicite, bannière de réactivation affichée dans le layout du dashboard.
+- **Produit :** Connexion permise pour `expire`, connexion bloquée pour `suspendu`, mutations rejetées si expiré avec message explicite, bannière de réactivation affichée dans le layout du dashboard.
 
 ### Micro-étapes TDD :
 
@@ -800,10 +812,18 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
       expect(res.autorise).toBe(true);
     });
 
-    it("doit BLOQUER les mutations pour un compte suspendu", () => {
-      const res = verifierStatutAbonnementPourEcriture("suspendu");
+    it("doit BLOQUER les mutations pour un compte expiré", () => {
+      const res = verifierStatutAbonnementPourEcriture("expire");
       expect(res.autorise).toBe(false);
-      expect(res.erreur).toContain("suspendu");
+      expect(res.erreur).toContain("expiré");
+    });
+
+    it("doit BLOQUER les mutations pour un compte suspendu ou résilié", () => {
+      const resSuspendu = verifierStatutAbonnementPourEcriture("suspendu");
+      expect(resSuspendu.autorise).toBe(false);
+
+      const resResilie = verifierStatutAbonnementPourEcriture("resilie");
+      expect(resResilie.autorise).toBe(false);
     });
   });
   ```
@@ -819,11 +839,17 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
     autorise: boolean;
     erreur?: string;
   } {
-    if (statut === "suspendu") {
+    if (statut === "expire") {
       return {
         autorise: false,
         erreur:
-          "Action impossible : ton compte djoonoo est actuellement en mode lecture seule suite à l'expiration de ton abonnement. Règle ton forfait pour reprendre tes ventes et la gestion de tes stocks.",
+          "Action impossible : ton abonnement djoonoo a expiré. Ton compte est en mode consultation. Choisis un forfait et effectue ton règlement pour reprendre tes ventes et la gestion de tes stocks.",
+      };
+    }
+    if (statut === "suspendu") {
+      return {
+        autorise: false,
+        erreur: "Action refusée : ton compte djoonoo est suspendu pour motif administratif.",
       };
     }
     if (statut === "resilie") {
@@ -836,8 +862,17 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
   }
   ```
 
-- [ ] **5.4 Modifier `src/app/actions/auth.ts`**
-  Supprimer les lignes 397-404 qui bloquaient la connexion des comptes suspendus. Les utilisateurs peuvent maintenant se connecter et leur session porte `statutAbonnement: "suspendu"`.
+- [ ] **5.4 Adapter `src/app/actions/auth.ts`**
+  - Conserver le blocage strict à la connexion pour `suspendu` :
+    ```typescript
+    if (user.compte.statut_abonnement === "suspendu") {
+      return {
+        error:
+          "Ton compte djoonoo est suspendu pour des raisons administratives ou de sécurité. Merci de contacter le support.",
+      };
+    }
+    ```
+  - Pour `expire`, la connexion n'est pas bloquée : l'utilisateur accède au dashboard en lecture seule.
 
 - [ ] **5.5 Protéger les Server Actions de mutation**
   Intégrer l'appel `verifierStatutAbonnementPourEcriture(session.statutAbonnement)` au début de :
@@ -849,7 +884,7 @@ Créer le point de terminaison HTTP `POST /api/webhooks/fedapay` qui reçoit les
 
 - [ ] **5.6 Créer la bannière UI `src/components/BannerAbonnement.tsx`**
   Composant affichant l'état selon `statut_abonnement` :
-  - Si `suspendu` : Bannière `#C1652D` chaude invitant à régulariser en 1 clic avec bouton "Choisir un forfait & réactiver".
+  - Si `expire` : Bannière `#C1652D` chaude invitant à régulariser en 1 clic avec bouton "Choisir un forfait & réactiver".
   - Si `impaye` : Bannière d'avertissement de délai de grâce avec décompte des jours restants.
   - Intégrer la bannière en haut du layout `src/app/dashboard/layout.tsx`.
 
