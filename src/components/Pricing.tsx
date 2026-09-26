@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface Forfait {
   id: string;
@@ -33,7 +33,7 @@ const FORFAITS: Forfait[] = [
     id: "reseau",
     nom: "Réseau",
     prix: 15000,
-    badge: "Le plus choisi",
+    badge: "Recommandé",
     description: "Pour les commerces en développement avec plusieurs points de vente.",
     boutiques: "Jusqu'à 3 boutiques",
     employes: "Jusqu'à 5 employés par boutique",
@@ -77,10 +77,6 @@ export default function Pricing() {
           </h2>
           <p className="mt-4 text-base sm:text-lg text-[#6B5C52]">
             Commence par <strong>14 jours d'essai gratuit</strong>, sans engagement.
-            Règle ensuite facilement chaque mois par MTN Mobile Money ou Moov Money.
-          </p>
-          <p className="mt-2 text-xs text-[#6B5C52]/80 italic">
-            (Montants indicatifs en Francs CFA — à confirmer avec le porteur de projet avant mise en ligne)
           </p>
         </div>
 
@@ -156,16 +152,6 @@ export default function Pricing() {
               </div>
             );
           })}
-        </div>
-
-        {/* Note de réassurance sous les cartes */}
-        <div className="mt-12 rounded-xl border border-[rgba(43,33,25,0.1)] bg-[#F5EDE3]/50 p-5 text-center max-w-2xl mx-auto">
-          <p className="text-xs sm:text-sm text-[#6B5C52] leading-relaxed">
-            <strong className="text-[#2B2119]">Tranquillité garantie :</strong> En cas de retard de
-            paiement, ton compte n'est jamais coupé brutalement. Un délai de grâce de{" "}
-            <strong className="text-[#2B2119]">7 jours</strong> t'est toujours accordé pour
-            régulariser sereinement ton abonnement.
-          </p>
         </div>
       </div>
     </section>

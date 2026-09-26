@@ -39,10 +39,10 @@ export default function Features() {
             <div className="rounded-xl border border-[rgba(43,33,25,0.08)] bg-[#FAF6F1] p-4 text-xs space-y-2">
               <div className="flex items-center justify-between font-semibold text-[#2B2119]">
                 <span>Bidon d'Huile raffinée 5L</span>
-                <span className="text-[#C53030] font-bold">4 restants (Alerte à 6)</span>
+                <span className="text-[#C1652D] font-bold">4 restants (Alerte à 6)</span>
               </div>
               <div className="w-full bg-[rgba(43,33,25,0.08)] h-2 rounded-full overflow-hidden">
-                <div className="bg-[#C53030] h-full w-[35%]" />
+                <div className="bg-[#C1652D] h-full w-[35%]" />
               </div>
               <p className="text-[11px] text-[#6B5C52]">
                 Alerte stock bas déclenchée automatiquement
