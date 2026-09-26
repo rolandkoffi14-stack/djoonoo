@@ -7,6 +7,7 @@ import QRCode from "qrcode";
 const SUPERADMIN_AUTH_SECRET =
   process.env.SUPERADMIN_AUTH_SECRET ||
   process.env.AUTH_SECRET ||
+  process.env.NEXTAUTH_SECRET ||
   "djoonoo-superadmin-secret-must-be-configured-securely-32chars";
 const KEY = new TextEncoder().encode(SUPERADMIN_AUTH_SECRET);
 export const SUPERADMIN_COOKIE_NAME = "djoonoo_superadmin_session";

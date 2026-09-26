@@ -5,7 +5,10 @@ import { generateSecret, generateURI, verifySync, generateSync } from "otplib";
 import QRCode from "qrcode";
 import { RoleUtilisateur, StatutAbonnement } from "@prisma/client";
 
-const AUTH_SECRET = process.env.AUTH_SECRET || "djoonoo-production-secret-must-be-configured-securely-32chars";
+const AUTH_SECRET =
+  process.env.AUTH_SECRET ||
+  process.env.NEXTAUTH_SECRET ||
+  "djoonoo-production-secret-must-be-configured-securely-32chars";
 const KEY = new TextEncoder().encode(AUTH_SECRET);
 const COOKIE_NAME = "djoonoo_session";
 
