@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🧹 Vidage des données métier de test...");
 
-  // Suppression ordonnée des données métier
+  // Suppression ordonnée des données métier et logs
+  await prisma.journal_audit_plateforme.deleteMany();
   await prisma.journal_audit.deleteMany();
   await prisma.paiements.deleteMany();
   await prisma.lignes_vente.deleteMany();
