@@ -11,11 +11,12 @@ datasource db {
 // ---------- ENUMS ----------
 
 enum StatutAbonnement {
-  essai
-  actif
-  impaye // échéance dépassée, en attente de régularisation avant suspension — voir section 5
-  suspendu
-  resilie
+  essai // période d'essai initiale (14 jours stricts)
+  actif // abonnement à jour et payé
+  impaye // échéance dépassée d'un abonnement payé : délai de grâce (7 jours) avec accès complet
+  expire // fin d'essai ou fin de grâce sans paiement : mode LECTURE SEULE (connexion permise, données consultables, écritures bloquées)
+  suspendu // blocage administratif / fraude décidé par Super-Admin : CONNEXION INTERDITE
+  resilie // résiliation définitive
 }
 
 enum RoleUtilisateur {
@@ -97,14 +98,15 @@ model comptes {
 }
 
 model forfaits {
-  id                        String  @id @default(uuid())
+  id                        String   @id @default(uuid())
   nom                       String // "Solo" / "Réseau" / "Empire" en donnée de seed, jamais en dur dans le code — voir section 0
-  max_boutiques             Int? // NULL = illimité — décision B7, jamais -1
+  max_boutiques             Int? // NULL = illimité — décision B7, jamais -1 (voir note ci-dessous)
   max_employes_par_boutique Int? // NULL = illimité — idem
   prix_mensuel              Int // FCFA, entier
-  actif                     Boolean @default(true)
+  duree_jours               Int      @default(30) // Durée du forfait en jours (ex: 30 pour 1 mois, 365 pour 1 an) — décision H24
+  actif                     Boolean  @default(true)
 
-  comptes comptes[]
+  comptes                   comptes[]
 }
 
 model factures_abonnement {
@@ -112,13 +114,14 @@ model factures_abonnement {
   compte_id                   String
   montant                     Int // FCFA
   statut                      StatutFactureAbonnement @default(en_attente)
-  fournisseur_paiement        String                  @default("manuel") // "manuel" au MVP ; "fedapay"/"kkiapay" une fois intégrés
-  reference_externe           String? // id de transaction chez le fournisseur, une fois une passerelle branchée
-  confirme_par_super_admin_id String? // renseigné uniquement si fournisseur_paiement = "manuel"
+  fournisseur_paiement        String                  @default("fedapay")
+  reference_externe           String? // id de transaction FedaPay (ex: 123456)
+  cle_idempotence             String?                 @unique // token ou signature webhook pour garantir l'idempotence stricte
+  confirme_par_super_admin_id String? // renseigné uniquement en cas de régularisation manuelle par Super-Admin
   date_echeance               DateTime
   date_confirmation           DateTime?
 
-  compte comptes @relation(fields: [compte_id], references: [id])
+  compte                      comptes                 @relation(fields: [compte_id], references: [id])
 
   @@index([compte_id])
 }

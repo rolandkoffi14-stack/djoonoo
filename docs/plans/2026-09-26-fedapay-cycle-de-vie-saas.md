@@ -52,7 +52,7 @@ Ajouter la colonne `duree_jours` au modèle `forfaits` et la colonne `cle_idempo
 
 ### Micro-étapes TDD :
 
-- [ ] **1.1 Test unitaire de validation du schéma Prisma**
+- [x] **1.1 Test unitaire de validation du schéma Prisma**
   Créer le fichier de test `tests/schema-forfaits.test.ts` :
   ```typescript
   import { describe, it, expect } from "vitest";
@@ -89,13 +89,13 @@ Ajouter la colonne `duree_jours` au modèle `forfaits` et la colonne `cle_idempo
   });
   ```
 
-- [ ] **1.2 Exécuter le test et vérifier son échec initial**
+- [x] **1.2 Exécuter le test et vérifier son échec initial**
   ```powershell
   npx vitest run tests/schema-forfaits.test.ts
   ```
   *Erreur attendue : Property 'duree_jours' does not exist on type 'forfaits'.*
 
-- [ ] **1.3 Mettre à jour `prisma/schema.prisma`**
+- [x] **1.3 Mettre à jour `prisma/schema.prisma`**
   Modifier l'enum `StatutAbonnement` et les modèles `forfaits` et `factures_abonnement` :
   ```prisma
   enum StatutAbonnement {
@@ -137,24 +137,24 @@ Ajouter la colonne `duree_jours` au modèle `forfaits` et la colonne `cle_idempo
   }
   ```
 
-- [ ] **1.4 Pousser les modifications en base et régénérer le client**
+- [x] **1.4 Pousser les modifications en base et régénérer le client**
   ```powershell
   npx prisma db push
   npx prisma generate
   ```
 
-- [ ] **1.5 Mettre à jour le seed (`prisma/seed.ts`)**
+- [x] **1.5 Mettre à jour le seed (`prisma/seed.ts`)**
   S'assurer que les forfaits créés incluent `duree_jours: 30`.
   ```powershell
   npx tsx prisma/seed.ts
   ```
 
-- [ ] **1.6 Exécuter le test et vérifier le passage au vert**
+- [x] **1.6 Exécuter le test et vérifier le passage au vert**
   ```powershell
   npx vitest run tests/schema-forfaits.test.ts
   ```
 
-- [ ] **1.7 Commit Git atomique**
+- [x] **1.7 Commit Git atomique**
   ```powershell
   git add prisma/schema.prisma prisma/seed.ts tests/schema-forfaits.test.ts
   git commit -m "feat(prisma): ajout duree_jours forfait et cle_idempotence factures_abonnement"

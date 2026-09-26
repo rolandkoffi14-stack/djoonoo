@@ -40,6 +40,7 @@ async function main() {
     {
       nom: "Solo",
       prix_mensuel: 5000,
+      duree_jours: 30,
       max_boutiques: 1,
       max_employes_par_boutique: 1,
       actif: true,
@@ -47,6 +48,7 @@ async function main() {
     {
       nom: "Réseau",
       prix_mensuel: 15000,
+      duree_jours: 30,
       max_boutiques: 3,
       max_employes_par_boutique: 5,
       actif: true,
@@ -54,6 +56,7 @@ async function main() {
     {
       nom: "Empire",
       prix_mensuel: 35000,
+      duree_jours: 30,
       max_boutiques: null, // NULL = illimité (décision B7)
       max_employes_par_boutique: null, // NULL = illimité
       actif: true,
@@ -70,17 +73,18 @@ async function main() {
         where: { id: existing.id },
         data: {
           prix_mensuel: f.prix_mensuel,
+          duree_jours: f.duree_jours,
           max_boutiques: f.max_boutiques,
           max_employes_par_boutique: f.max_employes_par_boutique,
           actif: f.actif,
         },
       });
-      console.log(`✓ Forfait mis à jour : ${f.nom} (${f.prix_mensuel} FCFA/mois)`);
+      console.log(`✓ Forfait mis à jour : ${f.nom} (${f.prix_mensuel} FCFA/${f.duree_jours} jours)`);
     } else {
       await prisma.forfaits.create({
         data: f,
       });
-      console.log(`✓ Forfait créé : ${f.nom} (${f.prix_mensuel} FCFA/mois)`);
+      console.log(`✓ Forfait créé : ${f.nom} (${f.prix_mensuel} FCFA/${f.duree_jours} jours)`);
     }
   }
 
