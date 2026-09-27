@@ -210,6 +210,7 @@ model produits {
   id             String   @id @default(uuid())
   boutique_id    String
   compte_id      String // dénormalisé depuis boutique.compte_id à la création, figé
+  code_barre     String? // Code SKU interne ou code-barres (optionnel)
   nom            String
   prix_unitaire  Int // FCFA
   quantite_stock Int
@@ -219,9 +220,11 @@ model produits {
   boutique     boutiques      @relation(fields: [boutique_id], references: [id])
   lignes_vente lignes_vente[]
 
+  @@unique([boutique_id, code_barre])
   @@index([boutique_id])
   @@index([compte_id])
   @@index([boutique_id, nom])
+  @@index([boutique_id, code_barre])
 }
 
 // ---------- CLIENTS ----------
@@ -272,12 +275,14 @@ model ventes {
 }
 
 model lignes_vente {
-  id                       String @id @default(uuid())
+  id                       String  @id @default(uuid())
   vente_id                 String
   produit_id               String
-  compte_id                String // dénormalisé, figé
+  compte_id                String  // dénormalisé, figé
   quantite                 Int
-  prix_unitaire_a_la_vente Int // FIGÉ, règle 3
+  prix_unitaire_a_la_vente Int     // FIGÉ, règle 3
+  imei1                    String? // Premier IMEI / N° de série (optionnel)
+  imei2                    String? // Deuxième IMEI (optionnel pour Dual SIM)
 
   vente   ventes   @relation(fields: [vente_id], references: [id])
   produit produits @relation(fields: [produit_id], references: [id])
