@@ -221,6 +221,7 @@ model produits {
 
   @@index([boutique_id])
   @@index([compte_id])
+  @@index([boutique_id, nom])
 }
 
 // ---------- CLIENTS ----------
@@ -236,6 +237,7 @@ model clients {
   ventes ventes[]
 
   @@index([compte_id, telephone]) // recherche de rapprochement avant création — décision C11
+  @@index([compte_id, nom])
 }
 
 // ---------- VENTES ----------
@@ -265,6 +267,8 @@ model ventes {
 
   @@index([boutique_id])
   @@index([compte_id])
+  @@index([boutique_id, date_vente])
+  @@index([compte_id, date_vente])
 }
 
 model lignes_vente {
