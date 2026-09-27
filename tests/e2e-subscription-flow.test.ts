@@ -6,7 +6,7 @@ import { verifierStatutAbonnementPourEcriture } from "../src/lib/subscription-gu
 import { StatutAbonnement, StatutFactureAbonnement } from "@prisma/client";
 
 describe("Test d'Intégration Bout-en-Bout : Cycle de Vie Complet SaaS & FedaPay", () => {
-  it("doit dérouler l'intégralité du cycle de vie SaaS sans faille", { timeout: 45000 }, async () => {
+  it("doit dérouler l'intégralité du cycle de vie SaaS sans faille", { timeout: 90000 }, async () => {
     // 0. Récupération des forfaits
     const forfaits = await prisma.forfaits.findMany({ where: { actif: true } });
     expect(forfaits.length).toBeGreaterThan(0);

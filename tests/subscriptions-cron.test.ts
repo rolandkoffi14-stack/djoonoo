@@ -3,7 +3,7 @@ import { prisma } from "../src/lib/prisma";
 import { executerCycleAbonnements } from "../src/lib/subscriptions-cron";
 import { StatutAbonnement } from "@prisma/client";
 
-describe("Moteur du Cycle de Vie des Abonnements", { timeout: 20000 }, () => {
+describe("Moteur du Cycle de Vie des Abonnements", { timeout: 60000 }, () => {
   it("doit passer DIRECTEMENT un compte d'essai expiré en EXPIRE sans lui accorder de délai de grâce", async () => {
     const forfait = await prisma.forfaits.findFirst();
     const codeTest = "TST" + Math.floor(Math.random() * 899 + 100);

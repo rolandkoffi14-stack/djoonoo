@@ -385,7 +385,7 @@ Créer le module central FedaPay encapsulant :
   ```
   *Erreur attendue : Cannot find module '../src/lib/fedapay'.*
 
-- [ ] **3.4 Implémenter `src/lib/fedapay.ts`**
+- [x] **3.4 Implémenter `src/lib/fedapay.ts`**
   Rédiger l'implémentation complète avec gestion de la signature HMAC SHA-256, tolérance de 300s, appel à l'API FedaPay (`/v1/transactions` et `/v1/transactions/{id}/token`) et traitement atomique Prisma d'activation :
   ```typescript
   import crypto from "crypto";
