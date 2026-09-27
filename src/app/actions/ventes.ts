@@ -35,6 +35,15 @@ export interface RecuVenteData {
   id: string;
   numero_facture: string;
   date_vente: string;
+  entreprise: {
+    nom: string;
+    ifu?: string | null;
+    rccm?: string | null;
+    telephone_principal: string;
+    telephone_secondaire?: string | null;
+    adresse_siege?: string | null;
+    ville: string;
+  };
   boutique: {
     code: string;
     nom: string;
@@ -103,7 +112,26 @@ export async function enregistrerVenteAction(
   try {
     const scoped = getScopedPrisma(session.compteId);
 
-    // 1. Règle 6 : Idempotence — Si la clé existe déjà, retourner la vente existante
+    // 1. Récupération des informations de l'entreprise
+    const compte = await prisma.comptes.findUnique({
+      where: { id: session.compteId },
+      select: {
+        code: true,
+        nom_entreprise: true,
+        ifu: true,
+        rccm: true,
+        telephone_principal: true,
+        telephone_secondaire: true,
+        adresse_siege: true,
+        ville: true,
+      },
+    });
+
+    if (!compte) {
+      return { success: false, error: "Compte entreprise introuvable." };
+    }
+
+    // 2. Règle 6 : Idempotence — Si la clé existe déjà, retourner la vente existante
     if (cle_idempotence) {
       const venteExistante = await scoped.ventes.findUnique({
         where: { cle_idempotence },
@@ -128,6 +156,15 @@ export async function enregistrerVenteAction(
             id: venteExistante.id,
             numero_facture: venteExistante.numero_facture,
             date_vente: venteExistante.date_vente.toISOString(),
+            entreprise: {
+              nom: compte.nom_entreprise,
+              ifu: compte.ifu,
+              rccm: compte.rccm,
+              telephone_principal: compte.telephone_principal,
+              telephone_secondaire: compte.telephone_secondaire,
+              adresse_siege: compte.adresse_siege,
+              ville: compte.ville,
+            },
             boutique: {
               code: venteExistante.boutique.code,
               nom: venteExistante.boutique.nom,
@@ -144,6 +181,8 @@ export async function enregistrerVenteAction(
               quantite: l.quantite,
               prix_unitaire: l.prix_unitaire_a_la_vente,
               total_ligne: l.quantite * l.prix_unitaire_a_la_vente,
+              imei1: l.imei1,
+              imei2: l.imei2,
             })),
             montant_brut: venteExistante.montant_total + venteExistante.montant_remise,
             montant_remise: venteExistante.montant_remise,
@@ -157,18 +196,12 @@ export async function enregistrerVenteAction(
       }
     }
 
-    // 2. Vérification boutique active et compte
-    const compte = await prisma.comptes.findUnique({
-      where: { id: session.compteId },
-      select: { code: true, nom_entreprise: true },
-    });
-
     const boutique = await scoped.boutiques.findFirst({
       where: { id: boutique_id, compte_id: session.compteId },
     });
 
-    if (!compte || !boutique) {
-      return { success: false, error: "Boutique ou compte introuvable." };
+    if (!boutique) {
+      return { success: false, error: "Boutique introuvable." };
     }
 
     // Règle 8 bis : Boutique inactive -> Aucune vente possible
@@ -325,6 +358,15 @@ export async function enregistrerVenteAction(
       id: resultat.id,
       numero_facture: resultat.numero_facture,
       date_vente: resultat.date_vente.toISOString(),
+      entreprise: {
+        nom: compte.nom_entreprise,
+        ifu: compte.ifu,
+        rccm: compte.rccm,
+        telephone_principal: compte.telephone_principal,
+        telephone_secondaire: compte.telephone_secondaire,
+        adresse_siege: compte.adresse_siege,
+        ville: compte.ville,
+      },
       boutique: {
         code: boutique.code,
         nom: boutique.nom,
@@ -385,7 +427,11 @@ export async function getRecuVenteAction(venteId: string): Promise<VenteActionRe
     const vente = await scoped.ventes.findFirst({
       where: { id: venteId, compte_id: session.compteId },
       include: {
-        boutique: true,
+        boutique: {
+          include: {
+            compte: true,
+          },
+        },
         utilisateur: true,
         client: true,
         lignes_vente: { include: { produit: true } },
@@ -405,6 +451,15 @@ export async function getRecuVenteAction(venteId: string): Promise<VenteActionRe
         id: vente.id,
         numero_facture: vente.numero_facture,
         date_vente: vente.date_vente.toISOString(),
+        entreprise: {
+          nom: vente.boutique.compte.nom_entreprise,
+          ifu: vente.boutique.compte.ifu,
+          rccm: vente.boutique.compte.rccm,
+          telephone_principal: vente.boutique.compte.telephone_principal,
+          telephone_secondaire: vente.boutique.compte.telephone_secondaire,
+          adresse_siege: vente.boutique.compte.adresse_siege,
+          ville: vente.boutique.compte.ville,
+        },
         boutique: {
           code: vente.boutique.code,
           nom: vente.boutique.nom,

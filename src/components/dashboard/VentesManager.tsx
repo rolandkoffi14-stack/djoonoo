@@ -25,6 +25,7 @@ import { StatutPaiementVente, ModePaiement, RoleUtilisateur } from "@prisma/clie
 import { getRecuVenteAction, RecuVenteData } from "@/app/actions/ventes";
 import Pagination from "@/components/ui/Pagination";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import RecuVenteModal from "./RecuVenteModal";
 
 export interface VenteListItem {
   id: string;
@@ -447,177 +448,15 @@ export default function VentesManager({
       {/* ======================================================== */}
       {/* MODALE : REÇU / FACTURE OFFICIELLE IMPRIMABLE           */}
       {/* ======================================================== */}
+      {/* ======================================================== */}
+      {/* MODALE : REÇU / FACTURE OFFICIELLE (80 mm & A4)          */}
+      {/* ======================================================== */}
       {recuSelectionne && (
-        <div className="fixed inset-0 z-50 bg-[#2B2119]/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Barre d'action supérieure */}
-            <div className="p-4 bg-[#FAF6F1] border-b border-[#E5DACF] flex items-center justify-between print:hidden">
-              <div className="flex items-center gap-2">
-                <span className="p-1 rounded-lg bg-[#C1652D]/15 text-[#C1652D]">
-                  <Receipt className="w-5 h-5" />
-                </span>
-                <span className="font-extrabold text-sm text-[#2B2119]">
-                  Facture {recuSelectionne.numero_facture}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="px-3 py-1.5 rounded-xl bg-[#2B2119] text-[#FAF6F1] text-xs font-bold hover:bg-black transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span>Imprimer</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRecuSelectionne(null)}
-                  className="p-1.5 rounded-xl hover:bg-[#E5DACF] text-[#6D5D52] hover:text-[#2B2119] cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Corps du ticket de caisse imprimable */}
-            <div
-              id="ticket-caisse"
-              className="p-6 sm:p-8 font-mono text-xs text-[#2B2119] space-y-4 bg-white"
-            >
-              <div className="text-center space-y-1 border-b border-dashed border-stone-300 pb-4">
-                <div className="text-base font-black tracking-tight text-[#2B2119]">
-                  {recuSelectionne.boutique.nom}
-                </div>
-                <div className="text-[11px] text-stone-600">
-                  {recuSelectionne.boutique.adresse}, {recuSelectionne.boutique.ville}
-                </div>
-                {recuSelectionne.boutique.telephone && (
-                  <div className="text-[11px] text-stone-600">
-                    Tél : {recuSelectionne.boutique.telephone}
-                  </div>
-                )}
-                <div className="pt-2 text-xs font-bold text-[#C1652D]">
-                  FACTURE N° {recuSelectionne.numero_facture}
-                </div>
-                <div className="text-[10px] text-stone-500">
-                  {new Date(recuSelectionne.date_vente).toLocaleDateString("fr-FR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-                <div className="text-[10px] text-stone-600">
-                  Vendeur : {recuSelectionne.vendeur.nom}
-                </div>
-                {recuSelectionne.client && (
-                  <div className="text-[11px] font-bold text-stone-800 pt-1">
-                    Client : {recuSelectionne.client.nom} ({recuSelectionne.client.telephone})
-                  </div>
-                )}
-              </div>
-
-              {/* Lignes d'articles */}
-              <div className="space-y-2 border-b border-dashed border-stone-300 pb-4">
-                <div className="flex justify-between font-bold text-stone-500 text-[10px] uppercase">
-                  <span>Désignation</span>
-                  <span>Total</span>
-                </div>
-
-                {recuSelectionne.lignes.map((l, idx) => (
-                  <div key={idx} className="space-y-0.5">
-                    <div className="flex justify-between font-semibold">
-                      <span className="truncate pr-2">{l.produit_nom}</span>
-                      <span className="shrink-0">{l.total_ligne.toLocaleString("fr-FR")} F</span>
-                    </div>
-                    <div className="text-[10px] text-stone-500">
-                      {l.quantite} x {l.prix_unitaire.toLocaleString("fr-FR")} F
-                    </div>
-                    {(l.imei1 || l.imei2) && (
-                      <div className="text-[9px] text-[#C1652D] font-mono">
-                        {l.imei1 && <div>IMEI 1 : {l.imei1}</div>}
-                        {l.imei2 && <div>IMEI 2 : {l.imei2}</div>}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Récapitulatif financier */}
-              <div className="space-y-1.5 border-b border-dashed border-stone-300 pb-4">
-                <div className="flex justify-between text-stone-600">
-                  <span>Total brut :</span>
-                  <span>{recuSelectionne.montant_brut.toLocaleString("fr-FR")} FCFA</span>
-                </div>
-
-                {recuSelectionne.montant_remise > 0 && (
-                  <div className="flex justify-between text-green-700 font-semibold">
-                    <span>Remise commerciale :</span>
-                    <span>-{recuSelectionne.montant_remise.toLocaleString("fr-FR")} FCFA</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between text-sm font-black text-stone-900 pt-1">
-                  <span>NET À PAYER :</span>
-                  <span>{recuSelectionne.montant_total.toLocaleString("fr-FR")} FCFA</span>
-                </div>
-
-                <div className="flex justify-between text-stone-700 pt-1">
-                  <span>Montant réglé :</span>
-                  <span className="font-bold">
-                    {recuSelectionne.montant_paye.toLocaleString("fr-FR")} FCFA
-                  </span>
-                </div>
-
-                {recuSelectionne.monnaie_rendue > 0 && (
-                  <div className="flex justify-between text-emerald-700 font-bold">
-                    <span>Monnaie rendue :</span>
-                    <span>{recuSelectionne.monnaie_rendue.toLocaleString("fr-FR")} FCFA</span>
-                  </div>
-                )}
-
-                {recuSelectionne.montant_total > recuSelectionne.montant_paye && (
-                  <div className="flex justify-between text-red-700 font-bold">
-                    <span>Reste dû (Impayé) :</span>
-                    <span>
-                      {(
-                        recuSelectionne.montant_total - recuSelectionne.montant_paye
-                      ).toLocaleString("fr-FR")}{" "}
-                      FCFA
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex justify-between text-[11px] text-stone-600 pt-1">
-                  <span>Moyen de paiement :</span>
-                  <span className="uppercase font-semibold">
-                    {recuSelectionne.mode_paiement
-                      ? recuSelectionne.mode_paiement.replace("_", " ")
-                      : "Non payé (Crédit)"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-center text-[10px] text-stone-500 pt-2 space-y-1">
-                <div>Merci de votre visite et à très bientôt !</div>
-                <div className="font-sans font-bold text-stone-400">
-                  Propulsé par djoonoo.com
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-[#FAF6F1] border-t border-[#E5DACF] flex justify-end print:hidden">
-              <button
-                type="button"
-                onClick={() => setRecuSelectionne(null)}
-                className="px-4 py-2 rounded-xl bg-[#2B2119] text-[#FAF6F1] text-xs font-bold hover:bg-black transition-colors cursor-pointer"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
+        <RecuVenteModal
+          recu={recuSelectionne}
+          onClose={() => setRecuSelectionne(null)}
+          titreSucces={`Facture ${recuSelectionne.numero_facture}`}
+        />
       )}
     </div>
   );
