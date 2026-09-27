@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useTransition, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Pagination from "@/components/ui/Pagination";
 import {
   Package,
   Plus,
@@ -55,6 +56,12 @@ interface ProduitsManagerProps {
   boutiques: BoutiqueOption[];
   boutiqueActiveId?: string;
   userRole: RoleUtilisateur;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalElements?: number;
+  initialSearch?: string;
+  totalProduitsGlobal?: number;
 }
 
 type FiltreStock = "tous" | "en_stock" | "stock_bas" | "rupture";
@@ -64,12 +71,20 @@ export default function ProduitsManager({
   boutiques,
   boutiqueActiveId,
   userRole,
+  page = 1,
+  limit = 25,
+  totalPages = 1,
+  totalElements,
+  initialSearch = "",
+  totalProduitsGlobal,
 }: ProduitsManagerProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
   // Filtres et recherche
-  const [recherche, setRecherche] = useState("");
+  const [recherche, setRecherche] = useState(initialSearch);
   const [filtreActif, setFiltreActif] = useState<FiltreStock>("tous");
 
   // Modales
@@ -282,9 +297,23 @@ export default function ProduitsManager({
           <Search className="w-4 h-4 text-[#8C7A6B] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Rechercher un produit..."
+            placeholder="Rechercher un produit... (Entrée pour valider)"
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const params = new URLSearchParams(searchParams.toString());
+                if (recherche.trim()) {
+                  params.set("q", recherche.trim());
+                } else {
+                  params.delete("q");
+                }
+                params.set("page", "1");
+                startTransition(() => {
+                  router.push(`${pathname}?${params.toString()}`);
+                });
+              }
+            }}
             className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
           />
         </div>
@@ -468,6 +497,14 @@ export default function ProduitsManager({
             </tbody>
           </table>
         </div>
+
+        {/* Pagination du tableau */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements ?? produits.length}
+          limit={limit}
+        />
       </div>
 
       {/* Modale Nouveau Produit */}

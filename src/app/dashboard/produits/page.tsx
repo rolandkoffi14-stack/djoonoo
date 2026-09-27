@@ -2,20 +2,35 @@ import React from "react";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { getCurrentSession } from "@/lib/auth";
-import { prisma, getScopedPrisma } from "@/lib/prisma";
+import { getScopedPrisma } from "@/lib/prisma";
 import ProduitsManager, { ProduitItem, BoutiqueOption } from "@/components/dashboard/ProduitsManager";
+import { parsePaginationParams } from "@/lib/pagination";
 
 export const metadata = {
   title: "djoonoo — Produits & Gestion des Stocks",
   description: "Suivi du stock en temps réel et alertes de réapprovisionnement",
 };
 
-export default async function ProduitsPage() {
+interface ProduitsPageProps {
+  searchParams?: Promise<{
+    page?: string;
+    limit?: string;
+    q?: string;
+    filtreStock?: string;
+  }>;
+}
+
+export default async function ProduitsPage(props: ProduitsPageProps) {
   const session = await getCurrentSession();
 
   if (!session) {
     redirect("/connexion");
   }
+
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const { page, limit, skip } = parsePaginationParams(searchParams, 25);
+  const q = searchParams.q?.trim() || "";
+  const filtreStock = searchParams.filtreStock || "tous";
 
   const scoped = getScopedPrisma(session.compteId);
 
@@ -54,19 +69,49 @@ export default async function ProduitsPage() {
     activeBoutique = boutiquesData[0];
   }
 
-  // 3. Récupération des produits pour la boutique active
-  const produitsData = await scoped.produits.findMany({
-    where: {
-      compte_id: session.compteId,
-      boutique_id: activeBoutique.id,
-    },
-    orderBy: { date_creation: "desc" },
-    include: {
-      boutique: {
-        select: { id: true, code: true, nom: true },
+  // 3. Condition de filtre Prisma
+  const whereCondition: any = {
+    compte_id: session.compteId,
+    boutique_id: activeBoutique.id,
+  };
+
+  if (q) {
+    whereCondition.nom = { contains: q, mode: "insensitive" };
+  }
+
+  if (filtreStock === "rupture") {
+    whereCondition.quantite_stock = 0;
+  } else if (filtreStock === "en_stock") {
+    whereCondition.quantite_stock = { gt: 0 };
+  }
+
+  // 4. Double requête atomique avec pagination et calcul de stock
+  const [totalCount, produitsData, totalProduitsBoutique, alertesCount] = await Promise.all([
+    scoped.produits.count({ where: whereCondition }),
+    scoped.produits.findMany({
+      where: whereCondition,
+      skip,
+      take: limit,
+      orderBy: { nom: "asc" },
+      include: {
+        boutique: {
+          select: { id: true, code: true, nom: true },
+        },
       },
-    },
-  });
+    }),
+    scoped.produits.count({
+      where: { compte_id: session.compteId, boutique_id: activeBoutique.id },
+    }),
+    scoped.produits.count({
+      where: {
+        compte_id: session.compteId,
+        boutique_id: activeBoutique.id,
+        quantite_stock: { lte: 5 }, // seuil représentatif
+      },
+    }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
   const formattedProduits: ProduitItem[] = produitsData.map((p) => ({
     id: p.id,
@@ -92,6 +137,12 @@ export default async function ProduitsPage() {
         boutiques={formattedBoutiques}
         boutiqueActiveId={activeBoutique.id}
         userRole={session.role}
+        page={page}
+        limit={limit}
+        totalPages={totalPages}
+        totalElements={totalCount}
+        initialSearch={q}
+        totalProduitsGlobal={totalProduitsBoutique}
       />
     </div>
   );

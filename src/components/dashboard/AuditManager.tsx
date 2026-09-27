@@ -23,6 +23,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { JournalAuditItem, recupererJournalAuditAction } from "@/app/actions/audit";
+import Pagination from "@/components/ui/Pagination";
 
 interface AuditManagerProps {
   initialLogs: JournalAuditItem[];
@@ -37,15 +38,28 @@ interface AuditManagerProps {
     email: string;
     role: string;
   }[];
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalElements?: number;
 }
 
 export default function AuditManager({
   initialLogs,
   initialStats,
   utilisateurs,
+  page = 1,
+  limit = 25,
+  totalPages = 1,
+  totalElements,
 }: AuditManagerProps) {
   const [logs, setLogs] = useState<JournalAuditItem[]>(initialLogs);
   const [stats, setStats] = useState(initialStats);
+
+  React.useEffect(() => {
+    setLogs(initialLogs);
+    setStats(initialStats);
+  }, [initialLogs, initialStats]);
   const [selectedCategorie, setSelectedCategorie] = useState<string>("toutes");
   const [selectedUtilisateur, setSelectedUtilisateur] = useState<string>("tous");
   const [recherche, setRecherche] = useState<string>("");
@@ -428,6 +442,14 @@ export default function AuditManager({
             </table>
           </div>
         )}
+
+        {/* Pagination du tableau */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements ?? logs.length}
+          limit={limit}
+        />
       </div>
 
       {/* MODALE D'INSPECTION DES DÉTAILS DE L'AUDIT */}
