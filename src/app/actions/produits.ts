@@ -2,7 +2,7 @@
 
 import { getCurrentSession } from "@/lib/auth";
 import { prisma, getScopedPrisma } from "@/lib/prisma";
-import { enregistrerAudit } from "@/lib/business-rules";
+import { enregistrerAudit, genererCodeSKU } from "@/lib/business-rules";
 import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
 
@@ -16,6 +16,7 @@ export interface ProduitActionResult {
     quantite_stock: number;
     seuil_alerte: number;
     boutique_id: string;
+    code_barre?: string | null;
   };
 }
 
@@ -49,6 +50,7 @@ export async function creerProduitAction(
   const prixUnitaireRaw = formData.get("prix_unitaire") as string;
   const quantiteInitialeRaw = formData.get("quantite_initiale") as string;
   const seuilAlerteRaw = formData.get("seuil_alerte") as string;
+  const codeBarreSaisi = (formData.get("code_barre") as string)?.trim() || null;
   let boutiqueId = (formData.get("boutique_id") as string)?.trim();
 
   // Le Gérant est strictement limité à sa propre boutique
@@ -90,14 +92,30 @@ export async function creerProduitAction(
       };
     }
 
-    // 2. Création transactionnelle avec journal d'audit (Règle 5 & Section 7)
+    // Vérification d'unicité du code SKU si saisi manuellement
+    if (codeBarreSaisi) {
+      const codeExistant = await scoped.produits.findFirst({
+        where: { boutique_id: boutiqueId, code_barre: codeBarreSaisi },
+      });
+      if (codeExistant) {
+        return {
+          success: false,
+          error: `Le code SKU / code-barres "${codeBarreSaisi}" est déjà attribué au produit "${codeExistant.nom}".`,
+        };
+      }
+    }
+
+    // 2. Création transactionnelle avec génération de SKU si non renseigné
     const nouveauProduit = await prisma.$transaction(async (tx) => {
+      const codeBarreFinal = codeBarreSaisi || (await genererCodeSKU(tx, boutique.id, boutique.code));
+
       const produit = await tx.produits.create({
         data: {
           nom,
           prix_unitaire: prixUnitaire,
           quantite_stock: quantiteStock,
           seuil_alerte: seuilAlerte,
+          code_barre: codeBarreFinal,
           boutique_id: boutiqueId,
           compte_id: session.compteId, // dénormalisé et figé à la création
         },
@@ -114,6 +132,7 @@ export async function creerProduitAction(
           prix_unitaire: produit.prix_unitaire,
           quantite_stock: produit.quantite_stock,
           seuil_alerte: produit.seuil_alerte,
+          code_barre: produit.code_barre,
           boutique_id: boutique.id,
           boutique_code: boutique.code,
         },
@@ -134,6 +153,7 @@ export async function creerProduitAction(
         quantite_stock: nouveauProduit.quantite_stock,
         seuil_alerte: nouveauProduit.seuil_alerte,
         boutique_id: nouveauProduit.boutique_id,
+        code_barre: nouveauProduit.code_barre,
       },
     };
   } catch (err: any) {
@@ -163,6 +183,7 @@ export async function modifierProduitAction(
   const nom = (formData.get("nom") as string)?.trim();
   const prixUnitaireRaw = formData.get("prix_unitaire") as string;
   const seuilAlerteRaw = formData.get("seuil_alerte") as string;
+  const codeBarreSaisi = (formData.get("code_barre") as string)?.trim() || null;
 
   if (!produitId || !nom || !prixUnitaireRaw) {
     return { success: false, error: "Tous les champs obligatoires doivent être renseignés." };
@@ -194,6 +215,22 @@ export async function modifierProduitAction(
       return { success: false, error: "Cette boutique est inactive. Modification impossible." };
     }
 
+    if (codeBarreSaisi && codeBarreSaisi !== produit.code_barre) {
+      const codeExistant = await scoped.produits.findFirst({
+        where: {
+          boutique_id: produit.boutique_id,
+          code_barre: codeBarreSaisi,
+          id: { not: produitId },
+        },
+      });
+      if (codeExistant) {
+        return {
+          success: false,
+          error: `Le code SKU / code-barres "${codeBarreSaisi}" est déjà attribué au produit "${codeExistant.nom}".`,
+        };
+      }
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.produits.update({
         where: { id: produitId },
@@ -201,6 +238,7 @@ export async function modifierProduitAction(
           nom,
           prix_unitaire: prixUnitaire,
           seuil_alerte: seuilAlerte,
+          code_barre: codeBarreSaisi || produit.code_barre,
         },
       });
 

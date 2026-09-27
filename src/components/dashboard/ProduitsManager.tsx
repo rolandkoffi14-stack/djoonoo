@@ -36,6 +36,7 @@ export interface ProduitItem {
   prix_unitaire: number;
   quantite_stock: number;
   seuil_alerte: number;
+  code_barre?: string | null;
   date_creation: string;
   boutique: {
     id: string;
@@ -398,6 +399,12 @@ export default function ProduitsManager({
                       {/* Nom Article */}
                       <td className="py-3.5 px-4">
                         <div className="font-extrabold text-[#2B2119]">{p.nom}</div>
+                        {p.code_barre && (
+                          <div className="text-[10px] font-mono text-[#8C7A6B] flex items-center gap-1 mt-0.5">
+                            <Tag className="w-3 h-3 text-[#C1652D]" />
+                            <span className="font-semibold">{p.code_barre}</span>
+                          </div>
+                        )}
                       </td>
 
                       {/* Boutique */}
@@ -616,6 +623,23 @@ export default function ProduitsManager({
                 </div>
               </div>
 
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-[#2B2119]">
+                    Code SKU / Code-barres
+                  </label>
+                  <span className="text-[10px] text-[#8C7A6B]">
+                    (Laisser vide pour générer automatiquement)
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  name="code_barre"
+                  placeholder="Ex : SKU-B01-0042 ou scanner au lecteur"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono font-bold text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
+                />
+              </div>
+
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5DACF]">
                 <button
                   type="button"
@@ -812,6 +836,19 @@ export default function ProduitsManager({
                   min={0}
                   defaultValue={produitAEditer.seuil_alerte}
                   className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                  Code SKU / Code-barres
+                </label>
+                <input
+                  type="text"
+                  name="code_barre"
+                  defaultValue={produitAEditer.code_barre || ""}
+                  placeholder="Ex : SKU-B01-0042"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono font-bold text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>
 

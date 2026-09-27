@@ -39,6 +39,7 @@ export interface ProduitCaisse {
   prix_unitaire: number;
   quantite_stock: number;
   seuil_alerte: number;
+  code_barre?: string | null;
 }
 
 export interface ClientCaisse {
@@ -124,12 +125,34 @@ export default function CaissePOS({
       : "idem-" + Date.now() + "-" + Math.random().toString(36).substring(2, 9);
   });
 
-  // Filtrage du catalogue
+  // Effet sonore discret lors du scan réussi
+  function jouerBipSucces() {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } catch {
+      // Ignoré si l'utilisateur n'a pas encore interagi
+    }
+  }
+
+  // Filtrage du catalogue par nom ou code SKU / code-barres
   const produitsFiltres = useMemo(() => {
     const q = rechercheProduit.toLowerCase().trim();
     return produits.filter((p) => {
       const matchNom = p.nom.toLowerCase().includes(q);
-      if (!matchNom) return false;
+      const matchSku = p.code_barre ? p.code_barre.toLowerCase().includes(q) : false;
+      if (!matchNom && !matchSku) return false;
       if (filtreStock === "disponibles") {
         return p.quantite_stock > 0;
       }
@@ -376,14 +399,29 @@ export default function CaissePOS({
             </div>
           </div>
 
-          {/* Champ recherche produit */}
+          {/* Champ recherche produit & scan code-barres */}
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C7A6B]" />
             <input
               type="text"
               value={rechercheProduit}
               onChange={(e) => setRechercheProduit(e.target.value)}
-              placeholder="Rechercher un article par nom..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const q = rechercheProduit.trim().toLowerCase();
+                  if (!q) return;
+                  const cible =
+                    produits.find((p) => p.code_barre && p.code_barre.toLowerCase() === q) ||
+                    (produitsFiltres.length === 1 ? produitsFiltres[0] : null);
+                  if (cible && cible.quantite_stock > 0) {
+                    ajouterAuPanier(cible);
+                    setRechercheProduit("");
+                    jouerBipSucces();
+                  }
+                }
+              }}
+              placeholder="Rechercher par nom ou biper code SKU (Entrée)..."
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] placeholder-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
             />
             {rechercheProduit && (
@@ -446,6 +484,12 @@ export default function CaissePOS({
                     <h3 className="font-bold text-xs text-[#2B2119] line-clamp-2 mb-1 group-hover:text-[#C1652D] transition-colors">
                       {produit.nom}
                     </h3>
+                    {produit.code_barre && (
+                      <div className="text-[10px] font-mono text-[#8C7A6B] flex items-center gap-1 mb-1">
+                        <Tag className="w-2.5 h-2.5 text-[#C1652D]" />
+                        <span className="truncate max-w-[120px]">{produit.code_barre}</span>
+                      </div>
+                    )}
                     <div className="text-sm font-extrabold text-[#C1652D] font-mono">
                       {produit.prix_unitaire.toLocaleString("fr-FR")}{" "}
                       <span className="text-[10px] font-sans font-normal text-[#6D5D52]">FCFA</span>

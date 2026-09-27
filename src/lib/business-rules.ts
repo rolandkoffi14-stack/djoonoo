@@ -217,3 +217,34 @@ export async function enregistrerAudit(
     data: donnees,
   });
 }
+
+/**
+ * Génération automatique d'un code SKU séquentiel unique par boutique (ex: SKU-B01-0001)
+ */
+export async function genererCodeSKU(
+  tx: any,
+  boutiqueId: string,
+  boutiqueCode: string
+): Promise<string> {
+  const totalProduits = await tx.produits.count({
+    where: { boutique_id: boutiqueId },
+  });
+  const seq = (totalProduits + 1).toString().padStart(4, "0");
+  let candidate = `SKU-${boutiqueCode}-${seq}`;
+
+  let existant = await tx.produits.findFirst({
+    where: { boutique_id: boutiqueId, code_barre: candidate },
+  });
+  let offset = 1;
+  while (existant) {
+    const nextSeq = (totalProduits + 1 + offset).toString().padStart(4, "0");
+    candidate = `SKU-${boutiqueCode}-${nextSeq}`;
+    existant = await tx.produits.findFirst({
+      where: { boutique_id: boutiqueId, code_barre: candidate },
+    });
+    offset++;
+  }
+
+  return candidate;
+}
+

@@ -76,7 +76,10 @@ export default async function ProduitsPage(props: ProduitsPageProps) {
   };
 
   if (q) {
-    whereCondition.nom = { contains: q, mode: "insensitive" };
+    whereCondition.OR = [
+      { nom: { contains: q, mode: "insensitive" } },
+      { code_barre: { contains: q, mode: "insensitive" } },
+    ];
   }
 
   if (filtreStock === "rupture") {
@@ -119,6 +122,7 @@ export default async function ProduitsPage(props: ProduitsPageProps) {
     prix_unitaire: p.prix_unitaire,
     quantite_stock: p.quantite_stock,
     seuil_alerte: p.seuil_alerte,
+    code_barre: p.code_barre,
     date_creation: p.date_creation.toISOString(),
     boutique: p.boutique,
   }));

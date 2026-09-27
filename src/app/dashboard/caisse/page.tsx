@@ -120,6 +120,7 @@ export default async function CaissePage() {
       prix_unitaire: true,
       quantite_stock: true,
       seuil_alerte: true,
+      code_barre: true,
     },
   });
 
@@ -129,6 +130,7 @@ export default async function CaissePage() {
     prix_unitaire: p.prix_unitaire,
     quantite_stock: p.quantite_stock,
     seuil_alerte: p.seuil_alerte,
+    code_barre: p.code_barre,
   }));
 
   // 4. Récupération des clients du compte
