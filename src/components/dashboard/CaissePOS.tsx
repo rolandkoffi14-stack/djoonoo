@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition, useMemo } from "react";
+import React, { useState, useTransition, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -32,6 +32,7 @@ import {
   creerClientRapideAction,
   RecuVenteData,
 } from "@/app/actions/ventes";
+import { rechercherClientsAction } from "@/app/actions/clients";
 
 export interface ProduitCaisse {
   id: string;
@@ -100,6 +101,68 @@ export default function CaissePOS({
   const [panier, setPanier] = useState<LignePanier[]>([]);
   const [clientSelectionneId, setClientSelectionneId] = useState<string>("");
   const [remiseSaisie, setRemiseSaisie] = useState<string>("0");
+
+  // Combobox recherche client dynamique
+  const [rechercheClientQuery, setRechercheClientQuery] = useState("");
+  const [resultatsClients, setResultatsClients] = useState<ClientCaisse[]>(clientsInitiaux);
+  const [isSearchingClient, setIsSearchingClient] = useState(false);
+  const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
+  const comboboxClientRef = useRef<HTMLDivElement>(null);
+
+  // Client sélectionné actuel
+  const clientSelectionne = useMemo(() => {
+    if (!clientSelectionneId) return null;
+    return (
+      clients.find((c) => c.id === clientSelectionneId) ||
+      resultatsClients.find((c) => c.id === clientSelectionneId) ||
+      null
+    );
+  }, [clientSelectionneId, clients, resultatsClients]);
+
+  // Fermeture du dropdown au clic en dehors
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        comboboxClientRef.current &&
+        !comboboxClientRef.current.contains(event.target as Node)
+      ) {
+        setIsClientDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Recherche dynamique debouncée
+  useEffect(() => {
+    const q = rechercheClientQuery.trim();
+    if (!q) {
+      setResultatsClients(clients.slice(0, 10));
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingClient(true);
+      try {
+        const res = await rechercherClientsAction(q);
+        if (res.success && res.clients) {
+          setResultatsClients(res.clients);
+          // Enrichir le cache local des clients
+          setClients((prev) => {
+            const map = new Map(prev.map((c) => [c.id, c]));
+            res.clients!.forEach((c) => map.set(c.id, c));
+            return Array.from(map.values());
+          });
+        }
+      } catch (err) {
+        console.error("Erreur recherche clients", err);
+      } finally {
+        setIsSearchingClient(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [rechercheClientQuery, clients]);
 
   // Mode de règlement
   const [typeReglement, setTypeReglement] = useState<"comptant" | "partiel" | "credit">("comptant");
@@ -276,6 +339,8 @@ export default function CaissePOS({
     });
 
     setClientSelectionneId(res.client.id);
+    setRechercheClientQuery("");
+    setIsClientDropdownOpen(false);
     setModalNouveauClient(false);
     setNouveauClientNom("");
     setNouveauClientTel("");
@@ -660,18 +725,99 @@ export default function CaissePOS({
             </button>
           </div>
 
-          <select
-            value={clientSelectionneId}
-            onChange={(e) => setClientSelectionneId(e.target.value)}
-            className="w-full px-3 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
-          >
-            <option value="">Client comptoir anonyme</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nom} ({c.telephone})
-              </option>
-            ))}
-          </select>
+          {clientSelectionne ? (
+            <div className="flex items-center justify-between p-2.5 rounded-xl border border-[#C1652D]/40 bg-[#C1652D]/5">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-[#C1652D]/15 text-[#C1652D] flex items-center justify-center font-bold text-xs shrink-0">
+                  {clientSelectionne.nom.slice(0, 1).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-[#2B2119] truncate">{clientSelectionne.nom}</p>
+                  <p className="text-[11px] text-[#6D5D52] font-mono">{clientSelectionne.telephone}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setClientSelectionneId("");
+                  setRechercheClientQuery("");
+                }}
+                className="p-1 rounded-lg text-[#8C7A6B] hover:text-red-600 hover:bg-[#E5DACF]/50 transition-colors cursor-pointer"
+                title="Désélectionner (revenir en comptoir anonyme)"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div ref={comboboxClientRef} className="relative">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-[#8C7A6B] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={rechercheClientQuery}
+                  onChange={(e) => {
+                    setRechercheClientQuery(e.target.value);
+                    setIsClientDropdownOpen(true);
+                  }}
+                  onFocus={() => setIsClientDropdownOpen(true)}
+                  placeholder="Rechercher client (nom ou tél)..."
+                  className="w-full pl-9 pr-8 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                />
+                {isSearchingClient && (
+                  <Loader2 className="w-3.5 h-3.5 text-[#C1652D] animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+                )}
+              </div>
+
+              {isClientDropdownOpen && (
+                <div className="absolute z-20 left-0 right-0 mt-1 bg-[#FAF6F1] border border-[#E5DACF] rounded-xl shadow-lg max-h-56 overflow-y-auto py-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setClientSelectionneId("");
+                      setIsClientDropdownOpen(false);
+                      setRechercheClientQuery("");
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-[#E5DACF]/40 flex items-center justify-between text-xs text-[#6D5D52] border-b border-[#E5DACF]/60 cursor-pointer"
+                  >
+                    <span>Client comptoir anonyme</span>
+                    {!clientSelectionneId && <Check className="w-3.5 h-3.5 text-[#C1652D]" />}
+                  </button>
+
+                  {isSearchingClient ? (
+                    <div className="px-3 py-3 text-center text-xs text-[#8C7A6B] flex items-center justify-center gap-2">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C1652D]" />
+                      Recherche...
+                    </div>
+                  ) : resultatsClients.length === 0 && rechercheClientQuery.trim() !== "" ? (
+                    <div className="px-3 py-3 text-center text-xs text-[#8C7A6B] italic">
+                      Aucun client trouvé
+                    </div>
+                  ) : (
+                    resultatsClients.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setClientSelectionneId(c.id);
+                          setIsClientDropdownOpen(false);
+                          setRechercheClientQuery("");
+                        }}
+                        className="w-full text-left px-3 py-2 hover:bg-[#E5DACF]/50 flex items-center justify-between text-xs cursor-pointer transition-colors"
+                      >
+                        <div>
+                          <span className="font-semibold text-[#2B2119] block">{c.nom}</span>
+                          <span className="text-[11px] text-[#6D5D52] font-mono">{c.telephone}</span>
+                        </div>
+                        {clientSelectionneId === c.id && (
+                          <Check className="w-3.5 h-3.5 text-[#C1652D]" />
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Section Remise commerciale (Règle 9) */}

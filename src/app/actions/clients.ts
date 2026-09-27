@@ -95,6 +95,45 @@ export async function rechercherClientsParTelephoneAction(
 }
 
 /**
+ * Recherche dynamique de clients pour la caisse POS (par Nom ou Téléphone)
+ */
+export async function rechercherClientsAction(
+  query: string,
+  limit: number = 10
+): Promise<{ success: boolean; clients?: { id: string; nom: string; telephone: string }[]; error?: string }> {
+  const session = await getCurrentSession();
+  if (!session) {
+    return { success: false, error: "Session expirée." };
+  }
+
+  const q = query.trim();
+  if (!q) {
+    return { success: true, clients: [] };
+  }
+
+  try {
+    const scoped = getScopedPrisma(session.compteId);
+    const resultats = await scoped.clients.findMany({
+      where: {
+        compte_id: session.compteId,
+        OR: [
+          { nom: { contains: q, mode: "insensitive" } },
+          { telephone: { contains: q } },
+        ],
+      },
+      take: limit,
+      orderBy: { nom: "asc" },
+      select: { id: true, nom: true, telephone: true },
+    });
+
+    return { success: true, clients: resultats };
+  } catch (err: any) {
+    console.error("Erreur rechercherClientsAction :", err);
+    return { success: false, error: "Erreur lors de la recherche des clients." };
+  }
+}
+
+/**
  * Création d'un client rattaché au compte Patron (Section 1.5)
  */
 export async function creerClientAction(payload: {
