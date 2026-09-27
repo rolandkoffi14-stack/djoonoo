@@ -70,6 +70,9 @@ interface CaissePOSProps {
 interface LignePanier {
   produit: ProduitCaisse;
   quantite: number;
+  imei1?: string;
+  imei2?: string;
+  afficherImei?: boolean;
 }
 
 export default function CaissePOS({
@@ -295,6 +298,20 @@ export default function CaissePOS({
     setPanier((prev) => prev.filter((l) => l.produit.id !== produitId));
   }
 
+  // Modifier les IMEIs d'une ligne
+  function modifierImeiLigne(produitId: string, imei1: string, imei2: string) {
+    setPanier((prev) =>
+      prev.map((l) => (l.produit.id === produitId ? { ...l, imei1, imei2 } : l))
+    );
+  }
+
+  // Basculer l'affichage des champs IMEI
+  function toggleImeiLigne(produitId: string) {
+    setPanier((prev) =>
+      prev.map((l) => (l.produit.id === produitId ? { ...l, afficherImei: !l.afficherImei } : l))
+    );
+  }
+
   // Vider le panier
   function viderPanier() {
     setPanier([]);
@@ -364,6 +381,8 @@ export default function CaissePOS({
       const payloadLignes = panier.map((l) => ({
         produit_id: l.produit.id,
         quantite: l.quantite,
+        imei1: l.imei1 || null,
+        imei2: l.imei2 || null,
       }));
 
       const res = await enregistrerVenteAction({
@@ -650,55 +669,104 @@ export default function CaissePOS({
               return (
                 <div
                   key={ligne.produit.id}
-                  className="p-2.5 rounded-xl bg-[#FAF6F1] border border-[#E5DACF] flex items-center justify-between gap-2"
+                  className="p-2.5 rounded-xl bg-[#FAF6F1] border border-[#E5DACF] flex flex-col gap-1.5"
                 >
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-bold text-[#2B2119] truncate">
-                      {ligne.produit.nom}
-                    </h4>
-                    <p className="text-[11px] text-[#6D5D52] font-mono">
-                      {ligne.produit.prix_unitaire.toLocaleString("fr-FR")} FCFA / unité
-                    </p>
-                  </div>
-
-                  {/* Contrôles de quantité */}
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => modifierQuantite(ligne.produit.id, ligne.quantite - 1)}
-                      className="w-6 h-6 rounded-lg bg-[#E5DACF]/60 hover:bg-[#E5DACF] text-[#2B2119] flex items-center justify-center cursor-pointer transition-colors"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="w-6 text-center text-xs font-extrabold font-mono text-[#2B2119]">
-                      {ligne.quantite}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={maxAtteint}
-                      onClick={() => modifierQuantite(ligne.produit.id, ligne.quantite + 1)}
-                      className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
-                        maxAtteint
-                          ? "bg-stone-200 text-stone-400 cursor-not-allowed"
-                          : "bg-[#E5DACF]/60 hover:bg-[#E5DACF] text-[#2B2119] cursor-pointer"
-                      }`}
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-
-                  {/* Sous-total ligne & suppression */}
-                  <div className="text-right pl-2">
-                    <div className="text-xs font-bold font-mono text-[#2B2119]">
-                      {ligneTotal.toLocaleString("fr-FR")} F
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold text-[#2B2119] truncate">
+                        {ligne.produit.nom}
+                      </h4>
+                      <p className="text-[11px] text-[#6D5D52] font-mono">
+                        {ligne.produit.prix_unitaire.toLocaleString("fr-FR")} FCFA / unité
+                      </p>
                     </div>
+
+                    {/* Contrôles de quantité */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => modifierQuantite(ligne.produit.id, ligne.quantite - 1)}
+                        className="w-6 h-6 rounded-lg bg-[#E5DACF]/60 hover:bg-[#E5DACF] text-[#2B2119] flex items-center justify-center cursor-pointer transition-colors"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="w-6 text-center text-xs font-extrabold font-mono text-[#2B2119]">
+                        {ligne.quantite}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={maxAtteint}
+                        onClick={() => modifierQuantite(ligne.produit.id, ligne.quantite + 1)}
+                        className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${
+                          maxAtteint
+                            ? "bg-stone-200 text-stone-400 cursor-not-allowed"
+                            : "bg-[#E5DACF]/60 hover:bg-[#E5DACF] text-[#2B2119] cursor-pointer"
+                        }`}
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    {/* Sous-total ligne & suppression */}
+                    <div className="text-right pl-2">
+                      <div className="text-xs font-bold font-mono text-[#2B2119]">
+                        {ligneTotal.toLocaleString("fr-FR")} F
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => supprimerLigne(ligne.produit.id)}
+                        className="text-[#8C7A6B] hover:text-red-600 transition-colors mt-0.5 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Saisie IMEI optionnelle pour téléphones (Dual SIM max) */}
+                  <div className="pt-1 border-t border-[#E5DACF]/50">
                     <button
                       type="button"
-                      onClick={() => supprimerLigne(ligne.produit.id)}
-                      className="text-[#8C7A6B] hover:text-red-600 transition-colors mt-0.5 cursor-pointer"
+                      onClick={() => toggleImeiLigne(ligne.produit.id)}
+                      className="text-[10px] text-[#C1652D] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Smartphone className="w-2.5 h-2.5" />
+                      {ligne.imei1 || ligne.imei2
+                        ? `IMEI : ${[ligne.imei1, ligne.imei2].filter(Boolean).join(" / ")}`
+                        : "+ IMEI / N° Série (téléphone)"}
                     </button>
+
+                    {(ligne.afficherImei || ligne.imei1 || ligne.imei2) && (
+                      <div className="mt-1.5 grid grid-cols-2 gap-2 bg-[#E5DACF]/30 p-2 rounded-lg">
+                        <div>
+                          <label className="text-[9px] font-bold text-[#6D5D52] block mb-0.5">
+                            IMEI 1 (Optionnel)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Ex: 354892110293847"
+                            value={ligne.imei1 || ""}
+                            onChange={(e) =>
+                              modifierImeiLigne(ligne.produit.id, e.target.value, ligne.imei2 || "")
+                            }
+                            className="w-full px-2 py-1 bg-white border border-[#E5DACF] rounded text-[11px] font-mono text-[#2B2119] focus:outline-none focus:ring-1 focus:ring-[#C1652D]"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] font-bold text-[#6D5D52] block mb-0.5">
+                            IMEI 2 (Dual SIM)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Ex: 354892110293848"
+                            value={ligne.imei2 || ""}
+                            onChange={(e) =>
+                              modifierImeiLigne(ligne.produit.id, ligne.imei1 || "", e.target.value)
+                            }
+                            className="w-full px-2 py-1 bg-white border border-[#E5DACF] rounded text-[11px] font-mono text-[#2B2119] focus:outline-none focus:ring-1 focus:ring-[#C1652D]"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -975,29 +1043,14 @@ export default function CaissePOS({
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={montantAPayerActuel}
-                      value={montantRecuEspeces}
-                      onChange={(e) => setMontantRecuEspeces(e.target.value)}
-                      placeholder={montantAPayerActuel.toString()}
-                      className="w-full px-3 py-1.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
-                    />
-                    {/* Presets rapides de billets */}
-                    <div className="flex gap-1">
-                      {[2000, 5000, 10000].map((billet) => (
-                        <button
-                          key={billet}
-                          type="button"
-                          onClick={() => setMontantRecuEspeces(billet.toString())}
-                          className="px-2 py-1.5 rounded-lg border border-[#E5DACF] text-[10px] font-bold text-[#6D5D52] hover:bg-[#E5DACF]/50 cursor-pointer"
-                        >
-                          {billet / 1000}k
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  <input
+                    type="number"
+                    min={montantAPayerActuel}
+                    value={montantRecuEspeces}
+                    onChange={(e) => setMontantRecuEspeces(e.target.value)}
+                    placeholder={montantAPayerActuel.toString()}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  />
                 </div>
               )}
             </div>
@@ -1248,6 +1301,12 @@ export default function CaissePOS({
                     <div className="text-[10px] text-stone-500">
                       {l.quantite} x {l.prix_unitaire.toLocaleString("fr-FR")} F
                     </div>
+                    {(l.imei1 || l.imei2) && (
+                      <div className="text-[9px] text-[#C1652D] font-mono">
+                        {l.imei1 && <div>IMEI 1 : {l.imei1}</div>}
+                        {l.imei2 && <div>IMEI 2 : {l.imei2}</div>}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

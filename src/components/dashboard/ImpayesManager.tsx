@@ -846,6 +846,12 @@ export default function ImpayesManager({
                     <div className="text-[10px] text-stone-500">
                       {l.quantite} x {l.prix_unitaire.toLocaleString("fr-FR")} F
                     </div>
+                    {(l.imei1 || l.imei2) && (
+                      <div className="text-[9px] text-[#C1652D] font-mono">
+                        {l.imei1 && <div>IMEI 1 : {l.imei1}</div>}
+                        {l.imei2 && <div>IMEI 2 : {l.imei2}</div>}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

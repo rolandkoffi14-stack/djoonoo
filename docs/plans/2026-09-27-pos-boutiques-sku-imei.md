@@ -516,7 +516,7 @@
 - *Consomme :* `LigneVenteInput` avec champs optionnels `imei1?: string | null` et `imei2?: string | null`.
 - *Produit :* Persistance des colonnes `imei1` et `imei2` sur `lignes_vente` ; affichage sur le reçu et le duplicata thermique.
 
-- [ ] **5.1 Écrire le test unitaire en échec**  
+- [x] **5.1 Écrire le test unitaire en échec**  
   Créer le fichier `tests/vente-double-imei.test.ts` :
   ```typescript
   import { describe, it, expect } from "vitest";
@@ -553,12 +553,12 @@
   });
   ```
 
-- [ ] **5.2 Exécuter le test**  
+- [x] **5.2 Exécuter le test**  
   ```powershell
   npx vitest run tests/vente-double-imei.test.ts
   ```
 
-- [ ] **5.3 Mettre à jour `src/app/actions/ventes.ts`**  
+- [x] **5.3 Mettre à jour `src/app/actions/ventes.ts`**  
   - Adapter `LigneVenteInput` :
     ```typescript
     export interface LigneVenteInput {
@@ -571,7 +571,7 @@
   - Dans `enregistrerVenteAction`, insérer `imei1` et `imei2` lors de la création des `lignes_vente`.
   - Dans `getRecuVenteAction`, inclure `imei1` et `imei2` dans les lignes renvoyées au client.
 
-- [ ] **5.4 Adapter `CaissePOS.tsx` (Panier avec saisie IMEI & Suppression des boutons 2k/5k/10k)**  
+- [x] **5.4 Adapter `CaissePOS.tsx` (Panier avec saisie IMEI & Suppression des boutons 2k/5k/10k)**  
   - **Saisie IMEI** :
     - Sur chaque ligne du panier, ajouter un petit bouton ou champ dépliable *"Ajouter N° IMEI (Optionnel)"*.
     - Proposer 2 champs : `IMEI 1` (recommandé si téléphone) et `IMEI 2` (optionnel Dual SIM).
@@ -579,19 +579,19 @@
     - Conserver l'affichage en vert *"Rendre : X FCFA"* calculé à partir de la saisie manuelle.
     - Supprimer définitivement le bloc des boutons rapides `[+2000]`, `[+5000]`, `[+10000]`.
 
-- [ ] **5.5 Adapter `RecuVenteModal.tsx` pour l'impression des IMEIs**  
+- [x] **5.5 Adapter `RecuVenteModal.tsx` pour l'impression des IMEIs**  
   - Sous le libellé de chaque produit du reçu (à l'écran et dans le template `@media print` pour imprimante thermique) :
     - Si `ligne.imei1` existe : afficher `IMEI 1 : ${ligne.imei1}`.
     - Si `ligne.imei2` existe : afficher `IMEI 2 : ${ligne.imei2}`.
 
-- [ ] **5.6 Exécuter le test et vérifier son passage au vert**  
+- [x] **5.6 Exécuter le test et vérifier son passage au vert**  
   ```powershell
   npx vitest run tests/vente-double-imei.test.ts
   ```
 
-- [ ] **5.7 Commit Git atomique**  
+- [x] **5.7 Commit Git atomique**  
   ```powershell
-  git add src/app/actions/ventes.ts src/components/dashboard/CaissePOS.tsx src/components/dashboard/RecuVenteModal.tsx tests/vente-double-imei.test.ts
+  git add src/app/actions/ventes.ts src/components/dashboard/CaissePOS.tsx src/components/dashboard/VentesManager.tsx src/components/dashboard/ImpayesManager.tsx tests/vente-double-imei.test.ts
   git commit -m "feat(vente): tracabilite double imei panier et recu calculateur de monnaie epure"
   ```
 

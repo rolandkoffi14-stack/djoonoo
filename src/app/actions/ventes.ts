@@ -15,6 +15,8 @@ import { ModePaiement, StatutPaiementVente } from "@prisma/client";
 export interface LigneVenteInput {
   produit_id: string;
   quantite: number;
+  imei1?: string | null;
+  imei2?: string | null;
 }
 
 export interface EnregistrerVentePayload {
@@ -52,6 +54,8 @@ export interface RecuVenteData {
     quantite: number;
     prix_unitaire: number;
     total_ligne: number;
+    imei1?: string | null;
+    imei2?: string | null;
   }[];
   montant_brut: number;
   montant_remise: number;
@@ -274,6 +278,8 @@ export async function enregistrerVenteAction(
           compte_id: session.compteId,
           quantite: l.quantite,
           prix_unitaire_a_la_vente: produitsMap.get(l.produit_id)!.prix_unitaire,
+          imei1: l.imei1?.trim() || null,
+          imei2: l.imei2?.trim() || null,
         })),
       });
 
@@ -339,6 +345,8 @@ export async function enregistrerVenteAction(
           quantite: l.quantite,
           prix_unitaire: prod.prix_unitaire,
           total_ligne: prod.prix_unitaire * l.quantite,
+          imei1: l.imei1?.trim() || null,
+          imei2: l.imei2?.trim() || null,
         };
       }),
       montant_brut: sousTotal,
@@ -413,6 +421,8 @@ export async function getRecuVenteAction(venteId: string): Promise<VenteActionRe
           quantite: l.quantite,
           prix_unitaire: l.prix_unitaire_a_la_vente,
           total_ligne: l.quantite * l.prix_unitaire_a_la_vente,
+          imei1: l.imei1,
+          imei2: l.imei2,
         })),
         montant_brut: vente.montant_total + vente.montant_remise,
         montant_remise: vente.montant_remise,
