@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useTransition, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Pagination from "@/components/ui/Pagination";
 import {
   Users,
   Search,
@@ -49,17 +50,31 @@ export interface ClientItem {
 interface ClientsManagerProps {
   clientsInitiaux: ClientItem[];
   userRole: RoleUtilisateur;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalElements?: number;
+  initialSearch?: string;
+  totalClientsGlobal?: number;
 }
 
 export default function ClientsManager({
   clientsInitiaux,
   userRole,
+  page = 1,
+  limit = 25,
+  totalPages = 1,
+  totalElements,
+  initialSearch = "",
+  totalClientsGlobal,
 }: ClientsManagerProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
   const [clients, setClients] = useState<ClientItem[]>(clientsInitiaux);
-  const [recherche, setRecherche] = useState("");
+  const [recherche, setRecherche] = useState(initialSearch);
   const [filtreType, setFiltreType] = useState<"tous" | "debiteurs" | "actifs">("tous");
 
   // Modale Création / Édition
@@ -305,13 +320,35 @@ export default function ClientsManager({
             type="text"
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            placeholder="Rechercher par nom ou numéro de téléphone..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] placeholder-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const params = new URLSearchParams(searchParams.toString());
+                if (recherche.trim()) {
+                  params.set("q", recherche.trim());
+                } else {
+                  params.delete("q");
+                }
+                params.set("page", "1");
+                startTransition(() => {
+                  router.push(`${pathname}?${params.toString()}`);
+                });
+              }
+            }}
+            placeholder="Rechercher par nom ou téléphone... (Entrée pour valider)"
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] placeholder-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
           />
           {recherche && (
             <button
               type="button"
-              onClick={() => setRecherche("")}
+              onClick={() => {
+                setRecherche("");
+                const params = new URLSearchParams(searchParams.toString());
+                params.delete("q");
+                params.set("page", "1");
+                startTransition(() => {
+                  router.push(`${pathname}?${params.toString()}`);
+                });
+              }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2B2119] cursor-pointer"
             >
               <X className="w-4 h-4" />
@@ -452,6 +489,14 @@ export default function ClientsManager({
             </table>
           </div>
         )}
+
+        {/* Pagination du tableau */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements ?? clients.length}
+          limit={limit}
+        />
       </div>
 
       {/* ======================================================== */}
