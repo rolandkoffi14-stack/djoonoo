@@ -603,19 +603,19 @@
 - L'ensemble du projet
 - `docs/plans/2026-09-27-pos-boutiques-sku-imei.md`
 
-- [ ] **6.1 Exécuter la suite complète de tests Vitest**  
+- [x] **6.1 Exécuter la suite complète de tests Vitest**  
   ```powershell
   npx vitest run
   ```
   *Résultat attendu : 100% des tests passés avec succès sans régression sur FedaPay, l'authentification ni la pagination.*
 
-- [ ] **6.2 Vérifier la compilation TypeScript stricte**  
+- [x] **6.2 Vérifier la compilation TypeScript stricte**  
   ```powershell
   npx tsc --noEmit
   ```
   *Résultat attendu : 0 erreur de type.*
 
-- [ ] **6.3 Commit Git final de clôture du chantier**  
+- [x] **6.3 Commit Git final de clôture du chantier**  
   ```powershell
   git commit --allow-empty -m "release(pos): boutiques modifiables, recherche client, sku et tracabilite double imei completes avec succes"
   ```
