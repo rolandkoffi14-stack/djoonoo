@@ -51,6 +51,17 @@ export default function RecuVenteModal({
       : "Moov Money"
     : "Non payé (Vente à crédit)";
 
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "p" || e.key === "P")) {
+        e.preventDefault();
+        declencherImpression();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [formatActif]);
+
   function declencherImpression() {
     try {
       const element = document.getElementById("document-imprimable");
@@ -67,11 +78,15 @@ export default function RecuVenteModal({
 
       const iframe = document.createElement("iframe");
       iframe.id = "iframe-impression-recu";
+      // Dimensions réelles hors-champ pour que le moteur de rendu calcule correctement la mise en page
       iframe.style.position = "fixed";
-      iframe.style.right = "0";
-      iframe.style.bottom = "0";
-      iframe.style.width = "0";
-      iframe.style.height = "0";
+      iframe.style.top = "0";
+      iframe.style.left = "0";
+      iframe.style.width = "800px";
+      iframe.style.height = "1000px";
+      iframe.style.zIndex = "-9999";
+      iframe.style.opacity = "0";
+      iframe.style.pointerEvents = "none";
       iframe.style.border = "none";
       document.body.appendChild(iframe);
 
@@ -97,20 +112,21 @@ export default function RecuVenteModal({
                padding: 0 !important; 
                background: white !important; 
                color: #2B2119 !important; 
-               font-family: monospace !important;
+               font-family: monospace, Courier, monospace !important;
                width: 78mm !important;
              }
              .conteneur-print {
                width: 78mm !important;
                max-width: 78mm !important;
                margin: 0 auto !important;
-               padding: 2mm 1mm !important;
+               padding: 3mm 2mm !important;
+             }
+             .conteneur-print > div {
                box-shadow: none !important;
                border: none !important;
-             }
-             .conteneur-print div {
-               box-shadow: none !important;
                border-radius: 0 !important;
+               margin: 0 !important;
+               padding: 0 !important;
              }`
           : `@page { size: A4 portrait; margin: 8mm; }
              * { box-sizing: border-box; }
@@ -127,12 +143,12 @@ export default function RecuVenteModal({
                max-width: 100% !important;
                margin: 0 !important;
                padding: 0 !important;
+             }
+             .conteneur-print > div {
                box-shadow: none !important;
                border: none !important;
-             }
-             .conteneur-print div {
-               box-shadow: none !important;
                border-radius: 0 !important;
+               margin: 0 !important;
              }`;
 
       pri.document.open();
@@ -166,7 +182,7 @@ export default function RecuVenteModal({
             iframe.remove();
           }, 1500);
         }
-      }, 250);
+      }, 350);
     } catch (e) {
       console.error("Erreur impression iframe, fallback window.print", e);
       window.print();
@@ -180,67 +196,6 @@ export default function RecuVenteModal({
       id="portal-recu-racine"
       className="fixed inset-0 z-50 bg-[#2B2119]/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
     >
-      {/* Styles d'impression chirurgicaux injectés pour éviter la 2ème page et calibrer 80mm vs A4 */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page {
-            ${
-              formatActif === "ticket_80mm"
-                ? "size: 80mm auto; margin: 0mm;"
-                : "size: A4 portrait; margin: 8mm;"
-            }
-          }
-          html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            color: #2B2119 !important;
-          }
-          /* Masquer l'ensemble du DOM sauf la zone modale d'impression */
-          body > *:not(#portal-recu-racine) {
-            display: none !important;
-          }
-          #portal-recu-racine {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            background: transparent !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            display: block !important;
-            overflow: visible !important;
-          }
-          .zone-print-ignore, .print-hidden {
-            display: none !important;
-          }
-          #document-imprimable {
-            display: block !important;
-            position: static !important;
-            margin: 0 ${formatActif === "ticket_80mm" ? "auto" : "0"} !important;
-            padding: ${formatActif === "ticket_80mm" ? "3mm 2mm" : "0"} !important;
-            width: ${formatActif === "ticket_80mm" ? "76mm" : "100%"} !important;
-            max-width: ${formatActif === "ticket_80mm" ? "76mm" : "100%"} !important;
-            box-shadow: none !important;
-            border: none !important;
-            border-radius: 0 !important;
-            background: white !important;
-            page-break-after: avoid !important;
-            page-break-inside: avoid !important;
-          }
-          #document-imprimable > div {
-            box-shadow: none !important;
-            border: none !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            padding: ${formatActif === "ticket_80mm" ? "0 !important" : "inherit"};
-          }
-          #document-imprimable * {
-            box-sizing: border-box;
-          }
-        }
-      `}} />
 
       <div
         className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-auto"
