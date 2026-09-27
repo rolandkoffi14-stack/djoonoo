@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   Printer,
   X,
@@ -28,6 +29,11 @@ export default function RecuVenteModal({
 }: RecuVenteModalProps) {
   // Format d'impression actif : "ticket_80mm" par défaut, ou "facture_a4"
   const [formatActif, setFormatActif] = useState<"ticket_80mm" | "facture_a4">("ticket_80mm");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const dateFormatee = new Date(recu.date_vente).toLocaleDateString("fr-FR", {
     day: "2-digit",
@@ -46,10 +52,130 @@ export default function RecuVenteModal({
     : "Non payé (Vente à crédit)";
 
   function declencherImpression() {
-    window.print();
+    try {
+      const element = document.getElementById("document-imprimable");
+      if (!element) {
+        window.print();
+        return;
+      }
+
+      // Supprimer un ancien iframe s'il existe
+      const ancienIframe = document.getElementById("iframe-impression-recu");
+      if (ancienIframe) {
+        ancienIframe.remove();
+      }
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "iframe-impression-recu";
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "none";
+      document.body.appendChild(iframe);
+
+      const pri = iframe.contentWindow;
+      if (!pri) {
+        window.print();
+        return;
+      }
+
+      // Cloner toutes les feuilles de styles (Tailwind, polices Google Fonts, variables CSS)
+      const styles = Array.from(
+        document.querySelectorAll("link[rel='stylesheet'], style")
+      )
+        .map((s) => s.outerHTML)
+        .join("\n");
+
+      const pageCss =
+        formatActif === "ticket_80mm"
+          ? `@page { size: 80mm auto; margin: 0; }
+             * { box-sizing: border-box; }
+             html, body { 
+               margin: 0 !important; 
+               padding: 0 !important; 
+               background: white !important; 
+               color: #2B2119 !important; 
+               font-family: monospace !important;
+               width: 78mm !important;
+             }
+             .conteneur-print {
+               width: 78mm !important;
+               max-width: 78mm !important;
+               margin: 0 auto !important;
+               padding: 2mm 1mm !important;
+               box-shadow: none !important;
+               border: none !important;
+             }
+             .conteneur-print div {
+               box-shadow: none !important;
+               border-radius: 0 !important;
+             }`
+          : `@page { size: A4 portrait; margin: 8mm; }
+             * { box-sizing: border-box; }
+             html, body { 
+               margin: 0 !important; 
+               padding: 0 !important; 
+               background: white !important; 
+               color: #2B2119 !important; 
+               font-family: system-ui, -apple-system, sans-serif !important;
+               width: 100% !important;
+             }
+             .conteneur-print {
+               width: 100% !important;
+               max-width: 100% !important;
+               margin: 0 !important;
+               padding: 0 !important;
+               box-shadow: none !important;
+               border: none !important;
+             }
+             .conteneur-print div {
+               box-shadow: none !important;
+               border-radius: 0 !important;
+             }`;
+
+      pri.document.open();
+      pri.document.write(
+        "<!DOCTYPE html>" +
+        "<html lang=\"fr\">" +
+        "<head>" +
+        "<meta charset=\"utf-8\" />" +
+        "<title>Facture " + recu.numero_facture + "</title>" +
+        styles +
+        "<style>" + pageCss + "</style>" +
+        "</head>" +
+        "<body>" +
+        "<div class=\"conteneur-print\">" +
+        element.innerHTML +
+        "</div>" +
+        "</body>" +
+        "</html>"
+      );
+      pri.document.close();
+
+      setTimeout(() => {
+        try {
+          pri.focus();
+          pri.print();
+        } catch (err) {
+          console.error("Erreur pri.print", err);
+          window.print();
+        } finally {
+          setTimeout(() => {
+            iframe.remove();
+          }, 1500);
+        }
+      }, 250);
+    } catch (e) {
+      console.error("Erreur impression iframe, fallback window.print", e);
+      window.print();
+    }
   }
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       id="portal-recu-racine"
       className="fixed inset-0 z-50 bg-[#2B2119]/60 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
@@ -558,10 +684,11 @@ export default function RecuVenteModal({
             onClick={onClose}
             className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#C1652D] text-[#FAF6F1] text-xs font-bold hover:bg-[#a95524] transition-colors cursor-pointer text-center shadow-xs"
           >
-            Fermer / Nouvelle vente
+            Fermer
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
