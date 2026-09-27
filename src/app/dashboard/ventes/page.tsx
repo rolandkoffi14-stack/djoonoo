@@ -4,18 +4,34 @@ import { cookies } from "next/headers";
 import { getCurrentSession } from "@/lib/auth";
 import { getScopedPrisma } from "@/lib/prisma";
 import VentesManager, { VenteListItem } from "@/components/dashboard/VentesManager";
+import { parsePaginationParams } from "@/lib/pagination";
+import { StatutPaiementVente } from "@prisma/client";
 
 export const metadata = {
   title: "djoonoo — Ventes & Factures",
   description: "Historique des ventes enregistrées, statuts de paiement et reçus",
 };
 
-export default async function VentesPage() {
+interface VentesPageProps {
+  searchParams?: Promise<{
+    page?: string;
+    limit?: string;
+    q?: string;
+    statut?: string;
+  }>;
+}
+
+export default async function VentesPage(props: VentesPageProps) {
   const session = await getCurrentSession();
 
   if (!session) {
     redirect("/connexion");
   }
+
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const { page, limit, skip } = parsePaginationParams(searchParams, 25);
+  const q = searchParams.q?.trim() || "";
+  const statut = searchParams.statut || "tous";
 
   const scoped = getScopedPrisma(session.compteId);
 
@@ -53,8 +69,7 @@ export default async function VentesPage() {
     activeBoutique = boutiques[0];
   }
 
-  // 3. Condition de filtre selon le rôle (Section 2) :
-  // Le Vendeur ne voit que ses propres ventes ; le Patron et le Gérant voient toute la boutique
+  // 3. Condition de filtre selon le rôle et les critères de recherche
   const whereCondition: any = {
     compte_id: session.compteId,
     boutique_id: activeBoutique.id,
@@ -64,20 +79,62 @@ export default async function VentesPage() {
     whereCondition.utilisateur_id = session.userId;
   }
 
-  // 4. Récupération des ventes
-  const ventesDb = await scoped.ventes.findMany({
-    where: whereCondition,
-    orderBy: { date_vente: "desc" },
-    include: {
-      boutique: { select: { id: true, code: true, nom: true } },
-      utilisateur: { select: { id: true, nom: true } },
-      client: { select: { id: true, nom: true, telephone: true } },
-      paiements: {
-        select: { id: true, montant: true, mode_paiement: true },
-        orderBy: { date_paiement: "asc" },
+  if (statut && statut !== "tous") {
+    whereCondition.statut_paiement = statut as StatutPaiementVente;
+  }
+
+  if (q) {
+    whereCondition.OR = [
+      { numero_facture: { contains: q, mode: "insensitive" } },
+      { client: { nom: { contains: q, mode: "insensitive" } } },
+      { client: { telephone: { contains: q } } },
+      { utilisateur: { nom: { contains: q, mode: "insensitive" } } },
+    ];
+  }
+
+  // 4. Double requête atomique avec pagination et agrégation SQL native
+  const [totalCount, ventesDb, statsVentes, statsPaiements] = await Promise.all([
+    scoped.ventes.count({ where: whereCondition }),
+    scoped.ventes.findMany({
+      where: whereCondition,
+      skip,
+      take: limit,
+      orderBy: { date_vente: "desc" },
+      include: {
+        boutique: { select: { id: true, code: true, nom: true } },
+        utilisateur: { select: { id: true, nom: true } },
+        client: { select: { id: true, nom: true, telephone: true } },
+        paiements: {
+          select: { id: true, montant: true, mode_paiement: true },
+          orderBy: { date_paiement: "asc" },
+        },
       },
-    },
-  });
+    }),
+    scoped.ventes.aggregate({
+      where: {
+        compte_id: session.compteId,
+        boutique_id: activeBoutique.id,
+        statut_vente: "validee",
+      },
+      _sum: { montant_total: true },
+      _count: true,
+    }),
+    scoped.paiements.aggregate({
+      where: {
+        compte_id: session.compteId,
+        vente: {
+          boutique_id: activeBoutique.id,
+          statut_vente: "validee",
+        },
+      },
+      _sum: { montant: true },
+    }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+  const caTotal = statsVentes._sum.montant_total || 0;
+  const totalEncaisse = statsPaiements._sum.montant || 0;
+  const totalImpayes = Math.max(0, caTotal - totalEncaisse);
 
   const ventes: VenteListItem[] = ventesDb.map((v) => ({
     id: v.id,
@@ -99,6 +156,18 @@ export default async function VentesPage() {
       boutiqueNom={activeBoutique.nom}
       boutiqueCode={activeBoutique.code}
       userRole={session.role}
+      page={page}
+      limit={limit}
+      totalPages={totalPages}
+      totalElements={totalCount}
+      initialSearch={q}
+      initialStatut={statut}
+      statsGlobales={{
+        nombreVentes: statsVentes._count || 0,
+        caTotal,
+        totalEncaisse,
+        totalImpayes,
+      }}
     />
   );
 }

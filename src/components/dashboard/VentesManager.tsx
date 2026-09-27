@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { StatutPaiementVente, ModePaiement, RoleUtilisateur } from "@prisma/client";
 import { getRecuVenteAction, RecuVenteData } from "@/app/actions/ventes";
+import Pagination from "@/components/ui/Pagination";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 export interface VenteListItem {
   id: string;
@@ -58,6 +60,18 @@ interface VentesManagerProps {
   boutiqueNom: string;
   boutiqueCode: string;
   userRole: RoleUtilisateur;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalElements?: number;
+  initialSearch?: string;
+  initialStatut?: string;
+  statsGlobales?: {
+    nombreVentes: number;
+    caTotal: number;
+    totalEncaisse: number;
+    totalImpayes: number;
+  };
 }
 
 export default function VentesManager({
@@ -65,33 +79,52 @@ export default function VentesManager({
   boutiqueNom,
   boutiqueCode,
   userRole,
+  page = 1,
+  limit = 25,
+  totalPages = 1,
+  totalElements,
+  initialSearch = "",
+  initialStatut = "tous",
+  statsGlobales,
 }: VentesManagerProps) {
-  const [recherche, setRecherche] = useState("");
-  const [filtreStatut, setFiltreStatut] = useState<string>("tous");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  const [recherche, setRecherche] = useState(initialSearch);
+  const [filtreStatut, setFiltreStatut] = useState<string>(initialStatut);
   const [recuSelectionne, setRecuSelectionne] = useState<RecuVenteData | null>(null);
   const [chargementRecuId, setChargementRecuId] = useState<string | null>(null);
 
-  // Filtrage
-  const ventesFiltrees = useMemo(() => {
-    const q = recherche.toLowerCase().trim();
-    return ventes.filter((v) => {
-      // Filtre statut
-      if (filtreStatut !== "tous" && v.statut_paiement !== filtreStatut) {
-        return false;
-      }
-      // Filtre texte
-      if (!q) return true;
-      const numMatch = v.numero_facture.toLowerCase().includes(q);
-      const clientMatch = v.client
-        ? v.client.nom.toLowerCase().includes(q) || v.client.telephone.includes(q)
-        : false;
-      const vendeurMatch = v.utilisateur.nom.toLowerCase().includes(q);
-      return numMatch || clientMatch || vendeurMatch;
-    });
-  }, [ventes, recherche, filtreStatut]);
+  const appliquerFiltres = (nouveauStatut?: string, nouvelleRecherche?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const stat = nouveauStatut !== undefined ? nouveauStatut : filtreStatut;
+    const q = nouvelleRecherche !== undefined ? nouvelleRecherche : recherche;
 
-  // Statistiques calculées
+    if (stat && stat !== "tous") {
+      params.set("statut", stat);
+    } else {
+      params.delete("statut");
+    }
+
+    if (q.trim()) {
+      params.set("q", q.trim());
+    } else {
+      params.delete("q");
+    }
+
+    params.set("page", "1");
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
+
+  // Statistiques calculées ou globales
   const stats = useMemo(() => {
+    if (statsGlobales) return statsGlobales;
+
     let caTotal = 0;
     let totalEncaisse = 0;
     let totalImpayes = 0;
@@ -106,12 +139,12 @@ export default function VentesManager({
     });
 
     return {
-      nombreVentes: ventes.length,
+      nombreVentes: totalElements ?? ventes.length,
       caTotal,
       totalEncaisse,
       totalImpayes,
     };
-  }, [ventes]);
+  }, [ventes, statsGlobales, totalElements]);
 
   // Charger le reçu pour réimpression
   async function handleOuvrirRecu(venteId: string) {
@@ -251,13 +284,21 @@ export default function VentesManager({
             type="text"
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            placeholder="Rechercher par N° facture (ex: FAC-...), client ou vendeur..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] placeholder-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                appliquerFiltres(filtreStatut, recherche);
+              }
+            }}
+            placeholder="Rechercher par N° facture, client... (Entrée pour valider)"
+            className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] placeholder-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
           />
           {recherche && (
             <button
               type="button"
-              onClick={() => setRecherche("")}
+              onClick={() => {
+                setRecherche("");
+                appliquerFiltres(filtreStatut, "");
+              }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2B2119] cursor-pointer"
             >
               <X className="w-4 h-4" />
@@ -276,7 +317,10 @@ export default function VentesManager({
             <button
               key={onglet.id}
               type="button"
-              onClick={() => setFiltreStatut(onglet.id)}
+              onClick={() => {
+                setFiltreStatut(onglet.id);
+                appliquerFiltres(onglet.id, recherche);
+              }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 filtreStatut === onglet.id
                   ? "bg-[#FAF6F1] text-[#2B2119] shadow-xs"
@@ -291,7 +335,7 @@ export default function VentesManager({
 
       {/* Tableau des ventes */}
       <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl overflow-hidden shadow-sm">
-        {ventesFiltrees.length === 0 ? (
+        {ventes.length === 0 ? (
           <div className="p-12 text-center text-[#8C7A6B]">
             <Receipt className="w-12 h-12 mx-auto mb-3 opacity-40" />
             <h3 className="font-bold text-sm text-[#2B2119]">Aucune vente trouvée</h3>
@@ -317,7 +361,7 @@ export default function VentesManager({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5DACF]/60">
-                {ventesFiltrees.map((v) => {
+                {ventes.map((v) => {
                   const statutInfo = getStatutBadge(v.statut_paiement);
                   const IconStatut = statutInfo.icon;
                   const premierPaiement = v.paiements[0];
@@ -390,6 +434,14 @@ export default function VentesManager({
             </table>
           </div>
         )}
+
+        {/* Pagination du tableau */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements ?? ventes.length}
+          limit={limit}
+        />
       </div>
 
       {/* ======================================================== */}
