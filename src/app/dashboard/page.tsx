@@ -52,8 +52,8 @@ export default async function DashboardPage() {
       prisma.$queryRaw<{ count: number }[]>`
         SELECT COUNT(*)::int as count 
         FROM produits 
-        WHERE compte_id = ${session.compteId}::uuid 
-          AND boutique_id = ${activeBoutique.id}::uuid 
+        WHERE compte_id = ${session.compteId} 
+          AND boutique_id = ${activeBoutique.id} 
           AND quantite_stock <= seuil_alerte
       `,
       // 2. Chiffre d'affaires et nombre de ventes du jour (SQL direct)
