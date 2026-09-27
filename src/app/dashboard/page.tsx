@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { getCurrentSession } from "@/lib/auth";
-import { getScopedPrisma } from "@/lib/prisma";
+import { prisma, getScopedPrisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
@@ -47,18 +47,17 @@ export default async function DashboardPage() {
   let nbImpayes = 0;
 
   if (activeBoutique) {
-    const [produits, ventesAujourdhui, ventesImpayees] = await Promise.all([
-      scoped.produits.findMany({
-        where: {
-          compte_id: session.compteId,
-          boutique_id: activeBoutique.id,
-        },
-        select: {
-          quantite_stock: true,
-          seuil_alerte: true,
-        },
-      }),
-      scoped.ventes.findMany({
+    const [alertesRaw, ventesAujourdhuiAgg, ventesImpayees] = await Promise.all([
+      // 1. Nombre de produits sous leur seuil d'alerte (SQL natif optimisé)
+      prisma.$queryRaw<{ count: number }[]>`
+        SELECT COUNT(*)::int as count 
+        FROM produits 
+        WHERE compte_id = ${session.compteId}::uuid 
+          AND boutique_id = ${activeBoutique.id}::uuid 
+          AND quantite_stock <= seuil_alerte
+      `,
+      // 2. Chiffre d'affaires et nombre de ventes du jour (SQL direct)
+      scoped.ventes.aggregate({
         where: {
           compte_id: session.compteId,
           boutique_id: activeBoutique.id,
@@ -67,10 +66,10 @@ export default async function DashboardPage() {
           },
           statut_vente: "validee",
         },
-        select: {
-          montant_total: true,
-        },
+        _sum: { montant_total: true },
+        _count: true,
       }),
+      // 3. Échantillon borné des impayés pour le calcul du tableau de bord
       scoped.ventes.findMany({
         where: {
           compte_id: session.compteId,
@@ -78,18 +77,17 @@ export default async function DashboardPage() {
           statut_paiement: { in: ["impaye", "partiel"] },
           statut_vente: "validee",
         },
-        include: {
+        select: {
+          montant_total: true,
           paiements: { select: { montant: true } },
         },
+        take: 50,
       }),
     ]);
 
-    alertesStockCount = produits.filter(
-      (p) => p.quantite_stock <= p.seuil_alerte
-    ).length;
-
-    nbVentesAujourdhui = ventesAujourdhui.length;
-    ventesAujourdhuiTotal = ventesAujourdhui.reduce((acc, v) => acc + v.montant_total, 0);
+    alertesStockCount = alertesRaw[0]?.count || 0;
+    nbVentesAujourdhui = ventesAujourdhuiAgg._count || 0;
+    ventesAujourdhuiTotal = ventesAujourdhuiAgg._sum.montant_total || 0;
 
     ventesImpayees.forEach((v) => {
       const paye = v.paiements.reduce((acc, p) => acc + p.montant, 0);
