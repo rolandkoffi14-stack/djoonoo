@@ -25,12 +25,15 @@ export default function Header({
   joursEssaiRestants = 14,
 }: HeaderProps) {
   const router = useRouter();
+  const [isPending, startTransition] = React.useTransition();
 
-  async function handleBoutiqueChange(e: React.ChangeEvent<HTMLSelectElement>) {
+  function handleBoutiqueChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const newBoutiqueId = e.target.value;
     // Mise à jour du cookie de boutique active
     document.cookie = `djoonoo_active_boutique=${newBoutiqueId}; path=/; max-age=2592000; SameSite=Lax`;
-    router.refresh();
+    startTransition(() => {
+      router.refresh();
+    });
   }
 
   const activeBoutique =

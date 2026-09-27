@@ -83,6 +83,15 @@ export default function CaissePOS({
   // Produits & Clients
   const [produits, setProduits] = useState<ProduitCaisse[]>(produitsInitiaux);
   const [clients, setClients] = useState<ClientCaisse[]>(clientsInitiaux);
+
+  React.useEffect(() => {
+    setProduits(produitsInitiaux);
+  }, [produitsInitiaux]);
+
+  React.useEffect(() => {
+    setClients(clientsInitiaux);
+  }, [clientsInitiaux]);
+
   const [rechercheProduit, setRechercheProduit] = useState("");
   const [filtreStock, setFiltreStock] = useState<"tous" | "disponibles">("disponibles");
 
@@ -247,6 +256,7 @@ export default function CaissePOS({
     setModalNouveauClient(false);
     setNouveauClientNom("");
     setNouveauClientTel("");
+    router.refresh();
   }
 
   // Validation finale de l'encaissement
@@ -309,6 +319,7 @@ export default function CaissePOS({
       setAcompteSaisi("");
       setTypeReglement("comptant");
       genererNouvelleCleIdempotence();
+      router.refresh();
     });
   }
 
