@@ -98,9 +98,17 @@ export default function RecuVenteModal({
             max-width: ${formatActif === "ticket_80mm" ? "76mm" : "100%"} !important;
             box-shadow: none !important;
             border: none !important;
+            border-radius: 0 !important;
             background: white !important;
             page-break-after: avoid !important;
             page-break-inside: avoid !important;
+          }
+          #document-imprimable > div {
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            padding: ${formatActif === "ticket_80mm" ? "0 !important" : "inherit"};
           }
           #document-imprimable * {
             box-sizing: border-box;
@@ -109,9 +117,7 @@ export default function RecuVenteModal({
       `}} />
 
       <div
-        className={`bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl w-full shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-auto ${
-          formatActif === "facture_a4" ? "max-w-4xl" : "max-w-md"
-        }`}
+        className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-auto"
       >
         {/* ======================================================== */}
         {/* BARRE D'ACTIONS SUPÉRIEURE (print:hidden)                 */}
@@ -186,7 +192,7 @@ export default function RecuVenteModal({
               /* ======================================================== */
               /* FORMAT 1 : TICKET DE CAISSE THERMIQUE 80 MM              */
               /* ======================================================== */
-              <div className="w-[78mm] max-w-[78mm] p-3 sm:p-4 bg-white text-[#2B2119] font-mono text-[11px] space-y-3.5 shadow-sm border border-stone-200">
+              <div className="w-[78mm] max-w-[78mm] p-4 sm:p-5 bg-white text-[#2B2119] font-mono text-[11px] space-y-3.5 shadow-md rounded-xl border border-stone-200 my-1">
                 {/* En-tête ticket : Nom entreprise en tout premier */}
                 <div className="text-center space-y-1 border-b border-dashed border-stone-300 pb-3">
                   {/* 1. NOM DE L'ENTREPRISE TOUT EN HAUT */}
@@ -318,7 +324,7 @@ export default function RecuVenteModal({
               /* ======================================================== */
               /* FORMAT 2 : FACTURE OFFICIELLE AU FORMAT A4               */
               /* ======================================================== */
-              <div className="w-full max-w-[210mm] p-6 sm:p-10 bg-white text-[#2B2119] font-sans text-xs space-y-6 shadow-sm border border-stone-200 rounded-lg">
+              <div className="w-full max-w-[210mm] p-6 sm:p-10 bg-white text-[#2B2119] font-sans text-xs space-y-6 shadow-md border border-stone-200 rounded-xl my-1">
                 {/* En-tête A4 : 2 colonnes */}
                 <div className="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-[#E5DACF] pb-6">
                   {/* Colonne Gauche : Émetteur (Entreprise d'abord, puis Boutique) */}
