@@ -183,3 +183,99 @@ export async function changerStatutBoutiqueAction(
     return { success: false, error: err.message };
   }
 }
+
+export interface ModifierBoutiquePayload {
+  nom: string;
+  ville: string;
+  adresse: string;
+  secteur_activite?: string;
+  telephone?: string | null;
+}
+
+/**
+ * Modification des coordonnées d'une boutique par le Patron
+ * Le code interne (B01, B02...) reste strictement immuable (Règle 8).
+ */
+export async function modifierBoutiqueAction(
+  boutiqueId: string,
+  payload: ModifierBoutiquePayload
+): Promise<BoutiqueActionResult> {
+  const session = await getCurrentSession();
+  if (!session || session.role !== "patron") {
+    return { success: false, error: "Action non autorisée. Seul le Patron peut modifier une boutique." };
+  }
+
+  const guard = verifierStatutAbonnementPourEcriture(session.statutAbonnement);
+  if (!guard.autorise) {
+    return { success: false, error: guard.erreur };
+  }
+
+  const nom = payload.nom.trim();
+  const ville = payload.ville.trim();
+  const adresse = payload.adresse.trim();
+  const secteurActivite = payload.secteur_activite?.trim() || "Commerce général";
+  const telephone = payload.telephone?.trim() || null;
+
+  if (!nom || !ville || !adresse) {
+    return { success: false, error: "Le nom, la ville et l'adresse sont obligatoires." };
+  }
+
+  try {
+    const scoped = getScopedPrisma(session.compteId);
+    const boutiqueExistante = await scoped.boutiques.findFirst({
+      where: { id: boutiqueId },
+    });
+
+    if (!boutiqueExistante) {
+      return { success: false, error: "Boutique introuvable." };
+    }
+
+    const boutiqueMaj = await prisma.$transaction(async (tx) => {
+      const maj = await tx.boutiques.update({
+        where: { id: boutiqueId },
+        data: {
+          nom,
+          ville,
+          adresse,
+          secteur_activite: secteurActivite,
+          telephone,
+        },
+      });
+
+      await enregistrerAudit(tx, {
+        compte_id: session.compteId,
+        utilisateur_id: session.userId,
+        action: "modification_boutique",
+        entite_concernee: "boutiques",
+        entite_id: boutiqueId,
+        details: {
+          code: maj.code,
+          ancien_nom: boutiqueExistante.nom,
+          nouveau_nom: nom,
+          ancienne_ville: boutiqueExistante.ville,
+          nouvelle_ville: ville,
+        },
+      });
+
+      return maj;
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/boutiques");
+
+    return {
+      success: true,
+      boutique: {
+        id: boutiqueMaj.id,
+        code: boutiqueMaj.code,
+        nom: boutiqueMaj.nom,
+        ville: boutiqueMaj.ville,
+        statut: boutiqueMaj.statut,
+      },
+    };
+  } catch (err: any) {
+    console.error("Erreur modifierBoutiqueAction :", err);
+    return { success: false, error: err.message || "Erreur lors de la mise à jour de la boutique." };
+  }
+}
+

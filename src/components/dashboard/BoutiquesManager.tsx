@@ -18,8 +18,13 @@ import {
   AlertCircle,
   ArrowRight,
   Power,
+  Edit2,
 } from "lucide-react";
-import { creerBoutiqueAction, changerStatutBoutiqueAction } from "@/app/actions/boutiques";
+import {
+  creerBoutiqueAction,
+  changerStatutBoutiqueAction,
+  modifierBoutiqueAction,
+} from "@/app/actions/boutiques";
 
 export interface BoutiqueItem {
   id: string;
@@ -50,9 +55,11 @@ export default function BoutiquesManager({
 }: BoutiquesManagerProps) {
   const router = useRouter();
   const [modalOuverte, setModalOuverte] = useState(false);
+  const [boutiqueEnEdition, setBoutiqueEnEdition] = useState<BoutiqueItem | null>(null);
   const [upgradeModalOuverte, setUpgradeModalOuverte] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [erreur, setErreur] = useState<string | null>(null);
+  const [erreurEdition, setErreurEdition] = useState<string | null>(null);
   const [actionBoutiqueId, setActionBoutiqueId] = useState<string | null>(null);
 
   const totalBoutiques = boutiques.length;
@@ -79,6 +86,31 @@ export default function BoutiquesManager({
         setErreur(res.error || "Une erreur est survenue lors de la création.");
       } else {
         setModalOuverte(false);
+        router.refresh();
+      }
+    });
+  }
+
+  async function handleModifierBoutique(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!boutiqueEnEdition) return;
+    setErreurEdition(null);
+    const formData = new FormData(e.currentTarget);
+
+    const payload = {
+      nom: (formData.get("nom") as string)?.trim() || "",
+      ville: (formData.get("ville") as string)?.trim() || "",
+      adresse: (formData.get("adresse") as string)?.trim() || "",
+      secteur_activite: (formData.get("secteur_activite") as string)?.trim() || "Commerce général",
+      telephone: (formData.get("telephone") as string)?.trim() || null,
+    };
+
+    startTransition(async () => {
+      const res = await modifierBoutiqueAction(boutiqueEnEdition.id, payload);
+      if (!res.success) {
+        setErreurEdition(res.error || "Une erreur est survenue lors de la modification.");
+      } else {
+        setBoutiqueEnEdition(null);
         router.refresh();
       }
     });
@@ -220,27 +252,41 @@ export default function BoutiquesManager({
                   Créée le {new Date(b.date_creation).toLocaleDateString("fr-FR")}
                 </span>
 
-                <button
-                  onClick={() => handleToggleStatut(b.id, b.statut)}
-                  disabled={enCoursDeModification}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-colors focus:outline-none cursor-pointer ${
-                    estActif
-                      ? "text-stone-600 hover:text-stone-900 hover:bg-stone-200/50"
-                      : "text-[#C1652D] hover:bg-[#C1652D]/10"
-                  }`}
-                  title={
-                    estActif
-                      ? "Désactiver temporairement cette boutique"
-                      : "Réactiver cette boutique"
-                  }
-                >
-                  {enCoursDeModification ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Power className="w-3.5 h-3.5" />
-                  )}
-                  <span>{estActif ? "Désactiver" : "Réactiver"}</span>
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => {
+                      setErreurEdition(null);
+                      setBoutiqueEnEdition(b);
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl font-bold text-xs text-[#6D5D52] hover:text-[#2B2119] hover:bg-[#E5DACF]/50 transition-colors cursor-pointer"
+                    title="Modifier les coordonnées de cette boutique"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                    <span>Modifier</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleToggleStatut(b.id, b.statut)}
+                    disabled={enCoursDeModification}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-bold transition-colors focus:outline-none cursor-pointer ${
+                      estActif
+                        ? "text-stone-600 hover:text-stone-900 hover:bg-stone-200/50"
+                        : "text-[#C1652D] hover:bg-[#C1652D]/10"
+                    }`}
+                    title={
+                      estActif
+                        ? "Désactiver temporairement cette boutique"
+                        : "Réactiver cette boutique"
+                    }
+                  >
+                    {enCoursDeModification ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Power className="w-3.5 h-3.5" />
+                    )}
+                    <span>{estActif ? "Désactiver" : "Réactiver"}</span>
+                  </button>
+                </div>
               </div>
             </div>
           );
@@ -363,6 +409,136 @@ export default function BoutiquesManager({
                 >
                   {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Créer la boutique</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modale de Modification de Boutique */}
+      {boutiqueEnEdition && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+          <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl max-w-lg w-full p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-150">
+            {/* Header Modale */}
+            <div className="flex items-center justify-between pb-4 border-b border-[#E5DACF]">
+              <div>
+                <h2 className="text-lg font-extrabold text-[#2B2119]">
+                  Modifier les coordonnées
+                </h2>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="px-2 py-0.5 rounded-md bg-[#C1652D]/10 text-[#C1652D] font-mono font-bold text-xs">
+                    Code : {boutiqueEnEdition.code}
+                  </span>
+                  <span className="text-[11px] text-[#8C7A6B]">
+                    (Code interne immuable)
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setBoutiqueEnEdition(null)}
+                className="p-1.5 rounded-lg text-[#8C7A6B] hover:text-[#2B2119] hover:bg-[#E5DACF]/50 focus:outline-none"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Formulaire de modification */}
+            <form onSubmit={handleModifierBoutique} className="space-y-4 pt-4">
+              {erreurEdition && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{erreurEdition}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                  Nom d&apos;affichage de la boutique *
+                </label>
+                <input
+                  type="text"
+                  name="nom"
+                  required
+                  defaultValue={boutiqueEnEdition.nom}
+                  placeholder="Ex : Boutique Principale - Ganhi"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                    Ville *
+                  </label>
+                  <input
+                    type="text"
+                    name="ville"
+                    required
+                    defaultValue={boutiqueEnEdition.ville}
+                    placeholder="Ex : Cotonou"
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                    Secteur d&apos;activité
+                  </label>
+                  <input
+                    type="text"
+                    name="secteur_activite"
+                    defaultValue={boutiqueEnEdition.secteur_activite}
+                    placeholder="Ex : Téléphonie & Électronique"
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                  Adresse complète / Rue *
+                </label>
+                <input
+                  type="text"
+                  name="adresse"
+                  required
+                  defaultValue={boutiqueEnEdition.adresse}
+                  placeholder="Ex : Rue 402, en face du marché Ganhi"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                  Téléphone de contact boutique (optionnel)
+                </label>
+                <input
+                  type="tel"
+                  name="telephone"
+                  defaultValue={boutiqueEnEdition.telephone || ""}
+                  placeholder="Ex : +229 97 00 00 00"
+                  className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5DACF]">
+                <button
+                  type="button"
+                  onClick={() => setBoutiqueEnEdition(null)}
+                  disabled={isPending}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-[#6D5D52] hover:bg-[#E5DACF]/50 transition-colors focus:outline-none cursor-pointer"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="px-5 py-2.5 rounded-xl bg-[#C1652D] text-[#FAF6F1] text-xs font-bold hover:bg-[#a95524] transition-colors flex items-center gap-2 shadow-sm focus:outline-none disabled:opacity-50 cursor-pointer"
+                >
+                  {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Enregistrer les modifications</span>
                 </button>
               </div>
             </form>
