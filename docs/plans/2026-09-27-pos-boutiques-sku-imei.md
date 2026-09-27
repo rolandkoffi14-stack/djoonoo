@@ -478,6 +478,8 @@
 - [x] **4.4 Intégrer l'Autocomplétion Client et la Sélection Automatique dans `CaissePOS.tsx`**  
   - Remplacer le `<select>` par un composant Combobox dynamique :
     - Champ texte de recherche avec écouteur `onChange` débouncé à 250ms.
+    - **Flux unidirectionnel strict** : Dépendance d'effet isolée à `[rechercheClientQuery]`, sans mutation de l'état `clients` dans l'effet, éliminant tout risque de boucle infinie (`loading` perpétuel).
+    - Mémorisation persistante de `clientSelectionneObjet` garantissant l'affichage immédiat du nom et du téléphone même si la liste de résultats est réinitialisée.
     - Liste déroulante des correspondances affichant le Nom et le Téléphone.
     - Si aucun résultat : afficher le message neutre *"Aucun client trouvé"* (sans bouton additionnel).
     - Permettre de revenir à *"Client comptoir anonyme"* via un bouton d'effacement discret (`X`).
@@ -485,7 +487,7 @@
     - Dès que `creerClientAction` réussit :
       ```typescript
       setClientSelectionneId(res.client.id);
-      setClientRechercheTexte(`${res.client.nom} (${res.client.telephone})`);
+      setClientSelectionneObjet(res.client);
       setModalNouveauClient(false);
       ```
     - Le client est instantanément lié au panier sans aucune recherche requise de la part du caissier.

@@ -103,6 +103,7 @@ export default function CaissePOS({
   // Panier
   const [panier, setPanier] = useState<LignePanier[]>([]);
   const [clientSelectionneId, setClientSelectionneId] = useState<string>("");
+  const [clientSelectionneObjet, setClientSelectionneObjet] = useState<ClientCaisse | null>(null);
   const [remiseSaisie, setRemiseSaisie] = useState<string>("0");
 
   // Combobox recherche client dynamique
@@ -115,12 +116,15 @@ export default function CaissePOS({
   // Client sélectionné actuel
   const clientSelectionne = useMemo(() => {
     if (!clientSelectionneId) return null;
+    if (clientSelectionneObjet && clientSelectionneObjet.id === clientSelectionneId) {
+      return clientSelectionneObjet;
+    }
     return (
       clients.find((c) => c.id === clientSelectionneId) ||
       resultatsClients.find((c) => c.id === clientSelectionneId) ||
       null
     );
-  }, [clientSelectionneId, clients, resultatsClients]);
+  }, [clientSelectionneId, clientSelectionneObjet, clients, resultatsClients]);
 
   // Fermeture du dropdown au clic en dehors
   useEffect(() => {
@@ -136,11 +140,12 @@ export default function CaissePOS({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Recherche dynamique debouncée
+  // Recherche dynamique debouncée : déclenchée UNIQUEMENT à chaque saisie utilisateur
   useEffect(() => {
     const q = rechercheClientQuery.trim();
     if (!q) {
       setResultatsClients(clients.slice(0, 10));
+      setIsSearchingClient(false);
       return;
     }
 
@@ -150,22 +155,19 @@ export default function CaissePOS({
         const res = await rechercherClientsAction(q);
         if (res.success && res.clients) {
           setResultatsClients(res.clients);
-          // Enrichir le cache local des clients
-          setClients((prev) => {
-            const map = new Map(prev.map((c) => [c.id, c]));
-            res.clients!.forEach((c) => map.set(c.id, c));
-            return Array.from(map.values());
-          });
+        } else {
+          setResultatsClients([]);
         }
       } catch (err) {
         console.error("Erreur recherche clients", err);
+        setResultatsClients([]);
       } finally {
         setIsSearchingClient(false);
       }
     }, 250);
 
     return () => clearTimeout(timer);
-  }, [rechercheClientQuery, clients]);
+  }, [rechercheClientQuery]);
 
   // Mode de règlement
   const [typeReglement, setTypeReglement] = useState<"comptant" | "partiel" | "credit">("comptant");
@@ -315,6 +317,8 @@ export default function CaissePOS({
   // Vider le panier
   function viderPanier() {
     setPanier([]);
+    setClientSelectionneId("");
+    setClientSelectionneObjet(null);
     setRemiseSaisie("0");
     setMontantRecuEspeces("");
     setAcompteSaisi("");
@@ -356,6 +360,7 @@ export default function CaissePOS({
     });
 
     setClientSelectionneId(res.client.id);
+    setClientSelectionneObjet(res.client);
     setRechercheClientQuery("");
     setIsClientDropdownOpen(false);
     setModalNouveauClient(false);
@@ -808,6 +813,7 @@ export default function CaissePOS({
                 type="button"
                 onClick={() => {
                   setClientSelectionneId("");
+                  setClientSelectionneObjet(null);
                   setRechercheClientQuery("");
                 }}
                 className="p-1 rounded-lg text-[#8C7A6B] hover:text-red-600 hover:bg-[#E5DACF]/50 transition-colors cursor-pointer"
@@ -842,6 +848,7 @@ export default function CaissePOS({
                     type="button"
                     onClick={() => {
                       setClientSelectionneId("");
+                      setClientSelectionneObjet(null);
                       setIsClientDropdownOpen(false);
                       setRechercheClientQuery("");
                     }}
@@ -867,6 +874,7 @@ export default function CaissePOS({
                         type="button"
                         onClick={() => {
                           setClientSelectionneId(c.id);
+                          setClientSelectionneObjet(c);
                           setIsClientDropdownOpen(false);
                           setRechercheClientQuery("");
                         }}
