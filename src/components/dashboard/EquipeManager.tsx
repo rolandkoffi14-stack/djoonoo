@@ -128,10 +128,14 @@ export default function EquipeManager({
         setErreur(res.error || "Impossible d'inviter ce collaborateur.");
       } else {
         setModalOuverte(false);
-        setMessageSucces(
-          `L'invitation a été envoyée par email à ${res.employe?.email || "votre collaborateur"} (valable 48h).`
-        );
-        setTimeout(() => setMessageSucces(null), 6000);
+        if (res.avertissement) {
+          alert(res.avertissement);
+        } else {
+          setMessageSucces(
+            `L'invitation a été envoyée par email à ${res.employe?.email || "votre collaborateur"} (valable 48h).`
+          );
+          setTimeout(() => setMessageSucces(null), 6000);
+        }
         router.refresh();
       }
     });

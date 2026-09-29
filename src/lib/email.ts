@@ -134,9 +134,14 @@ export async function envoyerEmailInvitation(
 
   try {
     const resend = new Resend(apiKey);
-    const expediteur = process.env.RESEND_FROM_EMAIL || "djoonoo <onboarding@resend.dev>";
+    const expediteur =
+      process.env.EMAIL_FROM ||
+      process.env.RESEND_FROM_EMAIL ||
+      "djoonoo <notifications@djoonoo.2krdigital.online>";
     const sujet = `Invitation à rejoindre l'équipe de ${payload.nomEntreprise} sur djoonoo`;
     const html = genererHtmlInvitation(payload);
+
+    console.info(`📧 Envoi email invitation vers ${payload.destinataire} depuis ${expediteur}...`);
 
     const { data, error } = await resend.emails.send({
       from: expediteur,
@@ -149,9 +154,11 @@ export async function envoyerEmailInvitation(
       console.error("❌ Erreur API Resend :", error);
       return {
         success: false,
-        error: error.message || "Échec de l'envoi de l'email d'invitation.",
+        error: error.message || "Échec de l'envoi de l'email d'invitation via Resend.",
       };
     }
+
+    console.info(`✅ Email invitation envoyé avec succès à ${payload.destinataire} (ID: ${data?.id})`);
 
     return {
       success: true,

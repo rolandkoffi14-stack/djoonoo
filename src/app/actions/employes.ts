@@ -12,6 +12,7 @@ import { envoyerEmailInvitation } from "@/lib/email";
 export interface EmployeActionResult {
   success: boolean;
   error?: string;
+  avertissement?: string;
   employe?: {
     id: string;
     nom: string;
@@ -186,7 +187,7 @@ export async function creerEmployeAction(
     const lienInvitation = `${baseUrl}/invitation/${rawToken}`;
 
     // 8. Expédier l'email d'invitation via Resend
-    await envoyerEmailInvitation({
+    const resultatEnvoi = await envoyerEmailInvitation({
       destinataire: email,
       nom,
       role: role as "gerant" | "vendeur",
@@ -200,6 +201,9 @@ export async function creerEmployeAction(
 
     return {
       success: true,
+      avertissement: !resultatEnvoi.success
+        ? `Le collaborateur a été ajouté, mais l'envoi d'email a rencontré un problème : ${resultatEnvoi.error || "erreur Resend"}. Tu peux cliquer sur "Renvoyer l'invitation".`
+        : undefined,
       employe: {
         id: nouvelEmploye.id,
         nom: nouvelEmploye.nom,
@@ -285,7 +289,7 @@ export async function renvoyerInvitationAction(
     }
     const lienInvitation = `${baseUrl}/invitation/${rawToken}`;
 
-    await envoyerEmailInvitation({
+    const resultatEnvoi = await envoyerEmailInvitation({
       destinataire: employe.email,
       nom: employe.nom,
       role: employe.role as "gerant" | "vendeur",
@@ -293,6 +297,13 @@ export async function renvoyerInvitationAction(
       boutiqueNom: employe.boutique?.nom || "Boutique",
       lienInvitation,
     });
+
+    if (!resultatEnvoi.success) {
+      return {
+        success: false,
+        error: `Impossible d'expédier l'email : ${resultatEnvoi.error || "erreur inconnue Resend"}`,
+      };
+    }
 
     await enregistrerAudit(prisma, {
       compte_id: session.compteId,
