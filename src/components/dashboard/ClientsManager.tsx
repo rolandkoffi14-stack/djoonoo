@@ -568,18 +568,61 @@ export default function ClientsManager({
                 </p>
               </div>
 
-              {/* Rapprochement téléphonique préalable (Décision C11) */}
+              {/* Rapprochement téléphonique préalable : refus de doublon de numéro */}
               {!clientEnEdition && suggestionsTel.length > 0 && (
-                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 space-y-2 animate-in fade-in duration-200">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                    <AlertTriangle className="w-4 h-4 text-amber-700" />
-                    <span>Client similaire déjà trouvé sur ce compte :</span>
+                <div
+                  className={`p-3 rounded-xl border space-y-2 animate-in fade-in duration-200 ${
+                    suggestionsTel.some(
+                      (s) =>
+                        s.telephone.replace(/\s+/g, "") ===
+                        telInput.trim().replace(/\s+/g, "")
+                    )
+                      ? "bg-red-50 border-red-200"
+                      : "bg-amber-50 border-amber-200"
+                  }`}
+                >
+                  <div
+                    className={`flex items-center gap-1.5 text-xs font-bold ${
+                      suggestionsTel.some(
+                        (s) =>
+                          s.telephone.replace(/\s+/g, "") ===
+                          telInput.trim().replace(/\s+/g, "")
+                      )
+                        ? "text-red-900"
+                        : "text-amber-900"
+                    }`}
+                  >
+                    <AlertTriangle
+                      className={`w-4 h-4 ${
+                        suggestionsTel.some(
+                          (s) =>
+                            s.telephone.replace(/\s+/g, "") ===
+                            telInput.trim().replace(/\s+/g, "")
+                        )
+                          ? "text-red-700"
+                          : "text-amber-700"
+                      }`}
+                    />
+                    <span>
+                      {suggestionsTel.some(
+                        (s) =>
+                          s.telephone.replace(/\s+/g, "") ===
+                          telInput.trim().replace(/\s+/g, "")
+                      )
+                        ? "Ce numéro de téléphone est déjà enregistré :"
+                        : "Client similaire déjà trouvé sur ce compte :"}
+                    </span>
                   </div>
                   <div className="space-y-1.5">
                     {suggestionsTel.map((s) => (
                       <div
                         key={s.id}
-                        className="p-2 rounded-lg bg-[#FAF6F1] border border-amber-200 flex items-center justify-between text-xs"
+                        className={`p-2 rounded-lg bg-[#FAF6F1] border flex items-center justify-between text-xs ${
+                          s.telephone.replace(/\s+/g, "") ===
+                          telInput.trim().replace(/\s+/g, "")
+                            ? "border-red-300"
+                            : "border-amber-200"
+                        }`}
                       >
                         <div>
                           <div className="font-bold text-[#2B2119]">{s.nom}</div>
@@ -597,9 +640,19 @@ export default function ClientsManager({
                       </div>
                     ))}
                   </div>
-                  <p className="text-[10px] text-amber-800">
-                    Tu peux quand même continuer la création si ce numéro est partagé.
-                  </p>
+                  {suggestionsTel.some(
+                    (s) =>
+                      s.telephone.replace(/\s+/g, "") ===
+                      telInput.trim().replace(/\s+/g, "")
+                  ) ? (
+                    <p className="text-[10px] text-red-800 font-bold">
+                      Impossible d&apos;enregistrer : ce numéro est déjà associé à un client existant.
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-amber-800">
+                      Vérifiez s&apos;il ne s&apos;agit pas d&apos;un client déjà enregistré.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -613,8 +666,16 @@ export default function ClientsManager({
                 </button>
                 <button
                   type="submit"
-                  disabled={isPending}
-                  className="px-4 py-2 rounded-xl bg-[#C1652D] text-[#FAF6F1] text-xs font-bold hover:bg-[#a95524] transition-colors flex items-center gap-1.5 cursor-pointer"
+                  disabled={
+                    isPending ||
+                    (!clientEnEdition &&
+                      suggestionsTel.some(
+                        (s) =>
+                          s.telephone.replace(/\s+/g, "") ===
+                          telInput.trim().replace(/\s+/g, "")
+                      ))
+                  }
+                  className="px-4 py-2 rounded-xl bg-[#C1652D] text-[#FAF6F1] text-xs font-bold hover:bg-[#a95524] transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isPending ? (
                     <>

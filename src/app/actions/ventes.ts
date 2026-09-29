@@ -520,23 +520,37 @@ export async function creerClientRapideAction(
 
   try {
     const scoped = getScopedPrisma(session.compteId);
+    const cleanTelCompact = cleanTel.replace(/\s+/g, "");
 
-    // Rapprochement préalable (décision C11) : si un client avec ce numéro existe déjà dans le compte, on le réutilise
+    // Refuser la création si un client avec le même numéro de téléphone existe déjà dans le compte (peu importe le nom)
     const clientExistant = await scoped.clients.findFirst({
       where: {
         compte_id: session.compteId,
-        telephone: cleanTel,
+        OR: [
+          { telephone: cleanTel },
+          { telephone: cleanTelCompact },
+        ],
       },
     });
 
-    if (clientExistant) {
-      return {
-        success: true,
-        client: {
-          id: clientExistant.id,
-          nom: clientExistant.nom,
-          telephone: clientExistant.telephone,
+    let clientDoublon: { id: string; nom: string; telephone: string } | null = clientExistant;
+    if (!clientDoublon && cleanTelCompact.length >= 6) {
+      const potentiels = await scoped.clients.findMany({
+        where: {
+          compte_id: session.compteId,
+          telephone: { contains: cleanTelCompact.slice(-6) },
         },
+        select: { id: true, nom: true, telephone: true },
+      });
+      clientDoublon = potentiels.find(
+        (c) => c.telephone.replace(/\s+/g, "") === cleanTelCompact
+      ) || null;
+    }
+
+    if (clientDoublon) {
+      return {
+        success: false,
+        error: `Un client avec le numéro de téléphone ${cleanTel} existe déjà (${clientDoublon.nom}). La création de doublon est interdite.`,
       };
     }
 

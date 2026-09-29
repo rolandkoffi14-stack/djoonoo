@@ -1,10 +1,13 @@
 "use server";
 
-import { getCurrentSession, hashPassword, generateTotpSecret, generateTotpQrCode } from "@/lib/auth";
+import crypto from "crypto";
+import { headers } from "next/headers";
+import { getCurrentSession } from "@/lib/auth";
 import { prisma, getScopedPrisma } from "@/lib/prisma";
 import { enregistrerAudit } from "@/lib/business-rules";
 import { revalidatePath } from "next/cache";
 import { RoleUtilisateur, StatutUtilisateur } from "@prisma/client";
+import { envoyerEmailInvitation } from "@/lib/email";
 
 export interface EmployeActionResult {
   success: boolean;
@@ -22,8 +25,8 @@ export interface EmployeActionResult {
 }
 
 /**
- * Création et invitation d'un collaborateur (Gérant ou Vendeur)
- * Section 2, Section 5.5, Règle 2 & Sécurité 2FA
+ * Création et invitation d'un collaborateur (Gérant ou Vendeur) par email
+ * Section 2, Section 5.5, Règle 2 & Sécurité 2FA autonome sous 48h
  */
 export async function creerEmployeAction(
   prevState: any,
@@ -42,7 +45,6 @@ export async function creerEmployeAction(
   const nom = (formData.get("nom") as string)?.trim();
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const telephone = (formData.get("telephone") as string)?.trim();
-  const motDePasse = (formData.get("mot_de_passe") as string)?.trim();
   const role = (formData.get("role") as RoleUtilisateur) || "vendeur";
   let boutiqueId = (formData.get("boutique_id") as string)?.trim();
 
@@ -57,12 +59,8 @@ export async function creerEmployeAction(
     boutiqueId = session.boutiqueId;
   }
 
-  if (!nom || !email || !telephone || !motDePasse || !boutiqueId) {
-    return { success: false, error: "Tous les champs obligatoires doivent être renseignés." };
-  }
-
-  if (motDePasse.length < 6) {
-    return { success: false, error: "Le mot de passe doit comporter au moins 6 caractères." };
+  if (!nom || !email || !telephone || !boutiqueId) {
+    return { success: false, error: "Tous les champs obligatoires (nom, email, téléphone, boutique) doivent être renseignés." };
   }
 
   try {
@@ -113,20 +111,12 @@ export async function creerEmployeAction(
       return { success: false, error: "Cette adresse email est déjà associée à un utilisateur sur djoonoo." };
     }
 
-    // 5. Préparation sécurité mot de passe et 2FA
-    const mdpHash = await hashPassword(motDePasse);
+    // 5. Génération du token cryptographique d'invitation (32 octets, valable 48h)
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+    const dateExpiration = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
-    let totpSecret: string | null = null;
-    let totpQrCode: string | undefined = undefined;
-
-    // Pour le rôle Gérant : 2FA TOTP obligatoire (Section 2 & 7)
-    if (role === "gerant") {
-      const totpData = generateTotpSecret(email);
-      totpSecret = totpData.secret;
-      totpQrCode = await generateTotpQrCode(totpData.otpauth);
-    }
-
-    // 6. Transaction atomique Prisma (Règle 2 : utilisateur + historique_affectations + audit)
+    // 6. Transaction atomique Prisma : utilisateur (en_attente) + token d'invitation + affectation + audit
     const nouvelEmploye = await prisma.$transaction(async (tx) => {
       const utilisateur = await tx.utilisateurs.create({
         data: {
@@ -136,10 +126,19 @@ export async function creerEmployeAction(
           nom,
           email,
           telephone,
-          mot_de_passe_hash: mdpHash,
-          deux_fa_active: role === "gerant", // Obligatoire pour le Gérant
-          deux_fa_secret: totpSecret,
-          statut: "actif",
+          mot_de_passe_hash: null, // Pas de mot de passe initial
+          deux_fa_active: false,   // Activé lors de l'onboarding pour le Gérant
+          deux_fa_secret: null,
+          statut: "en_attente",
+        },
+      });
+
+      // Stocker le token d'invitation avec expiration 48h
+      await tx.tokens_invitation.create({
+        data: {
+          utilisateur_id: utilisateur.id,
+          token_hash: tokenHash,
+          date_expiration: dateExpiration,
         },
       });
 
@@ -172,6 +171,30 @@ export async function creerEmployeAction(
       return utilisateur;
     });
 
+    // 7. Déterminer l'URL d'activation
+    let baseUrl = process.env.NEXTAUTH_URL || process.env.APP_URL;
+    if (!baseUrl) {
+      try {
+        const headersList = await headers();
+        const host = headersList.get("x-forwarded-host") || headersList.get("host") || "localhost:3000";
+        const proto = headersList.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
+        baseUrl = `${proto}://${host}`;
+      } catch {
+        baseUrl = "http://localhost:3000";
+      }
+    }
+    const lienInvitation = `${baseUrl}/invitation/${rawToken}`;
+
+    // 8. Expédier l'email d'invitation via Resend
+    await envoyerEmailInvitation({
+      destinataire: email,
+      nom,
+      role: role as "gerant" | "vendeur",
+      nomEntreprise: compte.nom_entreprise,
+      boutiqueNom: boutiqueCible.nom,
+      lienInvitation,
+    });
+
     revalidatePath("/dashboard/equipe");
     revalidatePath("/dashboard/boutiques");
 
@@ -182,15 +205,109 @@ export async function creerEmployeAction(
         nom: nouvelEmploye.nom,
         email: nouvelEmploye.email,
         role: nouvelEmploye.role,
-        boutiqueNom: `${boutiqueCible.code} — ${boutiqueCible.nom}`,
+        boutiqueNom: boutiqueCible.nom,
         statut: nouvelEmploye.statut,
       },
-      totpQrCode,
-      totpSecret: totpSecret || undefined,
     };
   } catch (err: any) {
-    console.error("Erreur création employé :", err);
+    console.error("Erreur creerEmployeAction :", err);
     return { success: false, error: "Erreur serveur : " + (err.message || "Impossible d'ajouter le collaborateur.") };
+  }
+}
+
+/**
+ * Renvoi d'un lien d'invitation actif valable 48h
+ */
+export async function renvoyerInvitationAction(
+  utilisateurId: string
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getCurrentSession();
+  if (!session) {
+    return { success: false, error: "Session expirée. Veuillez vous reconnecter." };
+  }
+
+  if (session.role !== "patron" && session.role !== "gerant") {
+    return { success: false, error: "Action non autorisée." };
+  }
+
+  try {
+    const employe = await prisma.utilisateurs.findFirst({
+      where: {
+        id: utilisateurId,
+        compte_id: session.compteId,
+      },
+      include: {
+        compte: true,
+        boutique: true,
+      },
+    });
+
+    if (!employe) {
+      return { success: false, error: "Collaborateur introuvable." };
+    }
+
+    if (employe.statut !== "en_attente") {
+      return { success: false, error: "Ce compte a déjà été activé par son collaborateur." };
+    }
+
+    if (session.role === "gerant" && employe.boutique_id !== session.boutiqueId) {
+      return { success: false, error: "En tant que Gérant, tu ne peux gérer que les collaborateurs de ta propre boutique." };
+    }
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+    const dateExpiration = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+    // Mettre à jour le token
+    await prisma.tokens_invitation.upsert({
+      where: { utilisateur_id: employe.id },
+      update: {
+        token_hash: tokenHash,
+        date_expiration: dateExpiration,
+      },
+      create: {
+        utilisateur_id: employe.id,
+        token_hash: tokenHash,
+        date_expiration: dateExpiration,
+      },
+    });
+
+    let baseUrl = process.env.NEXTAUTH_URL || process.env.APP_URL;
+    if (!baseUrl) {
+      try {
+        const headersList = await headers();
+        const host = headersList.get("x-forwarded-host") || headersList.get("host") || "localhost:3000";
+        const proto = headersList.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
+        baseUrl = `${proto}://${host}`;
+      } catch {
+        baseUrl = "http://localhost:3000";
+      }
+    }
+    const lienInvitation = `${baseUrl}/invitation/${rawToken}`;
+
+    await envoyerEmailInvitation({
+      destinataire: employe.email,
+      nom: employe.nom,
+      role: employe.role as "gerant" | "vendeur",
+      nomEntreprise: employe.compte.nom_entreprise,
+      boutiqueNom: employe.boutique?.nom || "Boutique",
+      lienInvitation,
+    });
+
+    await enregistrerAudit(prisma, {
+      compte_id: session.compteId,
+      utilisateur_id: session.userId,
+      action: "renvoi_invitation_employe",
+      entite_concernee: "utilisateurs",
+      entite_id: employe.id,
+      details: { email: employe.email, role: employe.role },
+    });
+
+    revalidatePath("/dashboard/equipe");
+    return { success: true };
+  } catch (err: any) {
+    console.error("Erreur renvoyerInvitationAction :", err);
+    return { success: false, error: "Impossible de renvoyer l'invitation." };
   }
 }
 

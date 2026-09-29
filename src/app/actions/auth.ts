@@ -406,6 +406,14 @@ export async function connexionAction(
       return { error: "Identifiants invalides." };
     }
 
+    // Vérification compte en attente d'activation
+    if (user.statut === "en_attente" || !user.mot_de_passe_hash) {
+      return {
+        error:
+          "Ton compte n'est pas encore activé. Veuillez cliquer sur le lien d'invitation reçu par email pour définir votre mot de passe.",
+      };
+    }
+
     // Vérification du mot de passe
     const mdpValide = await verifyPassword(motDePasse, user.mot_de_passe_hash);
     if (!mdpValide) {

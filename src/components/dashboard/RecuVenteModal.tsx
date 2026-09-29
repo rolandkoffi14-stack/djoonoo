@@ -347,7 +347,7 @@ export default function RecuVenteModal({
 
                   {/* 2. NOM DE LA BOUTIQUE */}
                   <div className="text-xs font-bold text-[#6D5D52]">
-                    {recu.boutique.nom} ({recu.boutique.code})
+                    {recu.boutique.nom}
                   </div>
 
                   {/* 3. COORDONNÉES */}
@@ -461,7 +461,7 @@ export default function RecuVenteModal({
                 <div className="text-center text-[10px] text-stone-500 pt-1 space-y-1">
                   <div>Merci de votre visite et à très bientôt !</div>
                   <div className="font-sans font-bold text-stone-400">
-                    Propulsé par djoonoo.com
+                    Propulsé par djoonoo
                   </div>
                 </div>
               </div>
@@ -483,9 +483,6 @@ export default function RecuVenteModal({
                     <div className="text-sm font-bold text-[#C1652D] flex items-center gap-1.5">
                       <Store className="w-4 h-4" />
                       <span>{recu.boutique.nom}</span>
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FAF6F1] border border-[#E5DACF] text-[#6D5D52]">
-                        {recu.boutique.code}
-                      </span>
                     </div>
 
                     <p className="text-xs text-[#6D5D52] leading-relaxed">
@@ -680,9 +677,8 @@ export default function RecuVenteModal({
                 </div>
 
                 {/* Bas de page officiel A4 : simple texte, aucun lien */}
-                <div className="pt-6 border-t border-stone-200 text-center text-[10px] text-stone-400 space-y-1">
-                  <div>Facture délivrée par {recu.entreprise?.nom || recu.boutique.nom}</div>
-                  <div className="font-bold text-stone-400">Propulsé par djoonoo.com</div>
+                <div className="pt-6 border-t border-stone-200 text-center text-[10px] text-stone-400">
+                  <div className="font-bold text-stone-400">Propulsé par djoonoo</div>
                 </div>
               </div>
             )}

@@ -1,33 +1,28 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Users,
-  UserCheck,
   Plus,
   ShieldCheck,
-  ShieldAlert,
   CheckCircle2,
   XCircle,
   Loader2,
   X,
   AlertCircle,
   Power,
-  Store,
   Mail,
-  Phone,
   KeyRound,
-  Copy,
-  Check,
-  Lock,
   ArrowRightLeft,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 import {
   creerEmployeAction,
   changerStatutEmployeAction,
   transfererEmployeAction,
+  renvoyerInvitationAction,
 } from "@/app/actions/employes";
 import { RoleUtilisateur, StatutUtilisateur } from "@prisma/client";
 
@@ -75,17 +70,9 @@ export default function EquipeManager({
   const [modalOuverte, setModalOuverte] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [erreur, setErreur] = useState<string | null>(null);
+  const [messageSucces, setMessageSucces] = useState<string | null>(null);
   const [actionUserId, setActionUserId] = useState<string | null>(null);
-  const [copie, setCopie] = useState(false);
-
-  // Écran de succès avec QR code 2FA pour le Gérant
-  const [resultatCreation, setResultatCreation] = useState<{
-    nom: string;
-    email: string;
-    role: RoleUtilisateur;
-    totpQrCode?: string;
-    totpSecret?: string;
-  } | null>(null);
+  const [renvoiEnCoursId, setRenvoiEnCoursId] = useState<string | null>(null);
 
   // Form state
   const [selectedRole, setSelectedRole] = useState<RoleUtilisateur>("vendeur");
@@ -117,6 +104,8 @@ export default function EquipeManager({
         setErreurTransfert(res.error || "Impossible de transférer ce collaborateur.");
       } else {
         setEmployeATransferer(null);
+        setMessageSucces(`Collaborateur transféré avec succès vers la nouvelle boutique.`);
+        setTimeout(() => setMessageSucces(null), 5000);
         router.refresh();
       }
     });
@@ -124,15 +113,8 @@ export default function EquipeManager({
 
   function handleOuvrirModal() {
     setErreur(null);
-    setResultatCreation(null);
     setSelectedRole("vendeur");
     setModalOuverte(true);
-  }
-
-  function handleCopierSecret(secret: string) {
-    navigator.clipboard.writeText(secret);
-    setCopie(true);
-    setTimeout(() => setCopie(false), 2000);
   }
 
   async function handleCreerEmploye(e: React.FormEvent<HTMLFormElement>) {
@@ -145,21 +127,32 @@ export default function EquipeManager({
       if (!res.success) {
         setErreur(res.error || "Impossible d'inviter ce collaborateur.");
       } else {
-        if (res.totpQrCode && res.totpSecret) {
-          // Affichage de l'écran 2FA pour le Gérant
-          setResultatCreation({
-            nom: res.employe!.nom,
-            email: res.employe!.email,
-            role: res.employe!.role,
-            totpQrCode: res.totpQrCode,
-            totpSecret: res.totpSecret,
-          });
-        } else {
-          setModalOuverte(false);
-          router.refresh();
-        }
+        setModalOuverte(false);
+        setMessageSucces(
+          `L'invitation a été envoyée par email à ${res.employe?.email || "votre collaborateur"} (valable 48h).`
+        );
+        setTimeout(() => setMessageSucces(null), 6000);
+        router.refresh();
       }
     });
+  }
+
+  async function handleRenvoyerInvitation(employeId: string) {
+    setRenvoiEnCoursId(employeId);
+    setMessageSucces(null);
+    try {
+      const res = await renvoyerInvitationAction(employeId);
+      if (!res.success) {
+        alert(res.error || "Impossible de renvoyer l'invitation.");
+      } else {
+        setMessageSucces("Un nouveau lien d'invitation (valable 48h) a été envoyé avec succès !");
+        setTimeout(() => setMessageSucces(null), 5000);
+      }
+    } catch {
+      alert("Erreur lors de l'envoi de l'invitation.");
+    } finally {
+      setRenvoiEnCoursId(null);
+    }
   }
 
   async function handleToggleStatut(employeId: string, statutActuel: StatutUtilisateur) {
@@ -203,7 +196,7 @@ export default function EquipeManager({
               </h1>
             </div>
             <p className="text-xs text-[#6D5D52] max-w-xl">
-              Gère tes gérants et vendeurs, contrôle leurs accès aux boutiques et assure la sécurité par authentification forte.
+              Invite tes gérants et vendeurs par email, contrôle leurs accès aux boutiques et assure la sécurité par authentification forte.
             </p>
           </div>
 
@@ -228,6 +221,22 @@ export default function EquipeManager({
         </div>
       </div>
 
+      {/* Message de notification succès */}
+      {messageSucces && (
+        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between gap-2 shadow-xs animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-semibold">{messageSucces}</span>
+          </div>
+          <button
+            onClick={() => setMessageSucces(null)}
+            className="p-1 text-emerald-700 hover:text-emerald-950 rounded cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Table des collaborateurs */}
       <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -247,6 +256,7 @@ export default function EquipeManager({
               {employes.map((e) => {
                 const roleBadge = getRoleBadge(e.role);
                 const estActif = e.statut === "actif";
+                const estEnAttente = e.statut === "en_attente";
                 const estMoi = e.id === currentUserId;
                 const enCours = actionUserId === e.id && isPending;
 
@@ -254,7 +264,7 @@ export default function EquipeManager({
                   <tr
                     key={e.id}
                     className={`hover:bg-[#E5DACF]/20 transition-colors ${
-                      !estActif ? "opacity-60 bg-stone-50" : ""
+                      e.statut === "inactif" ? "opacity-60 bg-stone-50" : ""
                     }`}
                   >
                     {/* Nom & Email */}
@@ -305,6 +315,11 @@ export default function EquipeManager({
                           <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
                           <span>Sécurisé 2FA</span>
                         </span>
+                      ) : estEnAttente && e.role === "gerant" ? (
+                        <span className="inline-flex items-center gap-1 text-amber-800 font-bold text-[11px]">
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                          <span>2FA à l&apos;activation</span>
+                        </span>
                       ) : e.role === "gerant" ? (
                         <span className="inline-flex items-center gap-1 text-blue-700 font-bold text-[11px]">
                           <KeyRound className="w-3.5 h-3.5 text-blue-600" />
@@ -317,60 +332,76 @@ export default function EquipeManager({
 
                     {/* Statut compte */}
                     <td className="py-3.5 px-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                          estActif
-                            ? "bg-green-100 text-green-800"
-                            : "bg-stone-200 text-stone-700"
-                        }`}
-                      >
-                        {estActif ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3 text-green-600" />
-                            <span>Actif</span>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="w-3 h-3 text-stone-500" />
-                            <span>Inactif</span>
-                          </>
-                        )}
-                      </span>
+                      {estEnAttente ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                          <Clock className="w-3 h-3 text-amber-700" />
+                          <span>En attente d&apos;activation</span>
+                        </span>
+                      ) : estActif ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-green-100 text-green-800">
+                          <CheckCircle2 className="w-3 h-3 text-green-600" />
+                          <span>Actif</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-200 text-stone-700">
+                          <XCircle className="w-3 h-3 text-stone-500" />
+                          <span>Inactif</span>
+                        </span>
+                      )}
                     </td>
 
                     {/* Actions */}
                     <td className="py-3.5 px-4 text-right">
                       {!estMoi && (
                         <div className="flex items-center justify-end gap-1.5">
-                          {userRole === "patron" && boutiques.length > 1 && (
+                          {estEnAttente ? (
                             <button
                               type="button"
-                              onClick={() => handleOuvrirModalTransfert(e)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#C1652D] hover:bg-[#C1652D]/10 transition-colors focus:outline-none cursor-pointer"
-                              title="Transférer vers une autre boutique"
+                              onClick={() => handleRenvoyerInvitation(e.id)}
+                              disabled={renvoiEnCoursId === e.id}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#C1652D] bg-[#C1652D]/10 hover:bg-[#C1652D]/20 transition-colors focus:outline-none cursor-pointer disabled:opacity-50"
+                              title="Renvoyer un nouveau lien d'invitation (48h)"
                             >
-                              <ArrowRightLeft className="w-3.5 h-3.5" />
-                              <span>Transférer</span>
+                              {renvoiEnCoursId === e.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Mail className="w-3.5 h-3.5" />
+                              )}
+                              <span>Renvoyer l&apos;invitation</span>
                             </button>
-                          )}
+                          ) : (
+                            <>
+                              {userRole === "patron" && boutiques.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleOuvrirModalTransfert(e)}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#C1652D] hover:bg-[#C1652D]/10 transition-colors focus:outline-none cursor-pointer"
+                                  title="Transférer vers une autre boutique"
+                                >
+                                  <ArrowRightLeft className="w-3.5 h-3.5" />
+                                  <span>Transférer</span>
+                                </button>
+                              )}
 
-                          <button
-                            onClick={() => handleToggleStatut(e.id, e.statut)}
-                            disabled={enCours}
-                            className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors focus:outline-none cursor-pointer ${
-                              estActif
-                                ? "text-stone-600 hover:text-stone-900 hover:bg-stone-200/50"
-                                : "text-[#C1652D] hover:bg-[#C1652D]/10"
-                            }`}
-                            title={estActif ? "Désactiver ce collaborateur" : "Réactiver ce collaborateur"}
-                          >
-                            {enCours ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Power className="w-3.5 h-3.5" />
-                            )}
-                            <span>{estActif ? "Désactiver" : "Réactiver"}</span>
-                          </button>
+                              <button
+                                onClick={() => handleToggleStatut(e.id, e.statut)}
+                                disabled={enCours}
+                                className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors focus:outline-none cursor-pointer ${
+                                  estActif
+                                    ? "text-stone-600 hover:text-stone-900 hover:bg-stone-200/50"
+                                    : "text-[#C1652D] hover:bg-[#C1652D]/10"
+                                }`}
+                                title={estActif ? "Désactiver ce collaborateur" : "Réactiver ce collaborateur"}
+                              >
+                                {enCours ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Power className="w-3.5 h-3.5" />
+                                )}
+                                <span>{estActif ? "Désactiver" : "Réactiver"}</span>
+                              </button>
+                            </>
+                          )}
                         </div>
                       )}
                     </td>
@@ -386,114 +417,65 @@ export default function EquipeManager({
       {modalOuverte && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
           <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl max-w-lg w-full p-6 shadow-xl relative animate-in fade-in zoom-in-95 duration-150">
-            {/* Si un Gérant vient d'être créé : écran QR Code */}
-            {resultatCreation ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#E5DACF]">
-                  <div className="flex items-center gap-2 text-green-700">
-                    <CheckCircle2 className="w-5 h-5 text-green-600" />
-                    <h2 className="text-base font-extrabold text-[#2B2119]">
-                      Gérant invité avec succès !
-                    </h2>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setModalOuverte(false);
-                      setResultatCreation(null);
-                      router.refresh();
-                    }}
-                    className="p-1 rounded-lg text-[#8C7A6B] hover:text-[#2B2119] hover:bg-[#E5DACF]/50"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+            <div>
+              <div className="flex items-center justify-between pb-3 border-b border-[#E5DACF]">
+                <div>
+                  <h2 className="text-lg font-extrabold text-[#2B2119]">
+                    Inviter un nouveau collaborateur
+                  </h2>
+                  <p className="text-xs text-[#6D5D52] mt-0.5">
+                    Rattache un gérant ou un vendeur à une boutique de ton entreprise.
+                  </p>
                 </div>
-
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 flex items-start gap-2">
-                  <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                  <div>
-                    <strong>2FA TOTP Obligatoire pour le Gérant :</strong> Fais scanner ce code QR au gérant <strong>{resultatCreation.nom}</strong> avec <em>Google Authenticator</em> ou <em>Authy</em> dès sa prise de poste.
-                  </div>
-                </div>
-
-                {resultatCreation.totpQrCode && (
-                  <div className="flex flex-col items-center justify-center py-2">
-                    <div className="p-3 bg-white rounded-2xl border border-[#E5DACF] shadow-inner">
-                      <Image
-                        src={resultatCreation.totpQrCode}
-                        alt="QR Code TOTP"
-                        width={180}
-                        height={180}
-                        className="rounded-lg"
-                      />
-                    </div>
-
-                    {resultatCreation.totpSecret && (
-                      <div className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#E5DACF]/40 border border-[#E5DACF] text-xs font-mono">
-                        <span className="text-[#6D5D52]">Clé secrète :</span>
-                        <strong className="text-[#2B2119]">{resultatCreation.totpSecret}</strong>
-                        <button
-                          type="button"
-                          onClick={() => handleCopierSecret(resultatCreation.totpSecret!)}
-                          className="p-1 rounded text-[#C1652D] hover:bg-[#C1652D]/10"
-                          title="Copier la clé"
-                        >
-                          {copie ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="pt-3 border-t border-[#E5DACF] flex justify-end">
-                  <button
-                    onClick={() => {
-                      setModalOuverte(false);
-                      setResultatCreation(null);
-                      router.refresh();
-                    }}
-                    className="px-5 py-2.5 rounded-xl bg-[#C1652D] text-[#FAF6F1] font-bold text-xs hover:bg-[#a95524] transition-colors"
-                  >
-                    J&apos;ai transmis le code • Fermer
-                  </button>
-                </div>
+                <button
+                  onClick={() => setModalOuverte(false)}
+                  className="p-1 rounded-lg text-[#8C7A6B] hover:text-[#2B2119] hover:bg-[#E5DACF]/50 focus:outline-none cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            ) : (
-              // Formulaire d'invitation normal
-              <div>
-                <div className="flex items-center justify-between pb-3 border-b border-[#E5DACF]">
-                  <div>
-                    <h2 className="text-lg font-extrabold text-[#2B2119]">
-                      Inviter un nouveau collaborateur
-                    </h2>
-                    <p className="text-xs text-[#6D5D52] mt-0.5">
-                      Rattache un gérant ou un vendeur à une boutique de ton entreprise.
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setModalOuverte(false)}
-                    className="p-1 rounded-lg text-[#8C7A6B] hover:text-[#2B2119] hover:bg-[#E5DACF]/50 focus:outline-none"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+
+              {erreur && (
+                <div className="my-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{erreur}</span>
                 </div>
+              )}
 
-                {erreur && (
-                  <div className="my-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
-                    <span>{erreur}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleCreerEmploye} className="space-y-3.5 mt-3">
-                  {/* Choix du rôle */}
-                  <div>
-                    <label className="block text-xs font-bold text-[#2B2119] mb-1">
-                      Rôle attribué *
+              <form onSubmit={handleCreerEmploye} className="space-y-3.5 mt-3">
+                {/* Choix du rôle */}
+                <div>
+                  <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                    Rôle attribué *
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label
+                      className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 ${
+                        selectedRole === "vendeur"
+                          ? "border-[#C1652D] bg-[#C1652D]/5"
+                          : "border-[#E5DACF] hover:bg-[#E5DACF]/30"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="role"
+                        value="vendeur"
+                        checked={selectedRole === "vendeur"}
+                        onChange={() => setSelectedRole("vendeur")}
+                        className="mt-0.5 text-[#C1652D] focus:ring-[#C1652D]"
+                      />
+                      <div>
+                        <div className="font-bold text-xs text-[#2B2119]">Vendeur</div>
+                        <div className="text-[11px] text-[#6D5D52] mt-0.5">
+                          Encaisse les ventes, consulte le stock disponible.
+                        </div>
+                      </div>
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
+
+                    {userRole === "patron" && (
                       <label
                         className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 ${
-                          selectedRole === "vendeur"
+                          selectedRole === "gerant"
                             ? "border-[#C1652D] bg-[#C1652D]/5"
                             : "border-[#E5DACF] hover:bg-[#E5DACF]/30"
                         }`}
@@ -501,159 +483,126 @@ export default function EquipeManager({
                         <input
                           type="radio"
                           name="role"
-                          value="vendeur"
-                          checked={selectedRole === "vendeur"}
-                          onChange={() => setSelectedRole("vendeur")}
+                          value="gerant"
+                          checked={selectedRole === "gerant"}
+                          onChange={() => setSelectedRole("gerant")}
                           className="mt-0.5 text-[#C1652D] focus:ring-[#C1652D]"
                         />
                         <div>
-                          <div className="font-bold text-xs text-[#2B2119]">Vendeur</div>
+                          <div className="font-bold text-xs text-[#2B2119] flex items-center gap-1">
+                            <span>Gérant</span>
+                            <span className="text-[9px] font-extrabold text-blue-700 bg-blue-100 px-1 rounded">
+                              2FA
+                            </span>
+                          </div>
                           <div className="text-[11px] text-[#6D5D52] mt-0.5">
-                            Encaisse les ventes, consulte le stock disponible.
+                            Supervise la boutique, gère stocks & vendeurs.
                           </div>
                         </div>
                       </label>
-
-                      {userRole === "patron" && (
-                        <label
-                          className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 ${
-                            selectedRole === "gerant"
-                              ? "border-[#C1652D] bg-[#C1652D]/5"
-                              : "border-[#E5DACF] hover:bg-[#E5DACF]/30"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="role"
-                            value="gerant"
-                            checked={selectedRole === "gerant"}
-                            onChange={() => setSelectedRole("gerant")}
-                            className="mt-0.5 text-[#C1652D] focus:ring-[#C1652D]"
-                          />
-                          <div>
-                            <div className="font-bold text-xs text-[#2B2119] flex items-center gap-1">
-                              <span>Gérant</span>
-                              <span className="text-[9px] font-extrabold text-blue-700 bg-blue-100 px-1 rounded">
-                                2FA
-                              </span>
-                            </div>
-                            <div className="text-[11px] text-[#6D5D52] mt-0.5">
-                              Supervise la boutique, gère stocks & vendeurs.
-                            </div>
-                          </div>
-                        </label>
-                      )}
-                    </div>
+                    )}
                   </div>
+                </div>
 
-                  {/* Choix de la boutique */}
+                {/* Choix de la boutique */}
+                <div>
+                  <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                    Boutique d&apos;affectation *
+                  </label>
+                  <select
+                    name="boutique_id"
+                    required
+                    defaultValue={boutiques[0]?.id}
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
+                  >
+                    {boutiques.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.code} — {b.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Nom complet */}
+                <div>
+                  <label className="block text-xs font-bold text-[#2B2119] mb-1">
+                    Nom et prénom du collaborateur *
+                  </label>
+                  <input
+                    type="text"
+                    name="nom"
+                    required
+                    placeholder="Ex : Koffi Mensah"
+                    className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
+                  />
+                </div>
+
+                {/* Email & Téléphone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-[#2B2119] mb-1">
-                      Boutique d&apos;affectation *
-                    </label>
-                    <select
-                      name="boutique_id"
-                      required
-                      defaultValue={boutiques[0]?.id}
-                      className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
-                    >
-                      {boutiques.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.code} — {b.nom}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Nom complet */}
-                  <div>
-                    <label className="block text-xs font-bold text-[#2B2119] mb-1">
-                      Nom et prénom du collaborateur *
+                      Adresse email *
                     </label>
                     <input
-                      type="text"
-                      name="nom"
+                      type="email"
+                      name="email"
                       required
-                      placeholder="Ex : Koffi Mensah"
+                      placeholder="collaborateur@gmail.com"
                       className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                     />
                   </div>
 
-                  {/* Email & Téléphone */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-[#2B2119] mb-1">
-                        Adresse email *
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        required
-                        placeholder="collaborateur@gmail.com"
-                        className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-[#2B2119] mb-1">
-                        Téléphone *
-                      </label>
-                      <input
-                        type="tel"
-                        name="telephone"
-                        required
-                        placeholder="+229 97 00 00 00"
-                        className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Mot de passe initial */}
                   <div>
                     <label className="block text-xs font-bold text-[#2B2119] mb-1">
-                      Mot de passe initial de connexion *
+                      Téléphone *
                     </label>
                     <input
-                      type="password"
-                      name="mot_de_passe"
+                      type="tel"
+                      name="telephone"
                       required
-                      minLength={6}
-                      placeholder="Minimum 6 caractères"
+                      placeholder="+229 97 00 00 00"
                       className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                     />
                   </div>
+                </div>
 
-                  {selectedRole === "gerant" && (
-                    <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-[11px] flex items-start gap-2">
-                      <Lock className="w-3.5 h-3.5 text-blue-700 shrink-0 mt-0.5" />
-                      <span>
-                        <strong>Règle de sécurité 2FA :</strong> À la création, un QR code TOTP te sera présenté pour configurer l&apos;application Google Authenticator du Gérant.
+                {/* Note d'information invitation sans mot de passe */}
+                <div className="p-3.5 rounded-xl bg-[#E5DACF]/30 border border-[#E5DACF] text-xs text-[#2B2119] space-y-1.5">
+                  <div className="font-bold flex items-center gap-2 text-[#C1652D]">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Processus d&apos;invitation autonome sécurisé</span>
+                  </div>
+                  <p className="text-[11px] text-[#6D5D52] leading-relaxed">
+                    Aucun mot de passe initial n&apos;est requis. Un lien d&apos;invitation sécurisé valable <strong>48 heures</strong> sera immédiatement envoyé à l&apos;adresse email indiquée. Le collaborateur configurera son mot de passe lui-même.
+                    {selectedRole === "gerant" && (
+                      <span className="block mt-1 text-blue-900 font-medium">
+                        Pour le rôle <strong>Gérant</strong>, la configuration du 2FA TOTP (Google Authenticator) s&apos;effectuera également de façon guidée et autonome sur son écran.
                       </span>
-                    </div>
-                  )}
+                    )}
+                  </p>
+                </div>
 
-                  <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5DACF]">
-                    <button
-                      type="button"
-                      onClick={() => setModalOuverte(false)}
-                      disabled={isPending}
-                      className="px-4 py-2 rounded-xl text-xs font-bold text-[#6D5D52] hover:bg-[#E5DACF]/50 transition-colors focus:outline-none"
-                    >
-                      Annuler
-                    </button>
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5DACF]">
+                  <button
+                    type="button"
+                    onClick={() => setModalOuverte(false)}
+                    disabled={isPending}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-[#6D5D52] hover:bg-[#E5DACF]/50 transition-colors focus:outline-none cursor-pointer"
+                  >
+                    Annuler
+                  </button>
 
-                    <button
-                      type="submit"
-                      disabled={isPending}
-                      className="px-5 py-2.5 rounded-xl bg-[#C1652D] text-[#FAF6F1] text-xs font-bold hover:bg-[#a95524] transition-colors flex items-center gap-2 shadow-sm focus:outline-none disabled:opacity-50"
-                    >
-                      {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                      <span>Inviter le collaborateur</span>
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="px-5 py-2.5 rounded-xl bg-[#C1652D] text-[#FAF6F1] text-xs font-bold hover:bg-[#a95524] transition-colors flex items-center gap-2 shadow-sm focus:outline-none disabled:opacity-50 cursor-pointer"
+                  >
+                    {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    <span>Envoyer l&apos;invitation</span>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

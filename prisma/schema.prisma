@@ -28,6 +28,7 @@ enum RoleUtilisateur {
 enum StatutUtilisateur {
   actif
   inactif
+  en_attente
 }
 
 enum StatutBoutique {
@@ -149,7 +150,7 @@ model utilisateurs {
   nom               String
   telephone         String
   email             String            @unique // = identifiant de connexion
-  mot_de_passe_hash String
+  mot_de_passe_hash String?           // Nullable tant que l'invitation n'a pas été activée
   deux_fa_active    Boolean           @default(false) // obligatoire = true pour role = patron OU gerant
   deux_fa_secret    String?           // Clé secrète TOTP (otplib)
   statut            StatutUtilisateur
@@ -162,6 +163,7 @@ model utilisateurs {
   paiements_enregistres   paiements[]               @relation("EnregistrePar")
   historique_affectations historique_affectations[]
   journal_audit           journal_audit[]
+  token_invitation        tokens_invitation?
 
   @@index([compte_id])
   @@index([boutique_id])
@@ -179,6 +181,18 @@ model historique_affectations {
 
   @@index([utilisateur_id])
   @@index([boutique_id])
+}
+
+model tokens_invitation {
+  id              String       @id @default(uuid())
+  utilisateur_id  String       @unique
+  token_hash      String       @unique
+  date_expiration DateTime
+  date_creation   DateTime     @default(now())
+
+  utilisateur     utilisateurs @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
+
+  @@index([token_hash])
 }
 
 // ---------- BOUTIQUES & PRODUITS ----------

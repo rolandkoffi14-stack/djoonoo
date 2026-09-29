@@ -154,6 +154,39 @@ export async function creerClientAction(payload: {
 
   try {
     const scoped = getScopedPrisma(session.compteId);
+    const cleanTelCompact = cleanTel.replace(/\s+/g, "");
+
+    // Refuser la création si un client avec le même numéro de téléphone existe déjà dans le compte (peu importe le nom)
+    const clientExistant = await scoped.clients.findFirst({
+      where: {
+        compte_id: session.compteId,
+        OR: [
+          { telephone: cleanTel },
+          { telephone: cleanTelCompact },
+        ],
+      },
+    });
+
+    let clientDoublon: { id: string; nom: string; telephone: string } | null = clientExistant;
+    if (!clientDoublon && cleanTelCompact.length >= 6) {
+      const potentiels = await scoped.clients.findMany({
+        where: {
+          compte_id: session.compteId,
+          telephone: { contains: cleanTelCompact.slice(-6) },
+        },
+        select: { id: true, nom: true, telephone: true },
+      });
+      clientDoublon = potentiels.find(
+        (c) => c.telephone.replace(/\s+/g, "") === cleanTelCompact
+      ) || null;
+    }
+
+    if (clientDoublon) {
+      return {
+        success: false,
+        error: `Un client avec le numéro de téléphone ${cleanTel} existe déjà (${clientDoublon.nom}).`,
+      };
+    }
 
     const client = await scoped.clients.create({
       data: {
@@ -214,6 +247,7 @@ export async function modifierClientAction(
 
   try {
     const scoped = getScopedPrisma(session.compteId);
+    const cleanTelCompact = cleanTel.replace(/\s+/g, "");
 
     const clientExistant = await scoped.clients.findFirst({
       where: { id: clientId, compte_id: session.compteId },
@@ -221,6 +255,40 @@ export async function modifierClientAction(
 
     if (!clientExistant) {
       return { success: false, error: "Client introuvable." };
+    }
+
+    // Vérifier si le nouveau numéro est déjà utilisé par un autre client du compte
+    const doublonTel = await scoped.clients.findFirst({
+      where: {
+        compte_id: session.compteId,
+        id: { not: clientId },
+        OR: [
+          { telephone: cleanTel },
+          { telephone: cleanTelCompact },
+        ],
+      },
+    });
+
+    let doublonTrouve: { id: string; nom: string; telephone: string } | null = doublonTel;
+    if (!doublonTrouve && cleanTelCompact.length >= 6) {
+      const potentiels = await scoped.clients.findMany({
+        where: {
+          compte_id: session.compteId,
+          id: { not: clientId },
+          telephone: { contains: cleanTelCompact.slice(-6) },
+        },
+        select: { id: true, nom: true, telephone: true },
+      });
+      doublonTrouve = potentiels.find(
+        (c) => c.telephone.replace(/\s+/g, "") === cleanTelCompact
+      ) || null;
+    }
+
+    if (doublonTrouve) {
+      return {
+        success: false,
+        error: `Ce numéro de téléphone est déjà attribué au client ${doublonTrouve.nom}.`,
+      };
     }
 
     await scoped.clients.update({
