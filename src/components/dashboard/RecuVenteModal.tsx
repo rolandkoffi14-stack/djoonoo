@@ -62,6 +62,13 @@ export default function RecuVenteModal({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [formatActif]);
 
+  useEffect(() => {
+    return () => {
+      const iframe = document.getElementById("iframe-impression-recu");
+      if (iframe) iframe.remove();
+    };
+  }, []);
+
   function declencherImpression() {
     try {
       const element = document.getElementById("document-imprimable");
@@ -78,16 +85,14 @@ export default function RecuVenteModal({
 
       const iframe = document.createElement("iframe");
       iframe.id = "iframe-impression-recu";
-      // Dimensions réelles hors-champ pour que le moteur de rendu calcule correctement la mise en page
+      // Positionnement hors-champ réel (sans opacity:0 ni visibility:hidden pour éviter que Chromium ne bloque le rendu de print)
       iframe.style.position = "fixed";
-      iframe.style.top = "0";
-      iframe.style.left = "0";
+      iframe.style.top = "-9999px";
+      iframe.style.left = "-9999px";
       iframe.style.width = "800px";
       iframe.style.height = "1000px";
-      iframe.style.zIndex = "-9999";
-      iframe.style.opacity = "0";
-      iframe.style.pointerEvents = "none";
       iframe.style.border = "none";
+      iframe.style.pointerEvents = "none";
       document.body.appendChild(iframe);
 
       const pri = iframe.contentWindow;
@@ -105,21 +110,37 @@ export default function RecuVenteModal({
 
       const pageCss =
         formatActif === "ticket_80mm"
-          ? `@page { size: 80mm auto; margin: 0; }
-             * { box-sizing: border-box; }
+          ? `@page { 
+               size: 80mm auto; 
+               margin: 0; 
+             }
+             *, *::before, *::after { 
+               box-sizing: border-box; 
+               -webkit-print-color-adjust: exact !important;
+               print-color-adjust: exact !important;
+             }
              html, body { 
                margin: 0 !important; 
                padding: 0 !important; 
-               background: white !important; 
+               background: #ffffff !important; 
                color: #2B2119 !important; 
-               font-family: monospace, Courier, monospace !important;
-               width: 78mm !important;
+               font-family: monospace, "Courier New", Courier, monospace !important;
+               width: 80mm !important;
+               visibility: visible !important;
+               opacity: 1 !important;
              }
              .conteneur-print {
                width: 78mm !important;
                max-width: 78mm !important;
                margin: 0 auto !important;
                padding: 3mm 2mm !important;
+               background: #ffffff !important;
+               visibility: visible !important;
+               opacity: 1 !important;
+             }
+             .conteneur-print * {
+               visibility: visible !important;
+               opacity: 1 !important;
              }
              .conteneur-print > div {
                box-shadow: none !important;
@@ -127,28 +148,48 @@ export default function RecuVenteModal({
                border-radius: 0 !important;
                margin: 0 !important;
                padding: 0 !important;
+               width: 100% !important;
+               max-width: 100% !important;
              }`
-          : `@page { size: A4 portrait; margin: 8mm; }
-             * { box-sizing: border-box; }
+          : `@page { 
+               size: A4 portrait; 
+               margin: 8mm; 
+             }
+             *, *::before, *::after { 
+               box-sizing: border-box; 
+               -webkit-print-color-adjust: exact !important;
+               print-color-adjust: exact !important;
+             }
              html, body { 
                margin: 0 !important; 
                padding: 0 !important; 
-               background: white !important; 
+               background: #ffffff !important; 
                color: #2B2119 !important; 
-               font-family: system-ui, -apple-system, sans-serif !important;
+               font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
                width: 100% !important;
+               visibility: visible !important;
+               opacity: 1 !important;
              }
              .conteneur-print {
                width: 100% !important;
                max-width: 100% !important;
                margin: 0 !important;
                padding: 0 !important;
+               background: #ffffff !important;
+               visibility: visible !important;
+               opacity: 1 !important;
+             }
+             .conteneur-print * {
+               visibility: visible !important;
+               opacity: 1 !important;
              }
              .conteneur-print > div {
                box-shadow: none !important;
                border: none !important;
                border-radius: 0 !important;
                margin: 0 !important;
+               width: 100% !important;
+               max-width: 100% !important;
              }`;
 
       pri.document.open();
@@ -170,19 +211,42 @@ export default function RecuVenteModal({
       );
       pri.document.close();
 
-      setTimeout(() => {
+      let printed = false;
+      const lancerImpression = () => {
+        if (printed) return;
+        printed = true;
         try {
           pri.focus();
           pri.print();
         } catch (err) {
-          console.error("Erreur pri.print", err);
+          console.error("Erreur pri.print, repli sur window.print", err);
           window.print();
-        } finally {
-          setTimeout(() => {
-            iframe.remove();
-          }, 1500);
         }
-      }, 350);
+      };
+
+      const nettoyerIframe = () => {
+        try {
+          if (iframe.parentNode) {
+            iframe.remove();
+          }
+        } catch {}
+      };
+
+      // Nettoyer uniquement quand la boîte de dialogue d'impression est fermée
+      pri.onafterprint = nettoyerIframe;
+
+      // Attendre que les styles et le DOM soient calculés
+      if (pri.document.readyState === "complete") {
+        setTimeout(lancerImpression, 150);
+      } else {
+        pri.onload = () => {
+          setTimeout(lancerImpression, 150);
+        };
+        setTimeout(lancerImpression, 400);
+      }
+
+      // Nettoyage de sécurité après 2 minutes
+      setTimeout(nettoyerIframe, 120000);
     } catch (e) {
       console.error("Erreur impression iframe, fallback window.print", e);
       window.print();

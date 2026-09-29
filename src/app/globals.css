@@ -66,23 +66,30 @@ body {
 }
 
 @media print {
-  body * {
-    visibility: hidden;
+  /* Assurer la restitution fidèle des couleurs, badges et bordures à l'impression */
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  #ticket-caisse, #ticket-caisse * {
-    visibility: visible;
+
+  /* Si la modale de reçu/facture est ouverte lors d'une impression directe (ex: Ctrl+P) */
+  body:has(#portal-recu-racine) > *:not(#portal-recu-racine) {
+    display: none !important;
   }
-  #ticket-caisse {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 80mm;
-    margin: 0 auto;
-    padding: 10px !important;
-    font-size: 11px !important;
-    background: white !important;
-    color: black !important;
-    box-shadow: none !important;
-    border: none !important;
+
+  #portal-recu-racine {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  #portal-recu-racine .zone-print-ignore {
+    display: none !important;
   }
 }
+
