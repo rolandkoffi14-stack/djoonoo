@@ -18,7 +18,7 @@ export default async function AbonnementPage({
 
   const { status } = await searchParams;
 
-  const [compte, forfaits, factures] = await Promise.all([
+  const [compte, forfaits, factures, nbBoutiquesActives, nbEmployes, methodesPaiement] = await Promise.all([
     prisma.comptes.findUnique({
       where: { id: session.compteId },
       include: { forfait: true },
@@ -30,7 +30,20 @@ export default async function AbonnementPage({
     prisma.factures_abonnement.findMany({
       where: { compte_id: session.compteId },
       orderBy: { date_echeance: "desc" },
-      take: 5,
+    }),
+    prisma.boutiques.count({
+      where: { compte_id: session.compteId, statut: "actif" },
+    }),
+    prisma.utilisateurs.count({
+      where: {
+        compte_id: session.compteId,
+        role: { in: ["gerant", "vendeur"] },
+        statut: "actif",
+      },
+    }),
+    prisma.methodes_paiement_compte.findMany({
+      where: { compte_id: session.compteId },
+      orderBy: [{ par_defaut: "desc" }, { date_creation: "desc" }],
     }),
   ]);
 
@@ -52,15 +65,31 @@ export default async function AbonnementPage({
       <AbonnementClient
         forfaits={forfaits}
         compteForfaitId={compte.forfait_id}
+        compteForfaitNom={compte.forfait?.nom || "Solo"}
+        forfaitPrixMensuel={compte.forfait?.prix_mensuel || 5000}
+        forfaitDureeJours={compte.forfait?.duree_jours || 30}
+        maxBoutiquesForfait={compte.forfait?.max_boutiques ?? null}
+        maxEmployesForfait={compte.forfait?.max_employes_par_boutique ?? null}
         statutAbonnement={compte.statut_abonnement}
         dateFinPeriode={compte.date_fin_periode_courante?.toISOString() || null}
         dateFinEssai={compte.date_fin_essai?.toISOString() || null}
         isPatron={session.role === "patron"}
+        nbBoutiquesActives={nbBoutiquesActives}
+        nbEmployes={nbEmployes}
+        methodesPaiementInitiales={methodesPaiement.map((m) => ({
+          id: m.id,
+          type: m.type,
+          numero_telephone: m.numero_telephone,
+          nom_titulaire: m.nom_titulaire,
+          derniers_chiffres: m.derniers_chiffres,
+          par_defaut: m.par_defaut,
+        }))}
         factures={factures.map((fc) => ({
           id: fc.id,
           montant: fc.montant,
           statut: fc.statut,
           fournisseur_paiement: fc.fournisseur_paiement,
+          reference_externe: fc.reference_externe,
           date_echeance: fc.date_echeance.toISOString(),
           date_confirmation: fc.date_confirmation?.toISOString() || null,
         }))}

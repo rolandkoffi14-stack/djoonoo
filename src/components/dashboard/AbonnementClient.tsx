@@ -1,80 +1,74 @@
 "use client";
 
 import React, { useState } from "react";
-import { initierPaiementAbonnementAction } from "@/app/actions/subscription";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   CreditCard,
   ShieldCheck,
   Zap,
   ArrowRight,
-  Loader2,
   AlertTriangle,
   Lock,
   Smartphone,
+  Store,
+  Users,
+  Calendar,
+  Receipt,
+  Wallet,
 } from "lucide-react";
-
-interface ForfaitItem {
-  id: string;
-  nom: string;
-  prix_mensuel: number;
-  duree_jours: number;
-  max_boutiques: number | null;
-  max_employes_par_boutique: number | null;
-  actif: boolean;
-}
-
-interface FactureItem {
-  id: string;
-  montant: number;
-  statut: string;
-  fournisseur_paiement: string;
-  date_echeance: string;
-  date_confirmation: string | null;
-}
+import { determinerBoutonActionPrincipal } from "@/lib/subscription-quotas";
+import ModalChoixForfait, { ForfaitItem } from "./ModalChoixForfait";
+import HistoriquePaiementsTab from "./HistoriquePaiementsTab";
+import MethodesPaiementTab, { MethodePaiementItem } from "./MethodesPaiementTab";
+import { FactureDetailItem } from "./ModalDetailFacture";
 
 interface AbonnementClientProps {
   forfaits: ForfaitItem[];
   compteForfaitId: string;
+  compteForfaitNom: string;
+  forfaitPrixMensuel: number;
+  forfaitDureeJours: number;
+  maxBoutiquesForfait: number | null;
+  maxEmployesForfait: number | null;
   statutAbonnement: string;
   dateFinPeriode: string | null;
   dateFinEssai: string | null;
   isPatron: boolean;
-  factures: FactureItem[];
+  nbBoutiquesActives: number;
+  nbEmployes: number;
+  methodesPaiementInitiales: MethodePaiementItem[];
+  factures: FactureDetailItem[];
   statusQuery?: string;
 }
 
 export default function AbonnementClient({
   forfaits,
   compteForfaitId,
+  compteForfaitNom,
+  forfaitPrixMensuel,
+  forfaitDureeJours,
+  maxBoutiquesForfait,
+  maxEmployesForfait,
   statutAbonnement,
   dateFinPeriode,
   dateFinEssai,
   isPatron,
+  nbBoutiquesActives,
+  nbEmployes,
+  methodesPaiementInitiales,
   factures,
   statusQuery,
 }: AbonnementClientProps) {
-  const [selectedForfaitId, setSelectedForfaitId] = useState<string>(compteForfaitId);
-  const [loadingForfaitId, setLoadingForfaitId] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<"forfait" | "historique" | "methodes">("forfait");
+  const [isModalChoixOpen, setIsModalChoixOpen] = useState<boolean>(false);
 
-  const handlePayer = async (forfaitId: string) => {
-    setLoadingForfaitId(forfaitId);
-    setErrorMessage(null);
-
-    try {
-      const res = await initierPaiementAbonnementAction(forfaitId);
-      if (res.success && res.urlPaiement) {
-        window.location.href = res.urlPaiement;
-      } else {
-        setErrorMessage(res.error || "Impossible d'initialiser le paiement.");
-        setLoadingForfaitId(null);
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || "Erreur réseau lors de la redirection de paiement.");
-      setLoadingForfaitId(null);
-    }
-  };
+  // Calcul du bouton d'action selon le Dilemme 1
+  const actionBoutons = determinerBoutonActionPrincipal({
+    statutAbonnement,
+    dateFinPeriode,
+  });
 
   const getStatutBadge = () => {
     switch (statutAbonnement) {
@@ -113,252 +107,252 @@ export default function AbonnementClient({
 
   const badge = getStatutBadge();
 
+  // Échéance formatée
+  const dateEcheanceAffichage =
+    statutAbonnement === "essai" && dateFinEssai
+      ? new Date(dateFinEssai).toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
+      : dateFinPeriode
+      ? new Date(dateFinPeriode).toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
+      : "Non définie";
+
+  const handleSelectForfaitModal = (forfaitId: string) => {
+    setIsModalChoixOpen(false);
+    router.push(`/dashboard/abonnement/checkout?forfaitId=${forfaitId}`);
+  };
+
+  const handleRenouvelerDirect = () => {
+    router.push(`/dashboard/abonnement/checkout?forfaitId=${compteForfaitId}&action=renouveler`);
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {statusQuery === "verif" && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-start gap-3">
           <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
           <div className="text-sm text-blue-900">
             <p className="font-semibold">Paiement en cours de validation</p>
             <p className="text-blue-800 mt-0.5">
-              Ton règlement FedaPay est en cours de traitement. Dès réception de la confirmation instantanée, ton compte sera automatiquement mis à jour.
+              Ton règlement FedaPay est en cours de finalisation. Dès réception du webhook instantané, ton compte sera automatiquement renouvelé.
             </p>
           </div>
         </div>
       )}
 
-      {errorMessage && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-rose-600 mt-0.5 shrink-0" />
-          <div className="text-sm text-rose-900">
-            <p className="font-semibold">Erreur de paiement</p>
-            <p className="text-rose-800 mt-0.5">{errorMessage}</p>
-          </div>
-        </div>
-      )}
+      {/* Navigation par Onglets (Identique à la maquette) */}
+      <div className="border-b border-neutral-200">
+        <nav className="flex gap-8 -mb-px">
+          <button
+            onClick={() => setActiveTab("forfait")}
+            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 ${
+              activeTab === "forfait"
+                ? "border-[#C1652D] text-[#C1652D]"
+                : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
+            }`}
+          >
+            <span>Forfait actif</span>
+          </button>
 
-      {/* Carte d'état actuel */}
-      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-neutral-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-[#2B2119]">Statut de ton compte</h2>
-            <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${badge.bg}`}>
-              {badge.label}
-            </span>
-          </div>
+          <button
+            onClick={() => setActiveTab("historique")}
+            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 ${
+              activeTab === "historique"
+                ? "border-[#C1652D] text-[#C1652D]"
+                : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
+            }`}
+          >
+            <span>Historique de paiements</span>
+            {factures.length > 0 && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 font-medium">
+                {factures.length}
+              </span>
+            )}
+          </button>
 
-          <p className="text-sm text-neutral-600 mt-2">
-            {statutAbonnement === "essai" && dateFinEssai && (
-              <>Période d'essai gratuite active jusqu'au <span className="font-semibold text-[#2B2119]">{new Date(dateFinEssai).toLocaleDateString()}</span>.</>
+          <button
+            onClick={() => setActiveTab("methodes")}
+            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 ${
+              activeTab === "methodes"
+                ? "border-[#C1652D] text-[#C1652D]"
+                : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
+            }`}
+          >
+            <span>Méthodes de paiement</span>
+            {methodesPaiementInitiales.length > 0 && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 font-medium">
+                {methodesPaiementInitiales.length}
+              </span>
             )}
-            {statutAbonnement === "actif" && dateFinPeriode && (
-              <>Abonnement renouvelé jusqu'au <span className="font-semibold text-[#2B2119]">{new Date(dateFinPeriode).toLocaleDateString()}</span>.</>
-            )}
-            {statutAbonnement === "impaye" && (
-              <>Ton échéance est échue. Tu disposes de ton accès complet pendant le délai de grâce.</>
-            )}
-            {statutAbonnement === "expire" && (
-              <>Ton abonnement a expiré. Choisis un forfait ci-dessous pour réactiver tes ventes immédiatement.</>
-            )}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-4 bg-[#FAF6F1] p-4 rounded-xl border border-neutral-200/60">
-          <div className="p-3 bg-[#C1652D]/10 rounded-lg text-[#C1652D]">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wider text-neutral-500 font-semibold">Paiement Mobile Money & Cartes</p>
-            <p className="text-sm font-bold text-[#2B2119]">Sans engagement • Immédiat</p>
-          </div>
-        </div>
+          </button>
+        </nav>
       </div>
 
-      {/* Grille des forfaits */}
-      <div>
-        <div className="text-center max-w-xl mx-auto mb-8">
-          <h2 className="text-2xl font-bold text-[#2B2119]">Choisis la formule adaptée à ton commerce</h2>
-          <p className="text-sm text-neutral-600 mt-1">
-            Règlement sécurisé par MTN Mobile Money, Moov Money ou Carte bancaire.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {forfaits.map((f) => {
-            const isCurrent = f.id === compteForfaitId;
-            const isPopular = f.nom.toLowerCase().includes("réseau");
-            const isLoading = loadingForfaitId === f.id;
-
-            return (
-              <div
-                key={f.id}
-                className={`relative rounded-2xl p-6 sm:p-7 flex flex-col justify-between transition border-2 ${
-                  isPopular
-                    ? "bg-white border-[#C1652D] shadow-md ring-4 ring-[#C1652D]/10"
-                    : "bg-white border-neutral-200 hover:border-neutral-300 shadow-sm"
-                }`}
-              >
-                {isPopular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#C1652D] text-white text-xs font-bold tracking-wide uppercase px-3.5 py-1 rounded-full shadow-sm">
-                    Recommandé
+      {/* CONTENU DE L'ONGLET 1 : FORFAIT ACTIF */}
+      {activeTab === "forfait" && (
+        <div className="space-y-6">
+          {/* Ligne synthétique épurée / Bento Card */}
+          <div className="bg-white rounded-2xl p-6 sm:p-7 border border-neutral-200/80 shadow-xs">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+              {/* Colonne 1 : Formule & Statut */}
+              <div className="space-y-2 lg:min-w-[200px]">
+                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                  Formule & Statut
+                </span>
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-[#C1652D]/10 rounded-xl text-[#C1652D]">
+                    <Zap className="w-5 h-5" />
                   </div>
-                )}
-
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-[#2B2119]">{f.nom}</h3>
-                    {isCurrent && (
-                      <span className="text-xs bg-[#2B2119] text-white font-medium px-2.5 py-0.5 rounded-full">
-                        Actuel
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold text-[#2B2119]">
-                      {f.prix_mensuel.toLocaleString()}
+                  <div>
+                    <h3 className="text-lg font-bold text-[#2B2119]">{compteForfaitNom}</h3>
+                    <span className={`inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full border mt-1 ${badge.bg}`}>
+                      {badge.label}
                     </span>
-                    <span className="text-sm font-semibold text-neutral-500">FCFA</span>
-                    <span className="text-xs text-neutral-400">/{f.duree_jours} jours</span>
                   </div>
-
-                  <div className="mt-6 pt-6 border-t border-neutral-100 space-y-3.5 text-sm">
-                    <div className="flex items-center gap-2.5 text-neutral-700">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>
-                        {f.max_boutiques === null
-                          ? "Boutiques illimitées"
-                          : `${f.max_boutiques} boutique${f.max_boutiques > 1 ? "s" : ""}`}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 text-neutral-700">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>
-                        {f.max_employes_par_boutique === null
-                          ? "Employés illimités"
-                          : `Jusqu'à ${f.max_employes_par_boutique} employé${f.max_employes_par_boutique > 1 ? "s" : ""} par boutique`}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 text-neutral-700">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>Caisse POS & reçus instantanés</span>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 text-neutral-700">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>Gestion de stock & alertes ruptures</span>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 text-neutral-700">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>Traçabilité & rapports financiers</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-4">
-                  {isPatron ? (
-                    <button
-                      onClick={() => handlePayer(f.id)}
-                      disabled={loadingForfaitId !== null}
-                      className={`w-full py-3 px-4 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition ${
-                        isPopular
-                          ? "bg-[#C1652D] hover:bg-[#A05324] text-white shadow-sm"
-                          : "bg-[#2B2119] hover:bg-[#1f1712] text-white"
-                      } disabled:opacity-50`}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Redirection FedaPay...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>{isCurrent && statutAbonnement === "actif" ? "Prolonger ce forfait" : `Choisir ${f.nom}`}</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <p className="text-xs text-neutral-400 text-center italic">
-                      Seul le Patron peut initier le paiement
-                    </p>
-                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* Réassurance FedaPay */}
-      <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-amber-50 text-amber-700 rounded-xl">
-            <Smartphone className="w-6 h-6" />
-          </div>
-          <div>
-            <h4 className="font-bold text-[#2B2119] text-sm sm:text-base">Moyens de paiement acceptés</h4>
-            <p className="text-xs sm:text-sm text-neutral-500">
-              Paiement direct et sécurisé par <span className="font-semibold text-[#2B2119]">MTN MoMo, Moov Money et Cartes Bancaires</span>.
-            </p>
-          </div>
-        </div>
+              {/* Colonne 2 : Tarif & Cycle */}
+              <div className="space-y-1 lg:border-l lg:border-neutral-100 lg:pl-6">
+                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                  Tarif & Cycle
+                </span>
+                <div className="flex items-baseline gap-1 mt-1">
+                  <span className="text-2xl font-extrabold text-[#2B2119]">
+                    {forfaitPrixMensuel.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold text-neutral-500">FCFA</span>
+                  <span className="text-xs text-neutral-400">/{forfaitDureeJours}j</span>
+                </div>
+                <p className="text-xs text-neutral-500">Sans engagement</p>
+              </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold text-neutral-600 bg-[#FAF6F1] px-4 py-2 rounded-lg border border-neutral-200">
-          <Lock className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Passerelle certifiée FedaPay • Chiffrement 256-bit</span>
-        </div>
-      </div>
+              {/* Colonne 3 : Validité & Prochaine échéance */}
+              <div className="space-y-1 lg:border-l lg:border-neutral-100 lg:pl-6">
+                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                  {statutAbonnement === "essai" ? "Fin de l'essai" : "Valide jusqu'au"}
+                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <Calendar className="w-4 h-4 text-neutral-400" />
+                  <span className="text-sm font-bold text-[#2B2119]">
+                    {dateEcheanceAffichage}
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500">
+                  {statutAbonnement === "expire"
+                    ? "Accès en lecture seule"
+                    : "Renouvellement en ligne"}
+                </p>
+              </div>
 
-      {/* Historique des factures d'abonnement */}
-      {factures.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-sm">
-          <h3 className="text-lg font-bold text-[#2B2119] mb-4">Historique de tes factures d'abonnement</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-neutral-200 text-xs text-neutral-500 uppercase">
-                <tr>
-                  <th className="pb-3 font-semibold">Montant</th>
-                  <th className="pb-3 font-semibold">Échéance</th>
-                  <th className="pb-3 font-semibold">Paiement</th>
-                  <th className="pb-3 font-semibold">Statut</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {factures.map((fc) => (
-                  <tr key={fc.id} className="hover:bg-neutral-50/50">
-                    <td className="py-3 font-bold text-[#2B2119]">
-                      {fc.montant.toLocaleString()} FCFA
-                    </td>
-                    <td className="py-3 text-neutral-600">
-                      {new Date(fc.date_echeance).toLocaleDateString()}
-                    </td>
-                    <td className="py-3 text-neutral-600 uppercase text-xs font-medium">
-                      {fc.fournisseur_paiement}
-                    </td>
-                    <td className="py-3">
-                      <span
-                        className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
-                          fc.statut === "payee"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : fc.statut === "en_attente"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-neutral-100 text-neutral-700"
-                        }`}
+              {/* Colonne 4 : Quotas réels d'utilisation */}
+              <div className="space-y-1 lg:border-l lg:border-neutral-100 lg:pl-6">
+                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                  Ressources Actives
+                </span>
+                <div className="space-y-1.5 mt-1 text-xs">
+                  <div className="flex items-center gap-2 text-neutral-700">
+                    <Store className="w-3.5 h-3.5 text-[#C1652D]" />
+                    <span>
+                      Boutiques : <strong className="text-[#2B2119]">{nbBoutiquesActives}</strong>
+                      {maxBoutiquesForfait !== null ? ` / ${maxBoutiquesForfait}` : " (illimité)"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-neutral-700">
+                    <Users className="w-3.5 h-3.5 text-neutral-500" />
+                    <span>
+                      Employés : <strong className="text-[#2B2119]">{nbEmployes}</strong>
+                      {maxEmployesForfait !== null ? ` (max ${maxEmployesForfait}/boutique)` : " (illimité)"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Colonne 5 : Actions standardisées (Dilemme 1) */}
+              <div className="lg:border-l lg:border-neutral-100 lg:pl-6 flex flex-col sm:flex-row lg:flex-col gap-2.5 justify-center">
+                {isPatron ? (
+                  <>
+                    <button
+                      onClick={() => setIsModalChoixOpen(true)}
+                      className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#2B2119] hover:bg-[#1a140f] transition flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <span>{actionBoutons.boutonPrincipal}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+
+                    {actionBoutons.boutonRenouvelerSecondaire && (
+                      <button
+                        onClick={handleRenouvelerDirect}
+                        className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#C1652D] hover:bg-[#A05324] transition flex items-center justify-center gap-2 shadow-xs"
                       >
-                        {fc.statut === "payee" ? "Payée" : fc.statut === "en_attente" ? "En attente" : fc.statut}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        <span>Renouveler</span>
+                        <Zap className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-xs text-neutral-400 italic">
+                    Gestion réservée au Patron
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Réassurance FedaPay */}
+          <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-amber-50 text-amber-700 rounded-xl">
+                <Smartphone className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-bold text-[#2B2119] text-sm">Règlement direct par Mobile Money</h4>
+                <p className="text-xs text-neutral-500">
+                  Compatible MTN Mobile Money Bénin, Moov Money et Cartes Bancaires.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs font-semibold text-neutral-600 bg-[#FAF6F1] px-4 py-2 rounded-xl border border-neutral-200">
+              <Lock className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Passerelle certifiée FedaPay • Chiffrement 256-bit</span>
+            </div>
           </div>
         </div>
       )}
+
+      {/* CONTENU DE L'ONGLET 2 : HISTORIQUE DES PAIEMENTS */}
+      {activeTab === "historique" && (
+        <HistoriquePaiementsTab
+          factures={factures}
+          forfaitNom={compteForfaitNom}
+        />
+      )}
+
+      {/* CONTENU DE L'ONGLET 3 : MÉTHODES DE PAIEMENT */}
+      {activeTab === "methodes" && (
+        <MethodesPaiementTab
+          methodesInitiales={methodesPaiementInitiales}
+          isPatron={isPatron}
+        />
+      )}
+
+      {/* Modale de sélection de forfaits (Dilemme 2 avec quotas) */}
+      <ModalChoixForfait
+        isOpen={isModalChoixOpen}
+        onClose={() => setIsModalChoixOpen(false)}
+        forfaits={forfaits}
+        compteForfaitId={compteForfaitId}
+        statutAbonnement={statutAbonnement}
+        nbBoutiquesActives={nbBoutiquesActives}
+        onSelectForfait={handleSelectForfaitModal}
+      />
     </div>
   );
 }
