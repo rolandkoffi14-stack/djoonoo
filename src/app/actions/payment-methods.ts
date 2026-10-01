@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 /**
  * Normalise un numéro Mobile Money (notamment Bénin +229)
  */
-export function normaliserTelephone(tel: string): string {
+function normaliserTelephone(tel: string): string {
   const nettoye = tel.replace(/[\s\-\.]/g, "");
   if (nettoye.startsWith("+")) {
     return nettoye;
@@ -35,10 +35,18 @@ export interface AjouterMethodeInput {
   parDefaut?: boolean;
 }
 
+export interface ResultatAction<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
 /**
  * Logique métier interne d'ajout (testable sans session HTTP)
  */
-export async function ajouterMethodePaiementInterne(input: AjouterMethodeInput) {
+export async function ajouterMethodePaiementInterne(
+  input: AjouterMethodeInput
+): Promise<ResultatAction<any>> {
   const { compteId, type, numeroTelephone, nomTitulaire } = input;
 
   if (!numeroTelephone || numeroTelephone.trim().length < 8) {
@@ -84,7 +92,7 @@ export async function ajouterMethodePaiementInterne(input: AjouterMethodeInput) 
 export async function definirMethodeParDefautInterne(params: {
   compteId: string;
   methodeId: string;
-}) {
+}): Promise<ResultatAction<any>> {
   const { compteId, methodeId } = params;
 
   return await prisma.$transaction(async (tx) => {
@@ -116,7 +124,7 @@ export async function definirMethodeParDefautInterne(params: {
 export async function supprimerMethodePaiementInterne(params: {
   compteId: string;
   methodeId: string;
-}) {
+}): Promise<ResultatAction<null>> {
   const { compteId, methodeId } = params;
 
   return await prisma.$transaction(async (tx) => {
@@ -165,7 +173,9 @@ export async function listerMethodesPaiementInterne(compteId: string) {
 // Server Actions protégées par Session Patron
 // -------------------------------------------------------------
 
-export async function ajouterMethodePaiementAction(formData: FormData) {
+export async function ajouterMethodePaiementAction(
+  formData: FormData
+): Promise<ResultatAction<any>> {
   const session = await getCurrentSession();
   if (!session || session.role !== "patron") {
     return { success: false, error: "Action réservée au Patron du compte." };
@@ -191,7 +201,9 @@ export async function ajouterMethodePaiementAction(formData: FormData) {
   return res;
 }
 
-export async function definirMethodeParDefautAction(methodeId: string) {
+export async function definirMethodeParDefautAction(
+  methodeId: string
+): Promise<ResultatAction<any>> {
   const session = await getCurrentSession();
   if (!session || session.role !== "patron") {
     return { success: false, error: "Action réservée au Patron du compte." };
@@ -209,7 +221,9 @@ export async function definirMethodeParDefautAction(methodeId: string) {
   return res;
 }
 
-export async function supprimerMethodePaiementAction(methodeId: string) {
+export async function supprimerMethodePaiementAction(
+  methodeId: string
+): Promise<ResultatAction<null>> {
   const session = await getCurrentSession();
   if (!session || session.role !== "patron") {
     return { success: false, error: "Action réservée au Patron du compte." };
