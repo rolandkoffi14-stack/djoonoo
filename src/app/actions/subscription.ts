@@ -94,3 +94,29 @@ export async function initierPaiementAbonnementAction(
     };
   }
 }
+
+export async function annulerFactureEnAttenteAction(factureId: string) {
+  const session = await getCurrentSession();
+  if (!session || session.role !== "patron") {
+    return { success: false, error: "Action réservée au Patron du compte." };
+  }
+
+  const facture = await prisma.factures_abonnement.findFirst({
+    where: {
+      id: factureId,
+      compte_id: session.compteId,
+      statut: "en_attente",
+    },
+  });
+
+  if (!facture) {
+    return { success: false, error: "Facture en attente introuvable ou déjà traitée." };
+  }
+
+  await prisma.factures_abonnement.update({
+    where: { id: factureId },
+    data: { statut: "annulee" },
+  });
+
+  return { success: true };
+}

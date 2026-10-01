@@ -56,13 +56,13 @@ export default function ModalChoixForfait({
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-neutral-600 mt-1">
-              Règlement 100% sécurisé par MTN Mobile Money, Moov Money et Cartes Bancaires.
+              Règlement 100% sécurisé par MTN Mobile Money et Moov Money.
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition"
+            className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition cursor-pointer"
             aria-label="Fermer"
           >
             <X className="w-5 h-5" />
@@ -194,7 +194,7 @@ export default function ModalChoixForfait({
                     ) : (
                       <button
                         onClick={() => onSelectForfait(f.id)}
-                        className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition ${
+                        className={`w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer ${
                           isPopular
                             ? "bg-[#C1652D] hover:bg-[#A05324] text-white shadow-xs"
                             : "bg-[#2B2119] hover:bg-[#1f1712] text-white"
@@ -220,7 +220,7 @@ export default function ModalChoixForfait({
 
           <button
             onClick={onClose}
-            className="text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition"
+            className="text-xs font-semibold text-neutral-500 hover:text-neutral-800 transition cursor-pointer"
           >
             Fermer
           </button>

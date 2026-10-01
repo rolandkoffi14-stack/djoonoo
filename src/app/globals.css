@@ -55,6 +55,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"] {
+  cursor: pointer;
+}
+
+button:disabled, [role="button"][aria-disabled="true"], input:disabled {
+  cursor: not-allowed;
+}
+
 ::selection {
   background-color: var(--djoonoo-accent);
   color: #FAF6F1;

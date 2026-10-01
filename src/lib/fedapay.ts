@@ -37,19 +37,40 @@ export async function creerTransactionFedaPay(params: InitPaiementParams) {
     throw new Error("Forfait introuvable.");
   }
 
-  // 2. Créer une facture en attente
+  // 2. Gestion propre des transactions en attente :
+  // Si une facture en attente existe déjà pour ce compte, on la met à jour plutôt que de saturer la base
+  let facture = await prisma.factures_abonnement.findFirst({
+    where: {
+      compte_id: params.compteId,
+      statut: StatutFactureAbonnement.en_attente,
+    },
+    orderBy: { date_echeance: "desc" },
+  });
+
   const echeance = new Date();
   echeance.setDate(echeance.getDate() + 1); // 24h pour payer la transaction initiée
 
-  const facture = await prisma.factures_abonnement.create({
-    data: {
-      compte_id: params.compteId,
-      montant: params.montant,
-      statut: StatutFactureAbonnement.en_attente,
-      fournisseur_paiement: "fedapay",
-      date_echeance: echeance,
-    },
-  });
+  if (facture) {
+    facture = await prisma.factures_abonnement.update({
+      where: { id: facture.id },
+      data: {
+        montant: params.montant,
+        fournisseur_paiement: "fedapay",
+        date_echeance: echeance,
+        reference_externe: null,
+      },
+    });
+  } else {
+    facture = await prisma.factures_abonnement.create({
+      data: {
+        compte_id: params.compteId,
+        montant: params.montant,
+        statut: StatutFactureAbonnement.en_attente,
+        fournisseur_paiement: "fedapay",
+        date_echeance: echeance,
+      },
+    });
+  }
 
   // 3. Appel API FedaPay pour créer la transaction
   const resp = await fetch(`${BASE_URL}/transactions`, {

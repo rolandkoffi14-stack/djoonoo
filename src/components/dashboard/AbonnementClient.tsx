@@ -125,11 +125,11 @@ export default function AbonnementClient({
 
   const handleSelectForfaitModal = (forfaitId: string) => {
     setIsModalChoixOpen(false);
-    router.push(`/dashboard/abonnement/checkout?forfaitId=${forfaitId}`);
+    router.push(`/abonnement/checkout?forfaitId=${forfaitId}`);
   };
 
   const handleRenouvelerDirect = () => {
-    router.push(`/dashboard/abonnement/checkout?forfaitId=${compteForfaitId}&action=renouveler`);
+    router.push(`/abonnement/checkout?forfaitId=${compteForfaitId}&action=renouveler`);
   };
 
   return (
@@ -151,7 +151,7 @@ export default function AbonnementClient({
         <nav className="flex gap-8 -mb-px">
           <button
             onClick={() => setActiveTab("forfait")}
-            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 ${
+            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 cursor-pointer ${
               activeTab === "forfait"
                 ? "border-[#C1652D] text-[#C1652D]"
                 : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
@@ -162,7 +162,7 @@ export default function AbonnementClient({
 
           <button
             onClick={() => setActiveTab("historique")}
-            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 ${
+            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 cursor-pointer ${
               activeTab === "historique"
                 ? "border-[#C1652D] text-[#C1652D]"
                 : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
@@ -178,7 +178,7 @@ export default function AbonnementClient({
 
           <button
             onClick={() => setActiveTab("methodes")}
-            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 ${
+            className={`pb-4 px-1 text-base font-semibold transition border-b-2 flex items-center gap-2 cursor-pointer ${
               activeTab === "methodes"
                 ? "border-[#C1652D] text-[#C1652D]"
                 : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
@@ -280,7 +280,7 @@ export default function AbonnementClient({
                   <>
                     <button
                       onClick={() => setIsModalChoixOpen(true)}
-                      className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#2B2119] hover:bg-[#1a140f] transition flex items-center justify-center gap-2 shadow-xs"
+                      className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#2B2119] hover:bg-[#1a140f] transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                     >
                       <span>{actionBoutons.boutonPrincipal}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -289,7 +289,7 @@ export default function AbonnementClient({
                     {actionBoutons.boutonRenouvelerSecondaire && (
                       <button
                         onClick={handleRenouvelerDirect}
-                        className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#C1652D] hover:bg-[#A05324] transition flex items-center justify-center gap-2 shadow-xs"
+                        className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#C1652D] hover:bg-[#A05324] transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                       >
                         <span>Renouveler</span>
                         <Zap className="w-3.5 h-3.5" />
@@ -314,7 +314,7 @@ export default function AbonnementClient({
               <div>
                 <h4 className="font-bold text-[#2B2119] text-sm">Règlement direct par Mobile Money</h4>
                 <p className="text-xs text-neutral-500">
-                  Compatible MTN Mobile Money Bénin, Moov Money et Cartes Bancaires.
+                  Compatible MTN Mobile Money Bénin et Moov Money.
                 </p>
               </div>
             </div>

@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, Eye, ReceiptText, CheckCircle, Clock, AlertTriangle } from "lucide-react";
+import Link from "next/link";
+import { Download, Eye, ReceiptText, CheckCircle, Clock, AlertTriangle, ArrowUpRight, XCircle, Loader2 } from "lucide-react";
 import ModalDetailFacture, { FactureDetailItem } from "./ModalDetailFacture";
+import { annulerFactureEnAttenteAction } from "@/app/actions/subscription";
 
 interface HistoriquePaiementsTabProps {
   factures: FactureDetailItem[];
@@ -11,11 +13,33 @@ interface HistoriquePaiementsTabProps {
 }
 
 export default function HistoriquePaiementsTab({
-  factures,
+  factures: facturesInitiales,
   nomEntreprise,
   forfaitNom,
 }: HistoriquePaiementsTabProps) {
+  const [factures, setFactures] = useState<FactureDetailItem[]>(facturesInitiales);
   const [factureSelectionnee, setFactureSelectionnee] = useState<FactureDetailItem | null>(null);
+  const [loadingAnnulerId, setLoadingAnnulerId] = useState<string | null>(null);
+
+  const handleAnnuler = async (factureId: string) => {
+    if (!confirm("Souhaites-tu annuler cette tentative de paiement en attente ?")) return;
+
+    setLoadingAnnulerId(factureId);
+    try {
+      const res = await annulerFactureEnAttenteAction(factureId);
+      if (res.success) {
+        setFactures((prev) =>
+          prev.map((f) => (f.id === factureId ? { ...f, statut: "annulee" } : f))
+        );
+      } else {
+        alert(res.error || "Impossible d'annuler cette facture.");
+      }
+    } catch {
+      alert("Erreur lors de l'annulation.");
+    } finally {
+      setLoadingAnnulerId(null);
+    }
+  };
 
   if (factures.length === 0) {
     return (
@@ -25,7 +49,7 @@ export default function HistoriquePaiementsTab({
         </div>
         <h3 className="text-lg font-bold text-[#2B2119]">Aucune transaction pour le moment</h3>
         <p className="text-sm text-neutral-500 mt-1 max-w-md mx-auto">
-          Dès que tu effectues un règlement d'abonnement djoonoo par Mobile Money ou Carte, la facture apparaîtra ici avec possibilité de téléchargement officiel.
+          Dès que tu effectues un règlement d'abonnement djoonoo par Mobile Money (MTN MoMo ou Moov Money), la facture apparaîtra ici avec possibilité de téléchargement officiel.
         </p>
       </div>
     );
@@ -87,6 +111,11 @@ export default function HistoriquePaiementsTab({
                         <Clock className="w-3 h-3" />
                         En attente
                       </span>
+                    ) : fc.statut === "annulee" ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-600">
+                        <XCircle className="w-3 h-3" />
+                        Annulée
+                      </span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
                         <AlertTriangle className="w-3 h-3" />
@@ -94,26 +123,55 @@ export default function HistoriquePaiementsTab({
                       </span>
                     )}
                   </td>
-                  <td className="py-4 px-6 text-right space-x-2">
-                    <button
-                      onClick={() => setFactureSelectionnee(fc)}
-                      className="p-1.5 text-neutral-600 hover:text-[#2B2119] hover:bg-neutral-100 rounded-lg transition inline-flex items-center gap-1 text-xs font-medium"
-                      title="Voir les détails"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Détails</span>
-                    </button>
+                  <td className="py-4 px-6 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      {/* Reprise ou annulation pour les factures en attente */}
+                      {fc.statut === "en_attente" && (
+                        <>
+                          <Link
+                            href={`/abonnement/checkout${fc.forfaitId ? `?forfaitId=${fc.forfaitId}` : ""}`}
+                            className="px-2.5 py-1.5 bg-[#C1652D] hover:bg-[#A05324] text-white rounded-lg transition inline-flex items-center gap-1 text-xs font-bold shadow-2xs cursor-pointer"
+                            title="Finaliser ce paiement"
+                          >
+                            <span>Reprendre</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </Link>
 
-                    <a
-                      href={`/api/factures-abonnement/${fc.id}/pdf`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 text-[#C1652D] hover:bg-[#C1652D]/10 rounded-lg transition inline-flex items-center gap-1 text-xs font-semibold"
-                      title="Télécharger la facture PDF"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Facture PDF</span>
-                    </a>
+                          <button
+                            onClick={() => handleAnnuler(fc.id)}
+                            disabled={loadingAnnulerId === fc.id}
+                            className="p-1.5 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer disabled:opacity-50"
+                            title="Annuler cette tentative"
+                          >
+                            {loadingAnnulerId === fc.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <XCircle className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </>
+                      )}
+
+                      <button
+                        onClick={() => setFactureSelectionnee(fc)}
+                        className="p-1.5 text-neutral-600 hover:text-[#2B2119] hover:bg-neutral-100 rounded-lg transition inline-flex items-center gap-1 text-xs font-medium cursor-pointer"
+                        title="Voir les détails"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Détails</span>
+                      </button>
+
+                      <a
+                        href={`/api/factures-abonnement/${fc.id}/pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 text-[#C1652D] hover:bg-[#C1652D]/10 rounded-lg transition inline-flex items-center gap-1 text-xs font-semibold cursor-pointer"
+                        title="Télécharger la facture PDF"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Facture PDF</span>
+                      </a>
+                    </div>
                   </td>
                 </tr>
               ))}

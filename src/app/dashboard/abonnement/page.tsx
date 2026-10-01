@@ -84,15 +84,20 @@ export default async function AbonnementPage({
           derniers_chiffres: m.derniers_chiffres,
           par_defaut: m.par_defaut,
         }))}
-        factures={factures.map((fc) => ({
-          id: fc.id,
-          montant: fc.montant,
-          statut: fc.statut,
-          fournisseur_paiement: fc.fournisseur_paiement,
-          reference_externe: fc.reference_externe,
-          date_echeance: fc.date_echeance.toISOString(),
-          date_confirmation: fc.date_confirmation?.toISOString() || null,
-        }))}
+        factures={factures.map((fc) => {
+          const fAssocie = forfaits.find((f) => f.prix_mensuel === fc.montant);
+          return {
+            id: fc.id,
+            montant: fc.montant,
+            statut: fc.statut,
+            fournisseur_paiement: fc.fournisseur_paiement,
+            reference_externe: fc.reference_externe,
+            date_echeance: fc.date_echeance.toISOString(),
+            date_confirmation: fc.date_confirmation?.toISOString() || null,
+            forfaitId: fAssocie ? fAssocie.id : compte.forfait_id,
+            forfaitNom: fAssocie ? fAssocie.nom : compte.forfait?.nom || "Forfait djoonoo",
+          };
+        })}
         statusQuery={status}
       />
     </div>

@@ -11,6 +11,8 @@ export interface FactureDetailItem {
   reference_externe?: string | null;
   date_echeance: string;
   date_confirmation: string | null;
+  forfaitId?: string | null;
+  forfaitNom?: string | null;
 }
 
 interface ModalDetailFactureProps {
@@ -58,7 +60,7 @@ export default function ModalDetailFacture({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition"
+            className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition cursor-pointer"
             aria-label="Fermer"
           >
             <X className="w-5 h-5" />
@@ -105,7 +107,7 @@ export default function ModalDetailFacture({
 
             <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
               <span className="text-xs text-neutral-500 font-medium">Prestation</span>
-              <p className="font-semibold text-[#2B2119] mt-0.5">{forfaitNom}</p>
+              <p className="font-semibold text-[#2B2119] mt-0.5">{facture.forfaitNom || forfaitNom}</p>
             </div>
 
             <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
@@ -135,7 +137,7 @@ export default function ModalDetailFacture({
             href={`/api/factures-abonnement/${facture.id}/pdf`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#C1652D] hover:bg-[#A05324] transition shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#C1652D] hover:bg-[#A05324] transition shadow-xs cursor-pointer"
           >
             <Download className="w-4 h-4" />
             Télécharger la facture PDF djoonoo
@@ -143,7 +145,7 @@ export default function ModalDetailFacture({
 
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-neutral-700 bg-white border border-neutral-200 hover:bg-neutral-50 transition"
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-neutral-700 bg-white border border-neutral-200 hover:bg-neutral-50 transition cursor-pointer"
           >
             Fermer
           </button>
