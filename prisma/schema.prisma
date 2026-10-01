@@ -94,6 +94,7 @@ model comptes {
   journal_audit       journal_audit[]
   factures_abonnement factures_abonnement[]
   compteur_boutique   compteur_boutique?
+  methodes_paiement   methodes_paiement_compte[]
 
   @@index([forfait_id])
 }
@@ -123,6 +124,21 @@ model factures_abonnement {
   date_confirmation           DateTime?
 
   compte                      comptes                 @relation(fields: [compte_id], references: [id])
+
+  @@index([compte_id])
+}
+
+model methodes_paiement_compte {
+  id                String   @id @default(uuid())
+  compte_id         String
+  type              String   // "mtn_momo", "moov_money", "carte"
+  numero_telephone  String
+  nom_titulaire     String?
+  derniers_chiffres String
+  par_defaut        Boolean  @default(false)
+  date_creation     DateTime @default(now())
+
+  compte            comptes  @relation(fields: [compte_id], references: [id], onDelete: Cascade)
 
   @@index([compte_id])
 }
