@@ -95,8 +95,8 @@ export default function TabSecurite({ role, deuxFaActive: initialDeuxFa }: TabSe
         </div>
 
         {messageMdp && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 text-xs text-emerald-800 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mb-6 p-4 bg-[#FAF6F1] border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
             <span className="font-medium">{messageMdp}</span>
           </div>
         )}
@@ -197,13 +197,13 @@ export default function TabSecurite({ role, deuxFaActive: initialDeuxFa }: TabSe
 
           <div>
             {is2FAObligatoire ? (
-              <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full border border-emerald-300 inline-flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" />
+              <span className="px-3 py-1 bg-[#C1652D]/10 text-[#C1652D] text-xs font-bold rounded-full border border-[#C1652D]/30 inline-flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C1652D]" />
                 <span>Obligatoire & Actif</span>
               </span>
             ) : deuxFaActive ? (
-              <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full border border-emerald-300 inline-flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" />
+              <span className="px-3 py-1 bg-[#C1652D]/10 text-[#C1652D] text-xs font-bold rounded-full border border-[#C1652D]/30 inline-flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C1652D]" />
                 <span>Activé</span>
               </span>
             ) : (
@@ -215,8 +215,8 @@ export default function TabSecurite({ role, deuxFaActive: initialDeuxFa }: TabSe
         </div>
 
         {message2FA && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 text-xs text-emerald-800 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mb-6 p-4 bg-[#FAF6F1] border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
             <span className="font-medium">{message2FA}</span>
           </div>
         )}

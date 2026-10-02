@@ -67,21 +67,21 @@ export default async function SuperAdminLayout({
                   href="/super-admin/abonnements"
                   className="px-3.5 py-1.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-colors flex items-center gap-2"
                 >
-                  <CreditCard className="w-4 h-4 text-emerald-400" />
+                  <CreditCard className="w-4 h-4 text-[#C1652D]" />
                   <span>Paiements d&apos;Abonnement</span>
                 </Link>
                 <Link
                   href="/super-admin/forfaits"
                   className="px-3.5 py-1.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-colors flex items-center gap-2"
                 >
-                  <Layers className="w-4 h-4 text-blue-400" />
+                  <Layers className="w-4 h-4 text-[#C1652D]" />
                   <span>Forfaits &amp; Limites</span>
                 </Link>
                 <Link
                   href="/super-admin/parametres"
                   className="px-3.5 py-1.5 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition-colors flex items-center gap-2"
                 >
-                  <Settings className="w-4 h-4 text-amber-400" />
+                  <Settings className="w-4 h-4 text-[#C1652D]" />
                   <span>Paramètres Plateforme</span>
                 </Link>
               </nav>
@@ -92,7 +92,7 @@ export default async function SuperAdminLayout({
               <div className="hidden sm:flex flex-col text-right">
                 <span className="text-xs font-bold text-slate-200">{session.email}</span>
                 <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1 justify-end">
-                  <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                  <ShieldCheck className="w-3 h-3 text-[#C1652D]" />
                   2FA Validée
                 </span>
               </div>

@@ -57,7 +57,7 @@ export default function ParametresManager({
       {/* En-tête */}
       <div>
         <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-          <Settings className="w-6 h-6 text-amber-500" />
+          <Settings className="w-6 h-6 text-[#C1652D]" />
           <span>Paramètres Plateforme (Clé-Valeur)</span>
         </h1>
         <p className="text-sm text-slate-500 mt-1">
@@ -69,12 +69,12 @@ export default function ParametresManager({
         <div
           className={`p-4 rounded-2xl border text-sm flex items-center gap-2.5 ${
             message.type === "success"
-              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              ? "bg-[#FAF6F1] border-[#C1652D]/30 text-[#2B2119]"
               : "bg-rose-50 border-rose-200 text-rose-800"
           }`}
         >
           {message.type === "success" ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <CheckCircle2 className="w-4 h-4 text-[#C1652D]" />
           ) : (
             <AlertCircle className="w-4 h-4 text-rose-600" />
           )}

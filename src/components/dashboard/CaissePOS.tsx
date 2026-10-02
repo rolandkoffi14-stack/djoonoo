@@ -905,7 +905,7 @@ export default function CaissePOS({
               Remise (FCFA)
             </span>
             {remise > 0 && (
-              <span className="text-[11px] text-green-700 font-bold">
+              <span className="text-[11px] text-[#C1652D] font-bold">
                 -{remise.toLocaleString("fr-FR")} FCFA
               </span>
             )}
@@ -959,7 +959,7 @@ export default function CaissePOS({
               onClick={() => setTypeReglement("partiel")}
               className={`py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                 typeReglement === "partiel"
-                  ? "bg-[#FAF6F1] text-amber-800 shadow-xs"
+                  ? "bg-[#FAF6F1] text-[#2B2119] shadow-xs border border-[#C1652D]/30"
                   : "text-[#6D5D52] hover:text-[#2B2119]"
               }`}
             >
@@ -970,7 +970,7 @@ export default function CaissePOS({
               onClick={() => setTypeReglement("credit")}
               className={`py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
                 typeReglement === "credit"
-                  ? "bg-[#FAF6F1] text-red-800 shadow-xs"
+                  ? "bg-[#FAF6F1] text-[#2B2119] shadow-xs border border-[#C1652D]/30"
                   : "text-[#6D5D52] hover:text-[#2B2119]"
               }`}
             >
@@ -1000,7 +1000,7 @@ export default function CaissePOS({
                   onClick={() => setModePaiement("mtn_momo")}
                   className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                     modePaiement === "mtn_momo"
-                      ? "border-amber-500 bg-amber-50 text-amber-800 font-bold"
+                      ? "border-[#C1652D] bg-[#C1652D]/10 text-[#C1652D] font-bold"
                       : "border-[#E5DACF] bg-[#FAF6F1] text-[#6D5D52]"
                   }`}
                 >
@@ -1013,7 +1013,7 @@ export default function CaissePOS({
                   onClick={() => setModePaiement("moov_money")}
                   className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                     modePaiement === "moov_money"
-                      ? "border-blue-500 bg-blue-50 text-blue-800 font-bold"
+                      ? "border-[#C1652D] bg-[#C1652D]/10 text-[#C1652D] font-bold"
                       : "border-[#E5DACF] bg-[#FAF6F1] text-[#6D5D52]"
                   }`}
                 >
@@ -1024,10 +1024,10 @@ export default function CaissePOS({
 
               {/* Si Acompte partiel : saisie du montant de l'acompte */}
               {typeReglement === "partiel" && (
-                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 space-y-1.5">
-                  <div className="flex justify-between text-[11px] font-bold text-amber-900">
+                <div className="p-2.5 rounded-xl bg-[#FAF6F1] border border-[#E5DACF] space-y-1.5">
+                  <div className="flex justify-between text-[11px] font-bold text-[#2B2119]">
                     <span>Acompte versé aujourd&apos;hui (FCFA) :</span>
-                    <span>Reste dû : {(montantNet - montantAPayerActuel).toLocaleString("fr-FR")} FCFA</span>
+                    <span className="text-[#6D5D52]">Reste dû : {(montantNet - montantAPayerActuel).toLocaleString("fr-FR")} FCFA</span>
                   </div>
                   <input
                     type="number"
@@ -1036,7 +1036,7 @@ export default function CaissePOS({
                     value={acompteSaisi}
                     onChange={(e) => setAcompteSaisi(e.target.value)}
                     placeholder="Montant de l'acompte..."
-                    className="w-full px-3 py-1.5 rounded-lg border border-amber-300 bg-[#FAF6F1] text-xs font-mono text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-1.5 rounded-lg border border-[#E5DACF] bg-white text-xs font-mono text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                   />
                 </div>
               )}
@@ -1047,7 +1047,7 @@ export default function CaissePOS({
                   <div className="flex items-center justify-between text-xs font-bold text-[#2B2119]">
                     <span>Billet / Espèces reçues (FCFA)</span>
                     {monnaieRendue > 0 && (
-                      <span className="text-emerald-700 font-extrabold font-mono">
+                      <span className="text-[#C1652D] font-extrabold font-mono">
                         Rendre : {monnaieRendue.toLocaleString("fr-FR")} FCFA
                       </span>
                     )}
@@ -1074,7 +1074,7 @@ export default function CaissePOS({
           </div>
 
           {remise > 0 && (
-            <div className="flex justify-between text-xs text-green-700">
+            <div className="flex justify-between text-xs text-[#C1652D]">
               <span>Remise accordée :</span>
               <span className="font-mono">-{remise.toLocaleString("fr-FR")} FCFA</span>
             </div>
@@ -1097,9 +1097,7 @@ export default function CaissePOS({
             panier.length === 0 || isPending
               ? "bg-stone-300 cursor-not-allowed text-stone-500"
               : typeReglement === "credit"
-              ? "bg-red-700 hover:bg-red-800"
-              : typeReglement === "partiel"
-              ? "bg-amber-700 hover:bg-amber-800"
+              ? "bg-rose-700 hover:bg-rose-800"
               : "bg-[#C1652D] hover:bg-[#a95524]"
           }`}
         >

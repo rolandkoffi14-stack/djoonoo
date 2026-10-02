@@ -160,16 +160,16 @@ export default function RapportsManager({
           </div>
 
           {/* Total Encaissé en Caisse */}
-          <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 relative overflow-hidden">
-            <div className="flex items-center justify-between text-emerald-800 text-[11px] font-bold uppercase mb-1">
+          <div className="p-4 rounded-xl bg-white border border-[#E5DACF] relative overflow-hidden">
+            <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Total Encaissé</span>
-              <Banknote className="w-4 h-4 text-emerald-600" />
+              <Banknote className="w-4 h-4 text-[#C1652D]" />
             </div>
-            <div className="text-2xl font-extrabold text-emerald-700 font-mono truncate">
+            <div className="text-2xl font-extrabold text-[#2B2119] font-mono truncate">
               {data.totalEncaisse.toLocaleString("fr-FR")}{" "}
-              <span className="text-xs font-sans text-emerald-600">FCFA</span>
+              <span className="text-xs font-sans text-[#6D5D52]">FCFA</span>
             </div>
-            <div className="text-[10px] text-emerald-700/80 mt-1">
+            <div className="text-[10px] text-[#8C7A6B] mt-1">
               {data.caNet > 0
                 ? `${Math.round((data.totalEncaisse / data.caNet) * 100)}% du CA déjà encaissé`
                 : "Aucune vente sur la période"}
@@ -177,31 +177,31 @@ export default function RapportsManager({
           </div>
 
           {/* Créances / Impayés */}
-          <div className="p-4 rounded-xl bg-red-50/60 border border-red-200 relative overflow-hidden">
-            <div className="flex items-center justify-between text-red-800 text-[11px] font-bold uppercase mb-1">
+          <div className="p-4 rounded-xl bg-white border border-[#E5DACF] relative overflow-hidden">
+            <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Créances en cours</span>
-              <Clock className="w-4 h-4 text-red-600" />
+              <Clock className="w-4 h-4 text-[#C1652D]" />
             </div>
-            <div className="text-2xl font-extrabold text-red-700 font-mono truncate">
+            <div className="text-2xl font-extrabold text-rose-700 font-mono truncate">
               {data.totalCreances.toLocaleString("fr-FR")}{" "}
-              <span className="text-xs font-sans text-red-600">FCFA</span>
+              <span className="text-xs font-sans text-rose-600">FCFA</span>
             </div>
-            <div className="text-[10px] text-red-700/80 mt-1">
+            <div className="text-[10px] text-[#8C7A6B] mt-1">
               {data.totalCreances > 0 ? "Reste à recouvrer auprès des clients" : "Zéro créance en attente"}
             </div>
           </div>
 
           {/* Panier Moyen & Volumes */}
-          <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200 relative overflow-hidden">
-            <div className="flex items-center justify-between text-blue-800 text-[11px] font-bold uppercase mb-1">
+          <div className="p-4 rounded-xl bg-white border border-[#E5DACF] relative overflow-hidden">
+            <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Panier Moyen</span>
-              <ShoppingBag className="w-4 h-4 text-blue-600" />
+              <ShoppingBag className="w-4 h-4 text-[#C1652D]" />
             </div>
-            <div className="text-2xl font-extrabold text-blue-900 font-mono truncate">
+            <div className="text-2xl font-extrabold text-[#2B2119] font-mono truncate">
               {data.panierMoyen.toLocaleString("fr-FR")}{" "}
-              <span className="text-xs font-sans text-blue-800">FCFA</span>
+              <span className="text-xs font-sans text-[#6D5D52]">FCFA</span>
             </div>
-            <div className="text-[10px] text-blue-800/80 mt-1">
+            <div className="text-[10px] text-[#8C7A6B] mt-1">
               {data.nbVentes} vente{data.nbVentes > 1 ? "s" : ""} • {data.nbArticlesVendus} article{data.nbArticlesVendus > 1 ? "s" : ""}
             </div>
           </div>
@@ -265,7 +265,7 @@ export default function RapportsManager({
         {/* Colonne Droite (1/3) : Répartition par Mode de Règlement */}
         <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2">
-            <span className="p-1 rounded-lg bg-emerald-100 text-emerald-800">
+            <span className="p-1 rounded-lg bg-[#C1652D]/10 text-[#C1652D]">
               <PieChart className="w-4 h-4" />
             </span>
             <h2 className="font-extrabold text-sm text-[#2B2119]">
@@ -288,10 +288,10 @@ export default function RapportsManager({
 
               const colorClass =
                 modeStat.mode === "especes"
-                  ? "bg-emerald-600"
+                  ? "bg-[#C1652D]"
                   : modeStat.mode === "mtn_momo"
-                  ? "bg-amber-500"
-                  : "bg-blue-600";
+                  ? "bg-[#A85422]"
+                  : "bg-[#2B2119]";
 
               return (
                 <div key={modeStat.mode} className="space-y-1.5">
@@ -365,7 +365,7 @@ export default function RapportsManager({
                       <div className="font-mono font-extrabold text-[#2B2119]">
                         {b.caNet.toLocaleString("fr-FR")} FCFA
                       </div>
-                      <div className="text-[10px] text-emerald-700 font-medium">
+                      <div className="text-[10px] text-[#6D5D52]">
                         Encaissé : {b.totalEncaisse.toLocaleString("fr-FR")} FCFA
                       </div>
                     </div>

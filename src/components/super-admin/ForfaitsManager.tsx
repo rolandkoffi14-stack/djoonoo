@@ -132,7 +132,7 @@ export default function ForfaitsManager({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Layers className="w-6 h-6 text-blue-600" />
+            <Layers className="w-6 h-6 text-[#C1652D]" />
             <span>Gestion des Forfaits &amp; Quotas (Décision B7)</span>
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -199,7 +199,7 @@ export default function ForfaitsManager({
                     </span>
                     <span className="font-bold font-mono text-slate-900">
                       {f.max_boutiques === null ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600">
+                        <span className="inline-flex items-center gap-1 text-[#C1652D]">
                           <InfinityIcon className="w-3.5 h-3.5" />
                           <span>Illimité (NULL)</span>
                         </span>
@@ -216,7 +216,7 @@ export default function ForfaitsManager({
                     </span>
                     <span className="font-bold font-mono text-slate-900">
                       {f.max_employes_par_boutique === null ? (
-                        <span className="inline-flex items-center gap-1 text-emerald-600">
+                        <span className="inline-flex items-center gap-1 text-[#C1652D]">
                           <InfinityIcon className="w-3.5 h-3.5" />
                           <span>Illimité (NULL)</span>
                         </span>
@@ -332,7 +332,7 @@ export default function ForfaitsManager({
                       onChange={(e) => setIllimiteBoutiques(e.target.checked)}
                       className="rounded text-[#C1652D] focus:ring-[#C1652D]"
                     />
-                    <span className="text-xs font-bold text-emerald-700">Illimité (NULL)</span>
+                    <span className="text-xs font-bold text-[#C1652D]">Illimité (NULL)</span>
                   </label>
                 </div>
 
@@ -360,7 +360,7 @@ export default function ForfaitsManager({
                       onChange={(e) => setIllimiteEmployes(e.target.checked)}
                       className="rounded text-[#C1652D] focus:ring-[#C1652D]"
                     />
-                    <span className="text-xs font-bold text-emerald-700">Illimité (NULL)</span>
+                    <span className="text-xs font-bold text-[#C1652D]">Illimité (NULL)</span>
                   </label>
                 </div>
 

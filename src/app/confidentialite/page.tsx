@@ -36,7 +36,7 @@ export default function ConfidentialitePage() {
 
       <main className="max-w-4xl mx-auto px-6 py-12 flex-1 space-y-8">
         <div>
-          <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
+          <span className="px-3 py-1 rounded-full bg-[#C1652D]/10 text-[#C1652D] border border-[#C1652D]/20 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5" />
             <span>Protection des Données</span>
           </span>

@@ -278,7 +278,7 @@ export default function RecuVenteModal({
         {/* ======================================================== */}
         <div className="zone-print-ignore p-3.5 sm:p-4 bg-[#FAF6F1] border-b border-[#E5DACF] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="p-1 rounded-lg bg-emerald-100 text-emerald-800 shrink-0">
+            <span className="p-1 rounded-lg bg-[#C1652D]/10 text-[#C1652D] shrink-0">
               <CheckCircle2 className="w-5 h-5" />
             </span>
             <span className="font-extrabold text-sm text-[#2B2119] truncate">
@@ -428,7 +428,7 @@ export default function RecuVenteModal({
                   </div>
 
                   {recu.montant_remise > 0 && (
-                    <div className="flex justify-between text-green-700 font-semibold">
+                    <div className="flex justify-between text-[#C1652D] font-semibold">
                       <span>Remise accordée :</span>
                       <span>-{recu.montant_remise.toLocaleString("fr-FR")} FCFA</span>
                     </div>
@@ -445,7 +445,7 @@ export default function RecuVenteModal({
                   </div>
 
                   {recu.monnaie_rendue > 0 && (
-                    <div className="flex justify-between text-emerald-700 font-bold">
+                    <div className="flex justify-between text-[#C1652D] font-bold">
                       <span>Monnaie rendue :</span>
                       <span>{recu.monnaie_rendue.toLocaleString("fr-FR")} FCFA</span>
                     </div>
@@ -645,7 +645,7 @@ export default function RecuVenteModal({
                     </div>
 
                     {recu.montant_remise > 0 && (
-                      <div className="flex justify-between text-xs text-green-700 font-semibold">
+                      <div className="flex justify-between text-xs text-[#C1652D] font-semibold">
                         <span>Remise accordée :</span>
                         <span className="font-mono">-{recu.montant_remise.toLocaleString("fr-FR")} FCFA</span>
                       </div>
@@ -666,7 +666,7 @@ export default function RecuVenteModal({
                     </div>
 
                     {recu.monnaie_rendue > 0 && (
-                      <div className="flex justify-between text-xs text-emerald-700 font-bold">
+                      <div className="flex justify-between text-xs text-[#C1652D] font-bold">
                         <span>Monnaie rendue :</span>
                         <span className="font-mono">
                           {recu.monnaie_rendue.toLocaleString("fr-FR")} FCFA

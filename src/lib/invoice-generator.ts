@@ -89,7 +89,7 @@ export function genererHtmlFactureAbonnement(data: FactureAbonnementData): strin
 </head>
 <body>
   <div class="print-bar">
-    <button class="btn-print" onclick="window.print()">🖨️ Imprimer / Télécharger en PDF</button>
+    <button class="btn-print" onclick="window.print()">Imprimer / Télécharger en PDF</button>
   </div>
 
   <div class="invoice-box">
@@ -114,7 +114,7 @@ export function genererHtmlFactureAbonnement(data: FactureAbonnementData): strin
         ${data.datePaiement ? `<div class="meta-line">Date de paiement : ${data.datePaiement}</div>` : ""}
         <div>
           <span class="status-badge ${estPayee ? "status-paid" : "status-pending"}">
-            ${estPayee ? "✓ ACQUITTÉE" : "EN ATTENTE"}
+            ${estPayee ? "ACQUITTÉE" : "EN ATTENTE"}
           </span>
         </div>
       </div>

@@ -145,7 +145,7 @@ export default function ModalChoixForfait({
                     {/* Liste des caractéristiques */}
                     <div className="mt-5 pt-4 border-t border-neutral-100 space-y-2.5 text-xs text-neutral-700">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <CheckCircle className="w-3.5 h-3.5 text-[#C1652D] shrink-0" />
                         <span>
                           {f.max_boutiques === null
                             ? "Boutiques illimitées"
@@ -154,7 +154,7 @@ export default function ModalChoixForfait({
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <CheckCircle className="w-3.5 h-3.5 text-[#C1652D] shrink-0" />
                         <span>
                           {f.max_employes_par_boutique === null
                             ? "Employés illimités"
@@ -165,12 +165,12 @@ export default function ModalChoixForfait({
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <CheckCircle className="w-3.5 h-3.5 text-[#C1652D] shrink-0" />
                         <span>Caisse POS & reçus instantanés</span>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <CheckCircle className="w-3.5 h-3.5 text-[#C1652D] shrink-0" />
                         <span>Gestion de stock & inventaire</span>
                       </div>
                     </div>
@@ -180,8 +180,8 @@ export default function ModalChoixForfait({
                   <div className="mt-6 pt-4 border-t border-neutral-100">
                     {affichage.estDesactive ? (
                       <div className="space-y-3">
-                        <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2 text-[11px] text-amber-900 leading-snug">
-                          <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                        <div className="p-2.5 bg-[#FAF6F1] border border-[#E5DACF] rounded-xl flex items-start gap-2 text-[11px] text-[#2B2119] leading-snug">
+                          <AlertTriangle className="w-3.5 h-3.5 text-[#C1652D] shrink-0 mt-0.5" />
                           <span>{affichage.messageIncompatibilite}</span>
                         </div>
                         <button
@@ -214,7 +214,7 @@ export default function ModalChoixForfait({
         {/* Pied de réassurance */}
         <div className="px-6 sm:px-8 py-4 bg-[#FAF6F1] border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-600">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <ShieldCheck className="w-4 h-4 text-[#C1652D]" />
             <span>Paiement direct sécurisé • Activation automatique instantanée</span>
           </div>
 

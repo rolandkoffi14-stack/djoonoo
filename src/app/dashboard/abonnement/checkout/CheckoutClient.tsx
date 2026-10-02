@@ -269,7 +269,7 @@ export default function CheckoutClient({
                               : "Carte Bancaire"}
                           </span>
                           {m.par_defaut && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#C1652D]/10 text-[#C1652D] border border-[#C1652D]/20">
                               Par défaut
                             </span>
                           )}
@@ -321,8 +321,8 @@ export default function CheckoutClient({
                           : "border-neutral-200 hover:bg-neutral-50 text-neutral-700"
                       }`}
                     >
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                      <span>MTN</span>
+                      <Smartphone className="w-3.5 h-3.5 text-[#C1652D]" />
+                      <span>MTN MoMo</span>
                     </button>
 
                     <button
@@ -334,21 +334,8 @@ export default function CheckoutClient({
                           : "border-neutral-200 hover:bg-neutral-50 text-neutral-700"
                       }`}
                     >
-                      <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                      <span>Moov</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setNouveauType("carte")}
-                      className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
-                        nouveauType === "carte"
-                          ? "bg-[#C1652D]/10 border-[#C1652D] text-[#C1652D]"
-                          : "border-neutral-200 hover:bg-neutral-50 text-neutral-700"
-                      }`}
-                    >
-                      <CreditCard className="w-3 h-3 text-neutral-600" />
-                      <span>Carte</span>
+                      <Smartphone className="w-3.5 h-3.5 text-[#C1652D]" />
+                      <span>Moov Money</span>
                     </button>
                   </div>
 
@@ -404,7 +391,7 @@ export default function CheckoutClient({
             </button>
 
             <div className="flex items-center justify-center gap-2 text-xs text-neutral-500 text-center">
-              <Lock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <Lock className="w-3.5 h-3.5 text-[#C1652D] shrink-0" />
               <span>Passerelle certifiée FedaPay • Chiffrement sécurisé 256-bit</span>
             </div>
           </div>

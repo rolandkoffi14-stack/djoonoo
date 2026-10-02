@@ -21,6 +21,8 @@ import {
   ChevronRight,
   X,
   RefreshCw,
+  Users,
+  Receipt,
 } from "lucide-react";
 import { JournalAuditItem, recupererJournalAuditAction } from "@/app/actions/audit";
 import Pagination from "@/components/ui/Pagination";
@@ -110,7 +112,7 @@ export default function AuditManager({
       case "creation_vente":
         return {
           label: "Vente Enregistrée",
-          color: "bg-emerald-50 text-emerald-800 border-emerald-200",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: ShoppingCart,
         };
       case "annulation_vente":
@@ -122,25 +124,25 @@ export default function AuditManager({
       case "reglement_dette":
         return {
           label: "Règlement Facture",
-          color: "bg-blue-50 text-blue-800 border-blue-200",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: CheckCircle2,
         };
       case "creation_produit":
         return {
           label: "Nouveau Produit",
-          color: "bg-amber-50 text-amber-800 border-amber-200",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: Package,
         };
       case "modification_prix_produit":
         return {
           label: "Changement de Prix",
-          color: "bg-purple-50 text-purple-800 border-purple-200",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: AlertTriangle,
         };
       case "reapprovisionnement_stock":
         return {
           label: "Réapprovisionnement Stock",
-          color: "bg-teal-50 text-teal-800 border-teal-200",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: Package,
         };
       case "transfert_employe":
@@ -152,25 +154,25 @@ export default function AuditManager({
       case "invitation_employe":
         return {
           label: "Nouvel Employé",
-          color: "bg-indigo-50 text-indigo-800 border-indigo-200",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: User,
         };
       case "creation_boutique":
         return {
           label: "Nouvelle Boutique",
-          color: "bg-cyan-50 text-cyan-800 border-cyan-200",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: Store,
         };
       case "creation_compte":
         return {
           label: "Création Compte SaaS",
-          color: "bg-slate-100 text-slate-800 border-slate-300",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: Key,
         };
       default:
         return {
           label: action.replace(/_/g, " "),
-          color: "bg-gray-100 text-gray-800 border-gray-200",
+          color: "bg-[#FAF6F1] text-[#6D5D52] border-[#E5DACF]",
           icon: FileText,
         };
     }
@@ -179,13 +181,13 @@ export default function AuditManager({
   const getRoleBadge = (role?: string) => {
     switch (role) {
       case "patron":
-        return "bg-[#C1652D]/15 text-[#C1652D] border-[#C1652D]/30";
+        return "bg-[#C1652D]/10 text-[#C1652D] border border-[#C1652D]/30";
       case "gerant":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-[#FAF6F1] text-[#2B2119] border border-[#E5DACF]";
       case "vendeur":
-        return "bg-amber-100 text-amber-800 border-amber-200";
+        return "bg-[#FAF6F1] text-[#6D5D52] border border-[#E5DACF]";
       default:
-        return "bg-gray-100 text-gray-700 border-gray-200";
+        return "bg-[#FAF6F1] text-[#6D5D52] border border-[#E5DACF]";
     }
   };
 
@@ -220,8 +222,8 @@ export default function AuditManager({
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF6F1] border border-[#C1652D]/20 text-[#2B2119] text-xs font-bold">
+            <CheckCircle2 className="w-4 h-4 text-[#C1652D]" />
             <span>Isolation Multi-Tenant Garantie (Règle 5)</span>
           </div>
 
@@ -263,9 +265,9 @@ export default function AuditManager({
         <div className="p-5 rounded-2xl bg-white border border-[#E5DACF] shadow-xs">
           <div className="flex items-center justify-between text-xs font-bold text-[#8C7A6B] uppercase tracking-wider mb-2">
             <span>Opérations Sensibles</span>
-            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <AlertTriangle className="w-4 h-4 text-[#C1652D]" />
           </div>
-          <div className="text-3xl font-black text-amber-700 font-mono">
+          <div className="text-3xl font-black text-[#2B2119] font-mono">
             {stats.totalSensibles.toLocaleString("fr-FR")}
           </div>
           <p className="text-xs text-[#8C7A6B] mt-1">Annulations, mutations, changements de prix</p>
@@ -275,14 +277,15 @@ export default function AuditManager({
       {/* Barre de filtres par catégorie */}
       <div className="flex flex-wrap items-center gap-2 border-b border-[#E5DACF] pb-3">
         {[
-          { id: "toutes", label: "Toutes les actions", count: stats.totalGlobal },
-          { id: "ventes", label: "🛒 Ventes & Caisses" },
-          { id: "stocks", label: "📦 Stocks & Prix" },
-          { id: "equipe", label: "👥 Équipe & Mutations" },
-          { id: "boutiques", label: "🏪 Boutiques" },
-          { id: "securite", label: "🔐 Sécurité & Compte" },
+          { id: "toutes", label: "Toutes les actions", count: stats.totalGlobal, icon: null },
+          { id: "ventes", label: "Ventes & Caisses", icon: Receipt },
+          { id: "stocks", label: "Stocks & Prix", icon: Package },
+          { id: "equipe", label: "Équipe & Mutations", icon: Users },
+          { id: "boutiques", label: "Boutiques", icon: Store },
+          { id: "securite", label: "Sécurité & Compte", icon: ShieldCheck },
         ].map((tab) => {
           const isActive = selectedCategorie === tab.id;
+          const Icon = tab.icon;
           return (
             <button
               key={tab.id}
@@ -293,6 +296,7 @@ export default function AuditManager({
                   : "bg-white text-[#6D5D52] border border-[#E5DACF] hover:bg-[#FAF6F1] hover:text-[#2B2119]"
               }`}
             >
+              {Icon && <Icon className="w-3.5 h-3.5" />}
               <span>{tab.label}</span>
             </button>
           );

@@ -82,13 +82,11 @@ export default function MethodesPaiementTab({
   const getLabelType = (type: string) => {
     switch (type) {
       case "mtn_momo":
-        return { label: "MTN Mobile Money", dot: "bg-amber-400" };
+        return { label: "MTN Mobile Money" };
       case "moov_money":
-        return { label: "Moov Money", dot: "bg-blue-500" };
-      case "carte":
-        return { label: "Carte Bancaire", dot: "bg-emerald-500" };
+        return { label: "Moov Money" };
       default:
-        return { label: type, dot: "bg-neutral-400" };
+        return { label: type };
     }
   };
 
@@ -152,12 +150,12 @@ export default function MethodesPaiementTab({
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className={`w-2.5 h-2.5 rounded-full ${typeInfo.dot}`} />
+                      <Smartphone className="w-4 h-4 text-[#C1652D]" />
                       <span className="text-xs font-bold text-[#2B2119]">{typeInfo.label}</span>
                     </div>
 
                     {m.par_defaut && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#C1652D]/10 text-[#C1652D] border border-[#C1652D]/20">
                         <CheckCircle2 className="w-3 h-3" />
                         Par défaut
                       </span>

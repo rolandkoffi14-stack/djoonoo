@@ -105,7 +105,7 @@ export default async function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#2B2119]">
-              Bonjour, {session.nom} 👋
+              Bonjour, {session.nom}
             </h1>
             <p className="text-sm text-[#6D5D52] mt-1.5 max-w-xl">
               Bienvenue sur ton tableau de bord <strong>djoonoo</strong>. Retrouve en un coup d&apos;œil l&apos;activité de tes boutiques, ton stock et tes créances.

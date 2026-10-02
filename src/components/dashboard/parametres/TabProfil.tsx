@@ -52,12 +52,12 @@ export default function TabProfil({
   const getRoleLabel = () => {
     switch (role) {
       case "patron":
-        return { label: "Patron / Propriétaire", bg: "bg-[#C1652D]/10 text-[#C1652D]" };
+        return { label: "Patron / Propriétaire", bg: "bg-[#C1652D]/10 text-[#C1652D] border border-[#C1652D]/30" };
       case "gerant":
-        return { label: "Gérant de boutique", bg: "bg-blue-100 text-blue-800" };
+        return { label: "Gérant de boutique", bg: "bg-[#FAF6F1] text-[#2B2119] border border-[#E5DACF]" };
       case "vendeur":
       default:
-        return { label: "Vendeur / Caisse", bg: "bg-emerald-100 text-emerald-800" };
+        return { label: "Vendeur / Caisse", bg: "bg-[#FAF6F1] text-[#6D5D52] border border-[#E5DACF]" };
     }
   };
 
@@ -80,8 +80,8 @@ export default function TabProfil({
         </div>
 
         {message && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 text-xs text-emerald-800 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mb-6 p-4 bg-[#FAF6F1] border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
             <span className="font-medium">{message}</span>
           </div>
         )}

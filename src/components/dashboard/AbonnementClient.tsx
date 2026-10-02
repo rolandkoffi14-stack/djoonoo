@@ -80,7 +80,7 @@ export default function AbonnementClient({
       case "essai":
         return {
           label: "Période d'essai",
-          bg: "bg-blue-100 text-blue-800 border-blue-300",
+          bg: "bg-[#FAF6F1] text-[#C1652D] border border-[#C1652D]/30",
         };
       case "impaye":
         return {
@@ -100,7 +100,7 @@ export default function AbonnementClient({
       default:
         return {
           label: statutAbonnement,
-          bg: "bg-neutral-100 text-neutral-800 border-neutral-300",
+          bg: "bg-[#FAF6F1] text-[#6D5D52] border border-[#E5DACF]",
         };
     }
   };
@@ -135,11 +135,11 @@ export default function AbonnementClient({
   return (
     <div className="space-y-6">
       {statusQuery === "verif" && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-start gap-3">
-          <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
-          <div className="text-sm text-blue-900">
+        <div className="p-4 bg-[#FAF6F1] border border-[#C1652D]/30 rounded-2xl flex items-start gap-3">
+          <CheckCircle className="w-5 h-5 text-[#C1652D] mt-0.5 shrink-0" />
+          <div className="text-sm text-[#2B2119]">
             <p className="font-semibold">Paiement en cours de validation</p>
-            <p className="text-blue-800 mt-0.5">
+            <p className="text-[#6D5D52] mt-0.5">
               Ton règlement FedaPay est en cours de finalisation. Dès réception du webhook instantané, ton compte sera automatiquement renouvelé.
             </p>
           </div>
@@ -308,7 +308,7 @@ export default function AbonnementClient({
           {/* Réassurance FedaPay */}
           <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-amber-50 text-amber-700 rounded-xl">
+              <div className="p-3 bg-[#C1652D]/10 text-[#C1652D] rounded-xl">
                 <Smartphone className="w-6 h-6" />
               </div>
               <div>
@@ -320,7 +320,7 @@ export default function AbonnementClient({
             </div>
 
             <div className="flex items-center gap-2 text-xs font-semibold text-neutral-600 bg-[#FAF6F1] px-4 py-2 rounded-xl border border-neutral-200">
-              <Lock className="w-3.5 h-3.5 text-emerald-600" />
+              <Lock className="w-3.5 h-3.5 text-[#C1652D]" />
               <span>Passerelle certifiée FedaPay • Chiffrement 256-bit</span>
             </div>
           </div>

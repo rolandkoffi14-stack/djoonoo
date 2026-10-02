@@ -100,7 +100,7 @@ export default function ComptesManager({
       case "essai":
         return {
           label: "Essai Gratuit",
-          className: "bg-blue-50 text-blue-700 border-blue-200",
+          className: "bg-[#FAF6F1] text-[#C1652D] border border-[#C1652D]/30",
           icon: Clock,
         };
       case "impaye":
@@ -198,17 +198,17 @@ export default function ComptesManager({
           disabled={isPending}
           className="px-4 py-2.5 bg-slate-900 hover:bg-[#C1652D] text-white text-xs font-bold rounded-xl transition-all flex items-center gap-2 shadow-xs cursor-pointer self-start sm:self-auto disabled:opacity-50"
         >
-          <Zap className={`w-4 h-4 text-amber-400 ${isPending ? "animate-spin" : ""}`} />
+          <Zap className={`w-4 h-4 text-[#C1652D] ${isPending ? "animate-spin" : ""}`} />
           <span>{isPending ? "Vérification du cycle..." : "Exécuter cycle abonnements (Cron)"}</span>
         </button>
       </div>
 
       {cronFeedback && (
-        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-center justify-between animate-in fade-in">
+        <div className="p-4 rounded-2xl bg-[#FAF6F1] border border-[#C1652D]/30 text-[#2B2119] text-xs font-semibold flex items-center justify-between animate-in fade-in">
           <span>{cronFeedback}</span>
           <button
             onClick={() => setCronFeedback(null)}
-            className="text-amber-700 hover:text-amber-900 font-bold ml-2 underline text-[11px]"
+            className="text-[#C1652D] hover:text-[#a95524] font-bold ml-2 underline text-[11px] cursor-pointer"
           >
             Fermer
           </button>
@@ -234,17 +234,20 @@ export default function ComptesManager({
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
             Comptes Actifs
           </div>
-          <div className="text-2xl font-black text-emerald-600 font-mono">
+          <div className="text-2xl font-black text-slate-900 font-mono">
             {stats.comptesActifs}
           </div>
-          <div className="text-xs text-slate-500 mt-1">Abonnements payés</div>
+          <div className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>Abonnements payés</span>
+          </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
             Période d&apos;Essai
           </div>
-          <div className="text-2xl font-black text-blue-600 font-mono">
+          <div className="text-2xl font-black text-[#C1652D] font-mono">
             {stats.comptesEssai}
           </div>
           <div className="text-xs text-slate-500 mt-1">Essais en cours</div>
@@ -254,10 +257,13 @@ export default function ComptesManager({
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
             Comptes Suspendus
           </div>
-          <div className="text-2xl font-black text-rose-600 font-mono">
+          <div className="text-2xl font-black text-slate-900 font-mono">
             {stats.comptesSuspendus}
           </div>
-          <div className="text-xs text-slate-500 mt-1">Accès bloqué (Section 8 bis)</div>
+          <div className="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            <span>Accès bloqué (Section 8 bis)</span>
+          </div>
         </div>
       </div>
 
@@ -372,7 +378,7 @@ export default function ComptesManager({
                               setActionType("reactiver");
                               setModalOpen(true);
                             }}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+                            className="px-3 py-1.5 rounded-xl bg-[#C1652D] hover:bg-[#A85422] text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                           >
                             <Unlock className="w-3.5 h-3.5" />
                             <span>Réactiver</span>
@@ -466,7 +472,7 @@ export default function ComptesManager({
                 className={`px-4 py-2 rounded-xl text-xs font-bold text-white transition-colors cursor-pointer ${
                   actionType === "suspendre"
                     ? "bg-rose-600 hover:bg-rose-700"
-                    : "bg-emerald-600 hover:bg-emerald-700"
+                    : "bg-[#C1652D] hover:bg-[#A85422]"
                 }`}
               >
                 {isPending

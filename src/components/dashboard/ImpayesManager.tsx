@@ -273,16 +273,16 @@ export default function ImpayesManager({
 
         {/* 3 Indicateurs clés des impayés */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#E5DACF]">
-          <div className="p-4 rounded-xl bg-red-50/70 border border-red-200">
-            <div className="flex items-center justify-between text-red-800 text-[11px] font-bold uppercase mb-1">
+          <div className="p-4 rounded-xl bg-white border border-[#E5DACF]">
+            <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Créances en cours</span>
-              <TrendingDown className="w-4 h-4 text-red-600" />
+              <TrendingDown className="w-4 h-4 text-[#C1652D]" />
             </div>
-            <div className="text-2xl font-extrabold text-red-700 font-mono">
+            <div className="text-2xl font-extrabold text-rose-700 font-mono">
               {stats.creancesTotales.toLocaleString("fr-FR")}{" "}
-              <span className="text-xs font-sans text-red-600">FCFA</span>
+              <span className="text-xs font-sans text-rose-600">FCFA</span>
             </div>
-            <p className="text-[11px] text-red-700/80 mt-1">Montant total restant à recouvrer</p>
+            <p className="text-[11px] text-[#8C7A6B] mt-1">Montant total restant à recouvrer</p>
           </div>
 
           <div className="p-4 rounded-xl bg-[#E5DACF]/30 border border-[#E5DACF]/60">
@@ -357,7 +357,7 @@ export default function ImpayesManager({
       <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl overflow-hidden shadow-sm">
         {impayesFiltres.length === 0 ? (
           <div className="p-12 text-center text-[#8C7A6B]">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3 opacity-80" />
+            <CheckCircle2 className="w-12 h-12 text-[#C1652D] mx-auto mb-3 opacity-80" />
             <h3 className="font-bold text-sm text-[#2B2119]">Aucun impayé trouvé !</h3>
             <p className="text-xs text-[#6D5D52] mt-1 max-w-sm mx-auto">
               {recherche || filtreType !== "tous"
@@ -407,7 +407,7 @@ export default function ImpayesManager({
                             <div className="flex items-center gap-2 text-[11px]">
                               <a
                                 href={`tel:${v.client.telephone}`}
-                                className="text-emerald-700 hover:underline flex items-center gap-0.5"
+                                className="text-[#6D5D52] hover:text-[#C1652D] hover:underline flex items-center gap-0.5"
                                 title="Appeler le client"
                               >
                                 <Phone className="w-3 h-3" />
@@ -422,7 +422,7 @@ export default function ImpayesManager({
                       <td className="py-3.5 px-4 text-right font-mono font-semibold text-[#2B2119]">
                         {v.montant_total.toLocaleString("fr-FR")} F
                       </td>
-                      <td className="py-3.5 px-4 text-right font-mono text-emerald-700 font-semibold">
+                      <td className="py-3.5 px-4 text-right font-mono text-[#2B2119] font-semibold">
                         {totalPaye.toLocaleString("fr-FR")} F
                       </td>
                       <td className="py-3.5 px-4 text-right font-mono font-black text-red-700 text-sm whitespace-nowrap">
@@ -446,7 +446,7 @@ export default function ImpayesManager({
                           <button
                             type="button"
                             onClick={() => ouvrirModalReglement(v)}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-700 text-[#FAF6F1] font-bold text-xs hover:bg-emerald-800 transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
+                            className="px-3 py-1.5 rounded-xl bg-[#C1652D] text-[#FAF6F1] font-bold text-xs hover:bg-[#a95524] transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
                           >
                             <Banknote className="w-3.5 h-3.5" />
                             <span>Régler</span>
@@ -496,7 +496,7 @@ export default function ImpayesManager({
           <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-[#E5DACF]">
               <div className="flex items-center gap-2">
-                <span className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800">
+                <span className="p-1.5 rounded-lg bg-[#C1652D]/10 text-[#C1652D]">
                   <Banknote className="w-5 h-5" />
                 </span>
                 <div>
@@ -569,7 +569,7 @@ export default function ImpayesManager({
                     setMontantReglement(e.target.value);
                     if (modeReglement === "especes") setMontantRecuEspeces(e.target.value);
                   }}
-                  className="w-full px-3 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono font-bold text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                  className="w-full px-3 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono font-bold text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>
 
@@ -597,7 +597,7 @@ export default function ImpayesManager({
                     onClick={() => setModeReglement("mtn_momo")}
                     className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                       modeReglement === "mtn_momo"
-                        ? "border-amber-500 bg-amber-50 text-amber-800 font-bold"
+                        ? "border-[#C1652D] bg-[#C1652D]/10 text-[#C1652D] font-bold"
                         : "border-[#E5DACF] bg-[#FAF6F1] text-[#6D5D52]"
                     }`}
                   >
@@ -610,7 +610,7 @@ export default function ImpayesManager({
                     onClick={() => setModeReglement("moov_money")}
                     className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                       modeReglement === "moov_money"
-                        ? "border-blue-500 bg-blue-50 text-blue-800 font-bold"
+                        ? "border-[#C1652D] bg-[#C1652D]/10 text-[#C1652D] font-bold"
                         : "border-[#E5DACF] bg-[#FAF6F1] text-[#6D5D52]"
                     }`}
                   >
@@ -626,7 +626,7 @@ export default function ImpayesManager({
                   <div className="flex items-center justify-between text-xs font-bold text-[#2B2119]">
                     <span>Billet reçu (FCFA)</span>
                     {monnaieRendueModal > 0 && (
-                      <span className="text-emerald-700 font-extrabold font-mono">
+                      <span className="text-[#C1652D] font-extrabold font-mono">
                         Rendre : {monnaieRendueModal.toLocaleString("fr-FR")} FCFA
                       </span>
                     )}
@@ -653,7 +653,7 @@ export default function ImpayesManager({
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-4 py-2 rounded-xl bg-emerald-700 text-[#FAF6F1] text-xs font-bold hover:bg-emerald-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#C1652D] text-[#FAF6F1] text-xs font-bold hover:bg-[#a95524] transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   {isPending ? (
                     <>
@@ -709,16 +709,16 @@ export default function ImpayesManager({
               </p>
 
               {/* Articles restaurés en stock (Règle 10) */}
-              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
-                <div className="font-bold text-amber-900 flex items-center gap-1.5">
-                  <RotateCcw className="w-4 h-4 text-amber-700" />
+              <div className="p-3 rounded-xl bg-[#FAF6F1] border border-[#C1652D]/20 space-y-2">
+                <div className="font-bold text-[#2B2119] flex items-center gap-1.5">
+                  <RotateCcw className="w-4 h-4 text-[#C1652D]" />
                   Restauration atomique du stock (Règle 10) :
                 </div>
-                <ul className="divide-y divide-amber-200/60 text-[11px]">
+                <ul className="divide-y divide-[#E5DACF]/60 text-[11px]">
                   {venteAAnnuler.lignes_vente.map((l) => (
                     <li key={l.id} className="py-1 flex justify-between">
-                      <span>{l.produit_nom}</span>
-                      <span className="font-bold text-emerald-800">
+                      <span className="text-[#6D5D52]">{l.produit_nom}</span>
+                      <span className="font-bold text-[#C1652D]">
                         +{l.quantite} remis en stock
                       </span>
                     </li>

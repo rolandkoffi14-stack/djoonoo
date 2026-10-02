@@ -221,9 +221,9 @@ export default function VentesManager({
           <div className="flex items-center gap-2">
             <a
               href="/dashboard/ventes/impayes"
-              className="px-3.5 py-2 rounded-xl bg-red-100 text-red-800 font-bold text-xs hover:bg-red-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs border border-red-200"
+              className="px-3.5 py-2 rounded-xl bg-[#FAF6F1] border border-[#E5DACF] text-[#2B2119] hover:border-[#C1652D] font-bold text-xs transition-colors flex items-center gap-2 shadow-xs cursor-pointer"
             >
-              <Clock className="w-4 h-4 text-red-700" />
+              <Clock className="w-4 h-4 text-[#C1652D]" />
               <span>Suivi des Impayés ({stats.totalImpayes.toLocaleString("fr-FR")} F)</span>
             </a>
           </div>
@@ -255,22 +255,22 @@ export default function VentesManager({
           <div className="p-3.5 rounded-xl bg-[#E5DACF]/30 border border-[#E5DACF]/60">
             <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Encaissé</span>
-              <Banknote className="w-3.5 h-3.5 text-emerald-600" />
+              <Banknote className="w-3.5 h-3.5 text-[#C1652D]" />
             </div>
-            <div className="text-xl font-extrabold text-emerald-700 font-mono truncate">
+            <div className="text-xl font-extrabold text-[#2B2119] font-mono truncate">
               {stats.totalEncaisse.toLocaleString("fr-FR")}{" "}
-              <span className="text-xs font-sans text-emerald-600">FCFA</span>
+              <span className="text-xs font-sans text-[#6D5D52]">FCFA</span>
             </div>
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#E5DACF]/30 border border-[#E5DACF]/60">
             <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Reste à recouvrer</span>
-              <Clock className="w-3.5 h-3.5 text-amber-600" />
+              <Clock className="w-3.5 h-3.5 text-rose-600" />
             </div>
-            <div className="text-xl font-extrabold text-amber-700 font-mono truncate">
+            <div className="text-xl font-extrabold text-rose-700 font-mono truncate">
               {stats.totalImpayes.toLocaleString("fr-FR")}{" "}
-              <span className="text-xs font-sans text-amber-600">FCFA</span>
+              <span className="text-xs font-sans text-rose-600">FCFA</span>
             </div>
           </div>
         </div>

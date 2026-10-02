@@ -426,7 +426,7 @@ export default function ClientsManager({
                           </span>
                           <a
                             href={`tel:${c.telephone}`}
-                            className="p-1 rounded-lg hover:bg-emerald-100 text-emerald-800 transition-colors"
+                            className="p-1 rounded-lg hover:bg-[#C1652D]/10 text-[#6D5D52] hover:text-[#C1652D] transition-colors"
                             title="Appeler"
                           >
                             <Phone className="w-3 h-3" />
@@ -728,7 +728,7 @@ export default function ClientsManager({
               <div className="flex items-center gap-2">
                 <a
                   href={`tel:${ficheClient.telephone}`}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold hover:bg-emerald-200 transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-xl bg-[#C1652D]/10 text-[#C1652D] hover:bg-[#C1652D]/20 border border-[#C1652D]/20 text-xs font-bold transition-colors flex items-center gap-1.5"
                 >
                   <Phone className="w-3.5 h-3.5" />
                   <span>Appeler</span>
@@ -763,10 +763,10 @@ export default function ClientsManager({
                   <div className="text-[11px] font-bold text-[#6D5D52] uppercase">
                     Total Réglé
                   </div>
-                  <div className="text-lg font-extrabold text-emerald-700 font-mono mt-0.5">
+                  <div className="text-lg font-extrabold text-[#2B2119] font-mono mt-0.5">
                     {ficheClient.stats.totalPaye.toLocaleString("fr-FR")} FCFA
                   </div>
-                  <div className="text-[10px] text-emerald-700/80">Encaissé avec succès</div>
+                  <div className="text-[10px] text-[#8C7A6B]">Encaissé avec succès</div>
                 </div>
 
                 <div className="p-3.5 rounded-xl bg-red-50/70 border border-red-200">

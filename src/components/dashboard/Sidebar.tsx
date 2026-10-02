@@ -96,11 +96,11 @@ export default function Sidebar({
   const getRoleBadge = (role: RoleUtilisateur) => {
     switch (role) {
       case "patron":
-        return { label: "Patron", color: "bg-[#C1652D]/15 text-[#C1652D] border-[#C1652D]/30" };
+        return { label: "Patron", color: "bg-[#C1652D]/10 text-[#C1652D] border border-[#C1652D]/30" };
       case "gerant":
-        return { label: "Gérant", color: "bg-blue-100 text-blue-800 border-blue-200" };
+        return { label: "Gérant", color: "bg-[#FAF6F1] text-[#2B2119] border border-[#E5DACF]" };
       case "vendeur":
-        return { label: "Vendeur", color: "bg-amber-100 text-amber-800 border-amber-200" };
+        return { label: "Vendeur", color: "bg-[#FAF6F1] text-[#6D5D52] border border-[#E5DACF]" };
     }
   };
 

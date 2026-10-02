@@ -143,11 +143,11 @@ export default function PaiementsAbonnementManager({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-            <CreditCard className="w-6 h-6 text-emerald-600" />
+            <CreditCard className="w-6 h-6 text-[#C1652D]" />
             <span>Supervision des Abonnements &amp; Paiements</span>
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Suivi temps réel des règlements FedaPay (MTN MoMo, Moov Money, CB) et régularisations manuelles
+            Suivi temps réel des règlements FedaPay (MTN MoMo, Moov Money) et régularisations manuelles
           </p>
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function PaiementsAbonnementManager({
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
             Encaissé via FedaPay
           </div>
-          <div className="text-2xl font-black text-emerald-600 font-mono">
+          <div className="text-2xl font-black text-[#2B2119] font-mono">
             {totalPayeesFedaPay} transaction(s)
           </div>
           <div className="text-xs text-slate-500 mt-1">Paiements 100% automatisés</div>
@@ -178,7 +178,7 @@ export default function PaiementsAbonnementManager({
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
             En Attente de Règlement
           </div>
-          <div className="text-2xl font-black text-amber-600 font-mono">
+          <div className="text-2xl font-black text-slate-900 font-mono">
             {totalEnAttente} facture(s)
           </div>
           <div className="text-xs text-slate-500 mt-1">Initiées ou à régulariser</div>
@@ -194,7 +194,7 @@ export default function PaiementsAbonnementManager({
             placeholder="Rechercher par référence FedaPay, entreprise, email, code..."
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D]/30"
           />
         </div>
 
@@ -202,7 +202,7 @@ export default function PaiementsAbonnementManager({
           value={filtreStatut}
           onChange={(e) => setFiltreStatut(e.target.value)}
           aria-label="Filtrer par statut de paiement"
-          className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:border-emerald-600"
+          className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#C1652D]"
         >
           <option value="tous">Tous les statuts</option>
           <option value="payee">Payées (validées)</option>
@@ -290,8 +290,8 @@ export default function PaiementsAbonnementManager({
                       {/* Moyen de paiement */}
                       <td className="py-3.5 px-4">
                         {f.fournisseur_paiement === "fedapay" ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
-                            <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF6F1] border border-[#C1652D]/20 text-xs font-bold text-[#2B2119]">
+                            <Zap className="w-3.5 h-3.5 text-[#C1652D]" />
                             <span>FedaPay (MoMo/Moov/CB)</span>
                           </span>
                         ) : (
@@ -329,7 +329,7 @@ export default function PaiementsAbonnementManager({
                               )
                             }
                             disabled={isPending}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-xs cursor-pointer"
+                            className="px-3 py-1.5 rounded-xl bg-[#C1652D] hover:bg-[#A85422] text-white text-xs font-bold transition-colors inline-flex items-center gap-1.5 shadow-xs cursor-pointer"
                             title="Validation manuelle de secours"
                           >
                             <CheckCircle2 className="w-3.5 h-3.5" />

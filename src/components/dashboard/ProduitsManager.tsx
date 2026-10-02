@@ -722,9 +722,9 @@ export default function ProduitsManager({
               </div>
 
               {/* Aperçu du nouveau stock */}
-              <div className="p-3 rounded-xl bg-green-50 border border-green-200 text-green-900 text-xs font-semibold flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-[#FAF6F1] border border-[#C1652D]/30 text-[#2B2119] text-xs font-semibold flex items-center justify-between">
                 <span>Nouveau stock résultant :</span>
-                <span className="font-mono font-extrabold text-sm text-green-800">
+                <span className="font-mono font-extrabold text-sm text-[#C1652D]">
                   {produitAReappro.quantite_stock + quantiteReappro} unités
                 </span>
               </div>

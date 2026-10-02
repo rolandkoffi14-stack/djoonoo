@@ -86,7 +86,7 @@ export function genererHtmlInvitation(payload: InvitationEmailPayload): string {
 
               <!-- Avertissement expiration -->
               <p style="font-size: 12px; color: #8C7A6B; text-align: center; margin: 0 0 24px;">
-                ⏳ Ce lien d'invitation est strictement personnel et expire dans <strong>48 heures</strong>.
+                Ce lien d'invitation est strictement personnel et expire dans <strong>48 heures</strong>.
               </p>
 
               <hr style="border: none; border-top: 1px solid #E5DACF; margin: 24px 0 16px;">

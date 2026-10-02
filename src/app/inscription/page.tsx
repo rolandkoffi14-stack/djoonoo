@@ -483,8 +483,8 @@ export default function InscriptionPage() {
                 >
                   {copiedSecret ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-green-600" />
-                      <span className="text-green-700">Copié</span>
+                      <Check className="w-3.5 h-3.5 text-[#C1652D]" />
+                      <span className="text-[#C1652D]">Copié</span>
                     </>
                   ) : (
                     <>

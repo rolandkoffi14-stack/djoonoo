@@ -177,11 +177,11 @@ export default function EquipeManager({
   const getRoleBadge = (role: RoleUtilisateur) => {
     switch (role) {
       case "patron":
-        return { label: "Patron", color: "bg-[#C1652D]/15 text-[#C1652D] border-[#C1652D]/30" };
+        return { label: "Patron", color: "bg-[#C1652D]/10 text-[#C1652D] border border-[#C1652D]/30" };
       case "gerant":
-        return { label: "Gérant", color: "bg-blue-100 text-blue-800 border-blue-200" };
+        return { label: "Gérant", color: "bg-[#FAF6F1] text-[#2B2119] border border-[#E5DACF]" };
       case "vendeur":
-        return { label: "Vendeur", color: "bg-amber-100 text-amber-800 border-amber-200" };
+        return { label: "Vendeur", color: "bg-[#FAF6F1] text-[#6D5D52] border border-[#E5DACF]" };
     }
   };
 
@@ -227,14 +227,14 @@ export default function EquipeManager({
 
       {/* Message de notification succès */}
       {messageSucces && (
-        <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between gap-2 shadow-xs animate-in fade-in slide-in-from-top-2">
+        <div className="p-3.5 rounded-xl bg-[#FAF6F1] border border-[#C1652D]/30 text-[#2B2119] text-xs flex items-center justify-between gap-2 shadow-xs animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
             <span className="font-semibold">{messageSucces}</span>
           </div>
           <button
             onClick={() => setMessageSucces(null)}
-            className="p-1 text-emerald-700 hover:text-emerald-950 rounded cursor-pointer"
+            className="p-1 text-[#6D5D52] hover:text-[#2B2119] rounded cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -315,18 +315,18 @@ export default function EquipeManager({
                     {/* Sécurité 2FA */}
                     <td className="py-3.5 px-4">
                       {e.deux_fa_active ? (
-                        <span className="inline-flex items-center gap-1 text-green-700 font-bold text-[11px]">
-                          <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
+                        <span className="inline-flex items-center gap-1 text-[#2B2119] font-bold text-[11px]">
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#C1652D]" />
                           <span>Sécurisé 2FA</span>
                         </span>
                       ) : estEnAttente && e.role === "gerant" ? (
-                        <span className="inline-flex items-center gap-1 text-amber-800 font-bold text-[11px]">
-                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span className="inline-flex items-center gap-1 text-[#6D5D52] font-semibold text-[11px]">
+                          <Clock className="w-3.5 h-3.5 text-[#C1652D]" />
                           <span>2FA à l&apos;activation</span>
                         </span>
                       ) : e.role === "gerant" ? (
-                        <span className="inline-flex items-center gap-1 text-blue-700 font-bold text-[11px]">
-                          <KeyRound className="w-3.5 h-3.5 text-blue-600" />
+                        <span className="inline-flex items-center gap-1 text-[#6D5D52] font-medium text-[11px]">
+                          <KeyRound className="w-3.5 h-3.5 text-[#8C7A6B]" />
                           <span>En attente 2FA</span>
                         </span>
                       ) : (
@@ -337,18 +337,18 @@ export default function EquipeManager({
                     {/* Statut compte */}
                     <td className="py-3.5 px-4">
                       {estEnAttente ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                          <Clock className="w-3 h-3 text-amber-700" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FAF6F1] text-[#C1652D] border border-[#C1652D]/30">
+                          <Clock className="w-3 h-3 text-[#C1652D]" />
                           <span>En attente d&apos;activation</span>
                         </span>
                       ) : estActif ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-green-100 text-green-800">
-                          <CheckCircle2 className="w-3 h-3 text-green-600" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FAF6F1] text-[#2B2119] border border-[#E5DACF]">
+                          <CheckCircle2 className="w-3 h-3 text-[#C1652D]" />
                           <span>Actif</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-200 text-stone-700">
-                          <XCircle className="w-3 h-3 text-stone-500" />
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FAF6F1] text-[#8C7A6B] border border-[#E5DACF]">
+                          <XCircle className="w-3 h-3 text-[#8C7A6B]" />
                           <span>Inactif</span>
                         </span>
                       )}
@@ -495,7 +495,7 @@ export default function EquipeManager({
                         <div>
                           <div className="font-bold text-xs text-[#2B2119] flex items-center gap-1">
                             <span>Gérant</span>
-                            <span className="text-[9px] font-extrabold text-blue-700 bg-blue-100 px-1 rounded">
+                            <span className="text-[9px] font-extrabold text-[#C1652D] bg-[#C1652D]/10 px-1 rounded border border-[#C1652D]/20">
                               2FA
                             </span>
                           </div>
@@ -579,7 +579,7 @@ export default function EquipeManager({
                   <p className="text-[11px] text-[#6D5D52] leading-relaxed">
                     Aucun mot de passe initial n&apos;est requis. Un lien d&apos;invitation sécurisé valable <strong>48 heures</strong> sera immédiatement envoyé à l&apos;adresse email indiquée. Le collaborateur configurera son mot de passe lui-même.
                     {selectedRole === "gerant" && (
-                      <span className="block mt-1 text-blue-900 font-medium">
+                      <span className="block mt-1 text-[#2B2119] font-medium">
                         Pour le rôle <strong>Gérant</strong>, la configuration du 2FA TOTP (Google Authenticator) s&apos;effectuera également de façon guidée et autonome sur son écran.
                       </span>
                     )}
@@ -688,12 +688,12 @@ export default function EquipeManager({
               </div>
 
               {/* Encadré Pédagogique Règle 2 */}
-              <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900 space-y-1">
-                <div className="font-bold flex items-center gap-1.5 text-[11px]">
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
+              <div className="p-3 rounded-xl bg-[#FAF6F1] border border-[#C1652D]/20 text-[#2B2119] space-y-1">
+                <div className="font-bold flex items-center gap-1.5 text-[11px] text-[#2B2119]">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#C1652D]" />
                   <span>Règle 2 — Historique des ventes immuable :</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-amber-800">
+                <p className="text-[11px] leading-relaxed text-[#6D5D52]">
                   Toutes les ventes passées déjà enregistrées par <strong>{employeATransferer.nom}</strong> restent définitivement rattachées à sa boutique d&apos;origine. Seules ses futures transactions seront imputées à la nouvelle boutique.
                 </p>
               </div>

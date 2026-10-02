@@ -82,8 +82,8 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
         </div>
 
         {message && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 text-xs text-emerald-800 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="mb-6 p-4 bg-[#FAF6F1] border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
             <span className="font-medium">{message}</span>
           </div>
         )}
