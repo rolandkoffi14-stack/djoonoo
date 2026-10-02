@@ -42,7 +42,7 @@ export default async function SuperAdminLayout({
               <Link href="/super-admin" className="flex items-center gap-3">
                 <div className="relative h-7 w-24">
                   <Image
-                    src="/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg"
+                    src="/brand/01_horizontal_logos/djoonoo_logo_sombre_transparent.svg"
                     alt="djoonoo logo"
                     fill
                     className="object-contain"

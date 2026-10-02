@@ -41,7 +41,7 @@ export default function SuperAdminConnexionPage() {
 
           <div className="relative h-10 w-36 mx-auto mb-2">
             <Image
-              src="/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg"
+              src="/brand/01_horizontal_logos/djoonoo_logo_sombre_transparent.svg"
               alt="djoonoo logo"
               fill
               className="object-contain"

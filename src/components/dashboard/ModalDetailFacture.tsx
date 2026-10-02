@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { X, CheckCircle, Clock, AlertTriangle, Download, ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import { X, CheckCircle, Clock, AlertTriangle, Download } from "lucide-react";
 
 export interface FactureDetailItem {
   id: string;
@@ -49,13 +50,18 @@ export default function ModalDetailFacture({
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl border border-neutral-200 overflow-hidden">
         {/* En-tête */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-[#FAF6F1]">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-[#C1652D]/10 rounded-lg text-[#C1652D]">
-              <ShieldCheck className="w-5 h-5" />
+          <div className="flex items-center gap-3">
+            <div className="relative w-9 h-9 shrink-0">
+              <Image
+                src="/brand/02_icons/djoonoo_icon_squircle_terracotta.svg"
+                alt="djoonoo"
+                fill
+                className="object-contain"
+              />
             </div>
             <div>
               <h3 className="font-bold text-[#2B2119] text-base">Détail du règlement</h3>
-              <p className="text-xs text-neutral-500">Transaction sécurisée djoonoo</p>
+              <p className="text-xs text-neutral-500">Transaction certifiée djoonoo</p>
             </div>
           </div>
           <button

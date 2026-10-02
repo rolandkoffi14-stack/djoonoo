@@ -23,6 +23,13 @@ export function genererHtmlInvitation(payload: InvitationEmailPayload): string {
   const { nom, role, nomEntreprise, boutiqueNom, lienInvitation } = payload;
   const roleLibelle = role === "gerant" ? "Gérant de boutique" : "Vendeur de boutique";
 
+  let baseUrl = "https://djoonoo.com";
+  try {
+    const urlObj = new URL(lienInvitation);
+    baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+  } catch {}
+  const logoUrl = `${baseUrl}/brand/01_horizontal_logos/djoonoo_logo_clair_transparent@2x.png`;
+
   return `
 <!DOCTYPE html>
 <html lang="fr">
@@ -36,11 +43,13 @@ export function genererHtmlInvitation(payload: InvitationEmailPayload): string {
     <tr>
       <td align="center">
         <table role="presentation" width="100%" style="max-width: 540px; background-color: #FFFFFF; border: 1px solid #E5DACF; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 12px rgba(43, 33, 25, 0.05);">
-          <!-- En-tête avec marque -->
+          <!-- En-tête avec marque officielle -->
           <tr>
             <td style="padding: 32px 32px 24px; text-align: center; border-bottom: 1px solid #FAF6F1; background-color: #FAF6F1;">
-              <span style="font-size: 26px; font-weight: 900; letter-spacing: -0.5px; color: #2B2119;">djoo<span style="color: #C1652D;">noo</span></span>
-              <div style="font-size: 11px; font-weight: 700; color: #8C7A6B; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Gestion commerciale & Encaissement</div>
+              <a href="${baseUrl}" target="_blank" style="text-decoration: none; display: inline-block;">
+                <img src="${logoUrl}" alt="djoonoo" width="140" height="52" style="border: 0; outline: none; text-decoration: none; display: block; margin: 0 auto; max-width: 140px; height: auto;" />
+              </a>
+              <div style="font-size: 11px; font-weight: 700; color: #8C7A6B; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px;">Gestion commerciale & Encaissement</div>
             </td>
           </tr>
 

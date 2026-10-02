@@ -131,12 +131,18 @@ export default function InvitationActivationPage() {
     <div className="min-h-screen bg-[#FAF6F1] flex flex-col justify-center py-12 sm:px-6 lg:px-8 px-4">
       {/* En-tête / Logo djoonoo */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
-        <Link href="/" className="inline-block">
-          <span className="text-3xl font-black text-[#2B2119] tracking-tight">
-            djoo<span className="text-[#C1652D]">noo</span>
-          </span>
+        <Link href="/" className="inline-block focus:outline-none">
+          <div className="relative h-10 w-40 mx-auto">
+            <Image
+              src="/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg"
+              alt="djoonoo logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
         </Link>
-        <p className="text-xs text-[#8C7A6B] font-bold uppercase tracking-wider mt-1">
+        <p className="text-xs text-[#8C7A6B] font-bold uppercase tracking-wider mt-2">
           Activation de compte collaborateur
         </p>
       </div>

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   CheckCircle,
@@ -122,12 +123,15 @@ export default function CheckoutClient({
             <span>Retour à mon abonnement</span>
           </Link>
 
-          {/* Logo djoonoo */}
-          <div className="flex items-center gap-2.5 mb-8">
-            <div className="w-9 h-9 rounded-xl bg-[#C1652D] flex items-center justify-center font-black text-white text-lg">
-              dj
-            </div>
-            <span className="text-xl font-bold tracking-tight">djoonoo</span>
+          {/* Logo officiel djoonoo */}
+          <div className="relative h-9 w-36 mb-8">
+            <Image
+              src="/brand/01_horizontal_logos/djoonoo_logo_sombre_transparent.svg"
+              alt="djoonoo logo"
+              fill
+              className="object-contain object-left"
+              priority
+            />
           </div>
 
           <p className="text-xs uppercase tracking-widest text-neutral-400 font-semibold mb-2">

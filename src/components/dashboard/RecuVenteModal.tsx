@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import {
   Printer,
   X,
@@ -466,11 +467,19 @@ export default function RecuVenteModal({
                   </div>
                 </div>
 
-                {/* Pied de ticket : simple texte, aucun lien */}
-                <div className="text-center text-[10px] text-stone-500 pt-1 space-y-1">
+                {/* Pied de ticket */}
+                <div className="text-center text-[10px] text-stone-500 pt-2 space-y-1.5 border-t border-dashed border-stone-200">
                   <div>{customMsgTicket || "Merci de votre visite et à très bientôt !"}</div>
-                  <div className="font-sans font-bold text-stone-400">
-                    Propulsé par djoonoo
+                  <div className="flex items-center justify-center gap-1.5 text-[9px] font-sans font-bold text-stone-400">
+                    <span>Propulsé par</span>
+                    <div className="relative h-3 w-12 inline-block">
+                      <Image
+                        src="/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg"
+                        alt="djoonoo"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -685,9 +694,20 @@ export default function RecuVenteModal({
                   </div>
                 </div>
 
-                {/* Bas de page officiel A4 : simple texte, aucun lien */}
-                <div className="pt-6 border-t border-stone-200 text-center text-[10px] text-stone-400">
-                  <div className="font-bold text-stone-400">Propulsé par djoonoo</div>
+                {/* Bas de page officiel A4 */}
+                <div className="pt-6 border-t border-stone-200 text-center text-[10px] text-stone-400 flex flex-col items-center justify-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1.5 font-bold text-stone-400">
+                    <span>Document de vente généré via</span>
+                    <div className="relative h-3.5 w-14 inline-block">
+                      <Image
+                        src="/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg"
+                        alt="djoonoo"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[9px] text-stone-400">Plateforme de gestion commerciale & de caisse</div>
                 </div>
               </div>
             )}
