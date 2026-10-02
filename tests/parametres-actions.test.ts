@@ -4,6 +4,7 @@ import {
   modifierMotDePasseAction,
   modifierEntrepriseAction,
   basculer2FAVendeurAction,
+  modifierParametresBoutiqueAction,
 } from "../src/app/actions/parametres";
 import { prisma } from "../src/lib/prisma";
 import * as auth from "../src/lib/auth";
@@ -30,7 +31,7 @@ describe("Server Actions - Paramètres", () => {
       expect(res.error).toContain("Non authentifié");
     });
 
-    it("doit refuser si l'email saisi est déjà pris par un autre utilisateur", async () => {
+    it("doit refuser si le nom ou le téléphone est trop court", async () => {
       vi.spyOn(auth, "getCurrentSession").mockResolvedValue({
         userId: "user-1",
         compteId: "compte-1",
@@ -38,56 +39,38 @@ describe("Server Actions - Paramètres", () => {
         email: "patron@test.com",
       } as any);
 
-      vi.spyOn(prisma.utilisateurs, "findFirst").mockResolvedValue({
-        id: "user-autre",
-        email: "existant@test.com",
-      } as any);
-
       const formData = new FormData();
-      formData.append("nom", "Patron Modifié");
-      formData.append("telephone", "97112233");
-      formData.append("email", "existant@test.com");
+      formData.append("nom", "A");
+      formData.append("telephone", "12");
 
       const res = await modifierProfilAction(formData);
       expect(res.success).toBe(false);
-      expect(res.error).toContain("déjà utilisé");
+      expect(res.error).toContain("nom doit comporter au moins 2 caractères");
     });
 
-    it("doit mettre à jour le profil et synchroniser l'email principal si patron", async () => {
+    it("doit mettre à jour le nom et téléphone du profil sans altérer l'email", async () => {
       vi.spyOn(auth, "getCurrentSession").mockResolvedValue({
         userId: "user-1",
         compteId: "compte-1",
         role: "patron",
-        email: "ancien@test.com",
+        email: "fixe@test.com",
       } as any);
 
-      vi.spyOn(prisma.utilisateurs, "findFirst").mockResolvedValue(null);
       const updateUtilisateurSpy = vi.spyOn(prisma.utilisateurs, "update").mockResolvedValue({} as any);
-      const updateCompteSpy = vi.spyOn(prisma.comptes, "update").mockResolvedValue({} as any);
 
       const formData = new FormData();
       formData.append("nom", "Patron Nouveau");
       formData.append("telephone", "97000000");
-      formData.append("email", "nouveau@test.com");
 
       const res = await modifierProfilAction(formData);
       expect(res.success).toBe(true);
       expect(updateUtilisateurSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: "user-1" },
-          data: expect.objectContaining({
+          data: {
             nom: "Patron Nouveau",
             telephone: "97000000",
-            email: "nouveau@test.com",
-          }),
-        })
-      );
-      expect(updateCompteSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: "compte-1" },
-          data: expect.objectContaining({
-            email_principal: "nouveau@test.com",
-          }),
+          },
         })
       );
     });
@@ -230,6 +213,65 @@ describe("Server Actions - Paramètres", () => {
       const res = await basculer2FAVendeurAction(formData);
       expect(res.success).toBe(false);
       expect(res.error).toContain("obligatoire");
+    });
+  });
+
+  describe("modifierParametresBoutiqueAction", () => {
+    it("doit refuser l'action si le rôle n'est pas Patron (ex: Gérant ou Vendeur)", async () => {
+      vi.spyOn(auth, "getCurrentSession").mockResolvedValue({
+        userId: "user-gerant",
+        compteId: "compte-1",
+        role: "gerant",
+        boutiqueId: "b-1",
+      } as any);
+
+      const formData = new FormData();
+      formData.append("boutiqueId", "b-1");
+      formData.append("nom", "Tentative Boutique");
+      formData.append("ville", "Cotonou");
+      formData.append("adresse", "Rue 100");
+
+      const res = await modifierParametresBoutiqueAction(formData);
+      expect(res.success).toBe(false);
+      expect(res.error).toContain("Seul le Patron a l'autorisation");
+    });
+
+    it("doit permettre la mise à jour des coordonnées si l'utilisateur est Patron", async () => {
+      vi.spyOn(auth, "getCurrentSession").mockResolvedValue({
+        userId: "user-patron",
+        compteId: "compte-1",
+        role: "patron",
+      } as any);
+
+      vi.spyOn(prisma.boutiques, "findFirst").mockResolvedValue({
+        id: "b-1",
+        compte_id: "compte-1",
+      } as any);
+
+      const updateBoutiqueSpy = vi.spyOn(prisma.boutiques, "update").mockResolvedValue({} as any);
+
+      const formData = new FormData();
+      formData.append("boutiqueId", "b-1");
+      formData.append("nom", "Boutique Prestige");
+      formData.append("ville", "Porto-Novo");
+      formData.append("adresse", "Place Jean Bayol");
+      formData.append("telephone", "97001122");
+      formData.append("secteurActivite", "Mode & Luxe");
+
+      const res = await modifierParametresBoutiqueAction(formData);
+      expect(res.success).toBe(true);
+      expect(updateBoutiqueSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "b-1" },
+          data: {
+            nom: "Boutique Prestige",
+            ville: "Porto-Novo",
+            adresse: "Place Jean Bayol",
+            telephone: "97001122",
+            secteur_activite: "Mode & Luxe",
+          },
+        })
+      );
     });
   });
 });

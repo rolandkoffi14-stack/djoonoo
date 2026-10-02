@@ -16,6 +16,7 @@ interface HeaderProps {
   boutiqueActiveId?: string;
   statutAbonnement: string;
   joursEssaiRestants?: number;
+  userRole?: string;
 }
 
 export default function Header({
@@ -23,6 +24,7 @@ export default function Header({
   boutiqueActiveId,
   statutAbonnement,
   joursEssaiRestants = 14,
+  userRole = "patron",
 }: HeaderProps) {
   const router = useRouter();
   const [isPending, startTransition] = React.useTransition();
@@ -39,11 +41,14 @@ export default function Header({
   const activeBoutique =
     boutiques.find((b) => b.id === boutiqueActiveId) || boutiques[0];
 
+  // Le changement de boutique est strictement réservé au Patron possédant plusieurs boutiques
+  const peutChangerBoutique = userRole === "patron" && boutiques.length > 1;
+
   return (
     <header className="h-16 border-b border-[#E5DACF] bg-[#FAF6F1]/95 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10 pl-16 md:pl-6">
-      {/* Sélecteur de Boutique */}
+      {/* Sélecteur ou Badge de Boutique */}
       <div className="flex items-center gap-3">
-        {boutiques.length > 1 ? (
+        {peutChangerBoutique ? (
           <div className="relative inline-flex items-center">
             <Store className="w-4 h-4 text-[#C1652D] absolute left-3 pointer-events-none" />
             <select

@@ -33,12 +33,18 @@ export default async function DashboardPage() {
   const cookieStore = await cookies();
   const activeBoutiqueCookie = cookieStore.get("djoonoo_active_boutique")?.value;
 
-  const activeBoutique = await scoped.boutiques.findFirst({
-    where: activeBoutiqueCookie
-      ? { id: activeBoutiqueCookie, compte_id: session.compteId }
-      : { compte_id: session.compteId },
-    orderBy: { code: "asc" },
-  });
+  // Détermination stricte : Le Patron peut basculer de boutique ; Gérant et Vendeur sont verrouillés sur leur boutique assignée
+  const targetBoutiqueId =
+    session.role === "patron" ? activeBoutiqueCookie : session.boutiqueId;
+
+  const activeBoutique = targetBoutiqueId
+    ? await scoped.boutiques.findFirst({
+        where: { id: targetBoutiqueId, compte_id: session.compteId },
+      })
+    : await scoped.boutiques.findFirst({
+        where: { compte_id: session.compteId },
+        orderBy: { code: "asc" },
+      });
 
   let alertesStockCount = 0;
   let ventesAujourdhuiTotal = 0;
@@ -108,7 +114,7 @@ export default async function DashboardPage() {
               Bonjour, {session.nom}
             </h1>
             <p className="text-sm text-[#6D5D52] mt-1.5 max-w-xl">
-              Bienvenue sur ton tableau de bord <strong>djoonoo</strong>. Retrouve en un coup d&apos;œil l&apos;activité de tes boutiques, ton stock et tes créances.
+              Bienvenue sur ton tableau de bord <strong>djoonoo</strong>. Retrouve en un coup d&apos;œil l&apos;activité de {session.role === "patron" ? "tes boutiques" : "ta boutique"}, ton stock et tes créances.
             </p>
           </div>
 
@@ -193,47 +199,95 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* Raccourcis Métier Asymétriques */}
+      {/* Raccourcis Métier Asymétriques selon le Rôle */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Gestion des Boutiques */}
-        <Link
-          href="/dashboard/boutiques"
-          className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center">
-              <Store className="w-5 h-5" />
+        {/* Si Patron : Gestion des Boutiques */}
+        {session.role === "patron" && (
+          <Link
+            href="/dashboard/boutiques"
+            className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center">
+                <Store className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
             </div>
-            <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
-          </div>
-          <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
-            Mes Boutiques
-          </h3>
-          <p className="text-xs text-[#6D5D52] leading-relaxed">
-            Consulte tes points de vente, crée de nouvelles boutiques et gère leur statut actif/inactif.
-          </p>
-        </Link>
+            <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
+              Mes Boutiques
+            </h3>
+            <p className="text-xs text-[#6D5D52] leading-relaxed">
+              Consulte tes points de vente, crée de nouvelles boutiques et gère leur statut actif/inactif.
+            </p>
+          </Link>
+        )}
 
-        {/* Gestion de l'Équipe */}
-        <Link
-          href="/dashboard/equipe"
-          className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center">
-              <Users className="w-5 h-5" />
+        {/* Si Gérant : Stock & Réapprovisionnement */}
+        {session.role === "gerant" && (
+          <Link
+            href="/dashboard/produits"
+            className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center">
+                <Package className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
             </div>
-            <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
-          </div>
-          <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
-            Équipe & Collaborateurs
-          </h3>
-          <p className="text-xs text-[#6D5D52] leading-relaxed">
-            Invite tes gérants et vendeurs, affecte-les à une boutique et sécurise leurs accès par 2FA.
-          </p>
-        </Link>
+            <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
+              Stock & Réappro
+            </h3>
+            <p className="text-xs text-[#6D5D52] leading-relaxed">
+              Surveille les alertes de seuil critique et gère les réapprovisionnements de ta boutique.
+            </p>
+          </Link>
+        )}
 
-        {/* Caisse POS */}
+        {/* Si Patron ou Gérant : Gestion de l'Équipe / Vendeurs */}
+        {(session.role === "patron" || session.role === "gerant") && (
+          <Link
+            href="/dashboard/equipe"
+            className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center">
+                <Users className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
+            </div>
+            <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
+              {session.role === "gerant" ? "Mes Vendeurs" : "Équipe & Collaborateurs"}
+            </h3>
+            <p className="text-xs text-[#6D5D52] leading-relaxed">
+              {session.role === "gerant"
+                ? "Consulte et gère les vendeurs affectés à ta boutique."
+                : "Invite tes gérants et vendeurs, affecte-les à une boutique et sécurise leurs accès par 2FA."}
+            </p>
+          </Link>
+        )}
+
+        {/* Si Vendeur : Mes Ventes */}
+        {session.role === "vendeur" && (
+          <Link
+            href="/dashboard/ventes"
+            className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
+            </div>
+            <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
+              Mes Ventes
+            </h3>
+            <p className="text-xs text-[#6D5D52] leading-relaxed">
+              Consulte l'historique de tes encaissements et le suivi de tes règlements.
+            </p>
+          </Link>
+        )}
+
+        {/* Caisse POS (Accessible à tous les rôles) */}
         <Link
           href="/dashboard/caisse"
           className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"

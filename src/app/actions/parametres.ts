@@ -220,15 +220,9 @@ export async function modifierParametresBoutiqueAction(formData: FormData): Prom
     return { success: false, error: "Le nom, la ville et l'adresse sont obligatoires." };
   }
 
-  // Vérification des droits :
-  // Le Patron peut modifier n'importe quelle boutique de son compte
-  // Le Gérant ne peut modifier QUE la boutique à laquelle il est affecté
-  if (session.role === "gerant" && session.boutiqueId !== boutiqueId) {
-    return { success: false, error: "Vous n'avez pas l'autorisation de modifier cette boutique." };
-  }
-
-  if (session.role === "vendeur") {
-    return { success: false, error: "Action non autorisée pour le rôle Vendeur." };
+  // Vérification des droits : Seul le Patron peut modifier les coordonnées d'une boutique (Règle 2)
+  if (session.role !== "patron") {
+    return { success: false, error: "Seul le Patron a l'autorisation de modifier les coordonnées d'une boutique." };
   }
 
   const boutique = await prisma.boutiques.findFirst({

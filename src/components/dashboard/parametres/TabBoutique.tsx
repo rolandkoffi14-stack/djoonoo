@@ -97,7 +97,7 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
     );
   }
 
-  const isVendeur = role === "vendeur";
+  const isLectureSeule = role !== "patron";
 
   return (
     <div className="space-y-6">
@@ -105,7 +105,7 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-neutral-100 gap-4">
           <div>
             <h3 className="font-bold text-[#2B2119] text-lg">
-              {role === "gerant" ? "Ma Boutique Assignée" : "Coordonnées de la Boutique"}
+              {role === "patron" ? "Coordonnées de la Boutique" : "Ma Boutique Assignée"}
             </h3>
             <p className="text-xs text-neutral-500 mt-0.5">
               Ces coordonnées apparaissent sur les reçus émis par ce point de vente.
@@ -154,13 +154,17 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
           </div>
         )}
 
-        {isVendeur ? (
-          /* Vue lecture seule pour le vendeur */
+        {isLectureSeule ? (
+          /* Vue lecture seule pour Gérant et Vendeur */
           <div className="space-y-4 max-w-xl text-xs text-neutral-700">
-            <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 space-y-2">
+            <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 space-y-2.5">
               <div className="flex justify-between">
                 <span className="text-neutral-500">Nom de la boutique</span>
                 <span className="font-bold text-[#2B2119]">{boutiqueActuelle.nom}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-500">Secteur d'activité</span>
+                <span className="font-bold text-[#2B2119]">{boutiqueActuelle.secteur_activite || "Commerce général"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-neutral-500">Ville</span>
@@ -178,11 +182,11 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
               </div>
             </div>
             <p className="text-[11px] text-neutral-400 italic">
-              La modification des coordonnées de la boutique est réservée au Gérant et au Patron.
+              La modification des coordonnées de la boutique est réservée au Patron.
             </p>
           </div>
         ) : (
-          /* Formulaire de modification pour Patron ou Gérant */
+          /* Formulaire de modification réservé au Patron */
           <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>

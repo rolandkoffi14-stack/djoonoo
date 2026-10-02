@@ -37,23 +37,40 @@ export default async function DashboardLayout({
     },
   });
 
-  const boutiques = await scoped.boutiques.findMany({
-    orderBy: { code: "asc" },
-    select: {
-      id: true,
-      code: true,
-      nom: true,
-      statut: true,
-    },
-  });
+  // 1. Récupération des boutiques accessibles selon le rôle
+  let boutiques: { id: string; code: string; nom: string; statut: string }[] = [];
 
-  // Boutique active (depuis le cookie ou la première boutique)
+  if (session.role === "patron") {
+    boutiques = await scoped.boutiques.findMany({
+      orderBy: { code: "asc" },
+      select: {
+        id: true,
+        code: true,
+        nom: true,
+        statut: true,
+      },
+    });
+  } else if (session.boutiqueId) {
+    const b = await scoped.boutiques.findUnique({
+      where: { id: session.boutiqueId },
+      select: {
+        id: true,
+        code: true,
+        nom: true,
+        statut: true,
+      },
+    });
+    if (b) boutiques = [b];
+  }
+
+  // 2. Détermination stricte de la boutique active :
+  // Le Patron peut naviguer librement via le cookie ; le Gérant et le Vendeur sont verrouillés sur leur boutique
   const cookieStore = await cookies();
   const activeBoutiqueCookie = cookieStore.get("djoonoo_active_boutique")?.value;
   const activeBoutique =
-    boutiques.find((b) => b.id === activeBoutiqueCookie) ||
-    boutiques.find((b) => b.id === session.boutiqueId) ||
-    boutiques[0];
+    session.role === "patron"
+      ? (boutiques.find((b) => b.id === activeBoutiqueCookie) || boutiques[0])
+      : (boutiques.find((b) => b.id === session.boutiqueId) || boutiques[0]);
 
   // Calcul des jours d'essai restants
   let joursEssaiRestants = 14;
@@ -87,6 +104,7 @@ export default async function DashboardLayout({
           boutiqueActiveId={activeBoutique?.id}
           statutAbonnement={compte?.statut_abonnement || "essai"}
           joursEssaiRestants={joursEssaiRestants}
+          userRole={session.role}
         />
 
         <BannerAbonnement
