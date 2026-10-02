@@ -77,6 +77,7 @@ export default function Sidebar({
           { label: "Clients", href: "/dashboard/clients", icon: Users },
           { label: "Rapports Financiers", href: "/dashboard/rapports", icon: TrendingUp },
           { label: "Vendeurs", href: "/dashboard/equipe", icon: UserCheck },
+          { label: "Paramètres", href: "/dashboard/parametres", icon: Settings },
         ];
       case "vendeur":
       default:
@@ -85,6 +86,7 @@ export default function Sidebar({
           { label: "Mes Ventes", href: "/dashboard/ventes", icon: Receipt },
           { label: "Suivi impayés", href: "/dashboard/ventes/impayes", icon: Clock },
           { label: "Stock disponible", href: "/dashboard/produits", icon: Package },
+          { label: "Paramètres", href: "/dashboard/parametres", icon: Settings },
         ];
     }
   };

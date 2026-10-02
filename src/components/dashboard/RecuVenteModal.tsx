@@ -29,10 +29,19 @@ export default function RecuVenteModal({
 }: RecuVenteModalProps) {
   // Format d'impression actif : "ticket_80mm" par défaut, ou "facture_a4"
   const [formatActif, setFormatActif] = useState<"ticket_80mm" | "facture_a4">("ticket_80mm");
+  const [customMsgTicket, setCustomMsgTicket] = useState<string>("Merci de votre visite et à très bientôt !");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const prefFormat = localStorage.getItem("djoonoo_pref_format_impression");
+    if (prefFormat === "ticket_80mm" || prefFormat === "facture_a4") {
+      setFormatActif(prefFormat);
+    }
+    const prefMsg = localStorage.getItem("djoonoo_pref_msg_ticket");
+    if (prefMsg) {
+      setCustomMsgTicket(prefMsg);
+    }
   }, []);
 
   const dateFormatee = new Date(recu.date_vente).toLocaleDateString("fr-FR", {
@@ -459,7 +468,7 @@ export default function RecuVenteModal({
 
                 {/* Pied de ticket : simple texte, aucun lien */}
                 <div className="text-center text-[10px] text-stone-500 pt-1 space-y-1">
-                  <div>Merci de votre visite et à très bientôt !</div>
+                  <div>{customMsgTicket || "Merci de votre visite et à très bientôt !"}</div>
                   <div className="font-sans font-bold text-stone-400">
                     Propulsé par djoonoo
                   </div>
