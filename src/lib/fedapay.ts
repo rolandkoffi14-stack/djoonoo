@@ -108,25 +108,37 @@ export async function creerTransactionFedaPay(params: InitPaiementParams) {
   }
 
   const txData = await resp.json();
-  const transactionId = txData.v1?.id || txData.id;
+  const transaction = txData["v1/transaction"] || txData.transaction || txData.v1 || txData;
+  const transactionId = transaction?.id || txData.id;
 
-  // 4. Générer le token / lien de paiement
-  const tokenResp = await fetch(`${BASE_URL}/transactions/${transactionId}/token`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${FEDAPAY_SECRET_KEY}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!tokenResp.ok) {
-    const errToken = await tokenResp.text();
-    console.error("Erreur génération token FedaPay :", errToken);
-    throw new Error("Impossible de générer le guichet de paiement.");
+  if (!transactionId) {
+    console.error("Structure inattendue réponse FedaPay :", txData);
+    throw new Error("Impossible de récupérer l'identifiant de la transaction FedaPay.");
   }
 
-  const tokenData = await tokenResp.json();
-  const paymentUrl = tokenData.url;
+  // 4. Récupérer le guichet de paiement :
+  // FedaPay fournit déjà directement 'payment_url' dans la transaction créée
+  let paymentUrl = transaction?.payment_url;
+
+  // Fallback si payment_url n'est pas fourni directement
+  if (!paymentUrl) {
+    const tokenResp = await fetch(`${BASE_URL}/transactions/${transactionId}/token`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${FEDAPAY_SECRET_KEY}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!tokenResp.ok) {
+      const errToken = await tokenResp.text();
+      console.error("Erreur génération token FedaPay :", errToken);
+      throw new Error("Impossible de générer le guichet de paiement.");
+    }
+
+    const tokenData = await tokenResp.json();
+    paymentUrl = tokenData.url;
+  }
 
   // Mise à jour de la référence externe sur la facture
   await prisma.factures_abonnement.update({
