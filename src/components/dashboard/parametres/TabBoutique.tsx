@@ -211,7 +211,7 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                     type="text"
                     value={secteurActivite}
                     onChange={(e) => setSecteurActivite(e.target.value)}
-                    placeholder="Ex: Prêt-à-porter, Alimentation"
+                    placeholder="Secteur d'activité"
                     className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
@@ -230,6 +230,7 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                     required
                     value={ville}
                     onChange={(e) => setVille(e.target.value)}
+                    placeholder="Ville d'implantation"
                     className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
@@ -245,7 +246,7 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                     type="tel"
                     value={telephone}
                     onChange={(e) => setTelephone(e.target.value)}
-                    placeholder="+229 97 00 00 00"
+                    placeholder="Numéro de téléphone de la boutique"
                     className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
@@ -261,7 +262,7 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                 required
                 value={adresse}
                 onChange={(e) => setAdresse(e.target.value)}
-                placeholder="Ex: Face Pharmacie de l'Étoile, Cité Houéyiho"
+                placeholder="Adresse physique ou repères"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>

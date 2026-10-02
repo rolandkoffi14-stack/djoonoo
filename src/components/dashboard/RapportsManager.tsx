@@ -77,7 +77,7 @@ export default function RapportsManager({
   return (
     <div className="space-y-6">
       {/* En-tête principal & filtres */}
-      <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm space-y-5">
+      <div className="bg-white border border-[#E5DACF] rounded-2xl p-6 shadow-xs space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -117,7 +117,7 @@ export default function RapportsManager({
             )}
 
             {/* Sélecteur Période */}
-            <div className="flex items-center gap-1 bg-[#E5DACF]/40 p-1 rounded-xl">
+            <div className="flex items-center gap-1 bg-[#FAF6F1] border border-[#E5DACF]/60 p-1 rounded-xl">
               {[
                 { id: "jour", label: "Aujourd'hui" },
                 { id: "semaine", label: "7 jours" },
@@ -131,7 +131,7 @@ export default function RapportsManager({
                   onClick={() => rechargerRapport(p.id as PeriodeRapport, boutiqueSelectionnee)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     periode === p.id
-                      ? "bg-[#FAF6F1] text-[#2B2119] shadow-xs"
+                      ? "bg-white text-[#2B2119] shadow-xs"
                       : "text-[#6D5D52] hover:text-[#2B2119]"
                   }`}
                 >
@@ -145,7 +145,7 @@ export default function RapportsManager({
         {/* 4 Indicateurs financiers majeurs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-[#E5DACF]">
           {/* Chiffre d'Affaires Net */}
-          <div className="p-4 rounded-xl bg-[#FAF6F1] border border-[#E5DACF] relative overflow-hidden">
+          <div className="p-4 rounded-xl bg-[#FAF6F1]/60 border border-[#E5DACF] relative overflow-hidden">
             <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Chiffre d&apos;Affaires Net</span>
               <Coins className="w-4 h-4 text-[#C1652D]" />
@@ -160,7 +160,7 @@ export default function RapportsManager({
           </div>
 
           {/* Total Encaissé en Caisse */}
-          <div className="p-4 rounded-xl bg-white border border-[#E5DACF] relative overflow-hidden">
+          <div className="p-4 rounded-xl bg-[#FAF6F1]/60 border border-[#E5DACF] relative overflow-hidden">
             <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Total Encaissé</span>
               <Banknote className="w-4 h-4 text-[#C1652D]" />
@@ -177,7 +177,7 @@ export default function RapportsManager({
           </div>
 
           {/* Créances / Impayés */}
-          <div className="p-4 rounded-xl bg-white border border-[#E5DACF] relative overflow-hidden">
+          <div className="p-4 rounded-xl bg-[#FAF6F1]/60 border border-[#E5DACF] relative overflow-hidden">
             <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Créances en cours</span>
               <Clock className="w-4 h-4 text-[#C1652D]" />
@@ -192,7 +192,7 @@ export default function RapportsManager({
           </div>
 
           {/* Panier Moyen & Volumes */}
-          <div className="p-4 rounded-xl bg-white border border-[#E5DACF] relative overflow-hidden">
+          <div className="p-4 rounded-xl bg-[#FAF6F1]/60 border border-[#E5DACF] relative overflow-hidden">
             <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Panier Moyen</span>
               <ShoppingBag className="w-4 h-4 text-[#C1652D]" />
@@ -211,7 +211,7 @@ export default function RapportsManager({
       {/* Grille 2 colonnes : Évolution temporelle & Modes de règlement */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Colonne Gauche (2/3) : Évolution du CA */}
-        <div className="lg:col-span-2 bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="lg:col-span-2 bg-white border border-[#E5DACF] rounded-2xl p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="p-1 rounded-lg bg-[#C1652D]/10 text-[#C1652D]">
@@ -263,7 +263,7 @@ export default function RapportsManager({
         </div>
 
         {/* Colonne Droite (1/3) : Répartition par Mode de Règlement */}
-        <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm space-y-4">
+        <div className="bg-white border border-[#E5DACF] rounded-2xl p-6 shadow-xs space-y-4">
           <div className="flex items-center gap-2">
             <span className="p-1 rounded-lg bg-[#C1652D]/10 text-[#C1652D]">
               <PieChart className="w-4 h-4" />
@@ -323,7 +323,7 @@ export default function RapportsManager({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Performance par boutique (si Patron en vue consolidée) */}
         {userRole === "patron" && (
-          <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="bg-white border border-[#E5DACF] rounded-2xl p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="p-1 rounded-lg bg-[#C1652D]/10 text-[#C1652D]">
@@ -378,7 +378,7 @@ export default function RapportsManager({
 
         {/* Classement des vendeurs */}
         <div
-          className={`bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm space-y-4 ${
+          className={`bg-white border border-[#E5DACF] rounded-2xl p-6 shadow-xs space-y-4 ${
             userRole !== "patron" ? "lg:col-span-2" : ""
           }`}
         >

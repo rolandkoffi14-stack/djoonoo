@@ -118,7 +118,7 @@ export default function TabCaisse() {
                 rows={2}
                 value={messagePied}
                 onChange={(e) => setMessagePied(e.target.value)}
-                placeholder="Ex: Les marchandises vendues ne sont ni reprises ni échangées. Merci !"
+                placeholder="Message personnalisé en pied de ticket..."
                 className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>

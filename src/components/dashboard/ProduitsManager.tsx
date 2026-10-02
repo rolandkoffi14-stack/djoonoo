@@ -573,7 +573,7 @@ export default function ProduitsManager({
                   type="text"
                   name="nom"
                   required
-                  placeholder="Ex : Robe Wax Moderne, Chaussures Cuir 42"
+                  placeholder="Nom ou désignation de l'article"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>
@@ -589,7 +589,7 @@ export default function ProduitsManager({
                   required
                   min={1}
                   step={1}
-                  placeholder="Ex : 5000"
+                  placeholder="Prix unitaire (FCFA)"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono font-bold text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>
@@ -635,7 +635,7 @@ export default function ProduitsManager({
                 <input
                   type="text"
                   name="code_barre"
-                  placeholder="Ex : SKU-B01-0042 ou scanner au lecteur"
+                  placeholder="Code-barres ou référence SKU"
                   className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono font-bold text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>
@@ -847,7 +847,7 @@ export default function ProduitsManager({
                   type="text"
                   name="code_barre"
                   defaultValue={produitAEditer.code_barre || ""}
-                  placeholder="Ex : SKU-B01-0042"
+                  placeholder="Code-barres ou référence SKU"
                   className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-mono font-bold text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>

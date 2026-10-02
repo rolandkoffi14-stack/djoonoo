@@ -539,7 +539,7 @@ export default function ClientsManager({
                   required
                   value={nomInput}
                   onChange={(e) => setNomInput(e.target.value)}
-                  placeholder="Ex : Bio Chabi, Mme Adebayo..."
+                  placeholder="Nom et prénoms du client"
                   className="w-full px-3 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -554,7 +554,7 @@ export default function ClientsManager({
                     required
                     value={telInput}
                     onChange={(e) => setTelInput(e.target.value)}
-                    placeholder="Ex : +229 97 00 11 22"
+                    placeholder="Numéro de téléphone"
                     className="w-full px-3 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                   {isSearchingTel && (

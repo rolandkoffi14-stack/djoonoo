@@ -749,7 +749,7 @@ export default function CaissePOS({
                           </label>
                           <input
                             type="text"
-                            placeholder="Ex: 354892110293847"
+                            placeholder="Numéro IMEI 1"
                             value={ligne.imei1 || ""}
                             onChange={(e) =>
                               modifierImeiLigne(ligne.produit.id, e.target.value, ligne.imei2 || "")
@@ -763,7 +763,7 @@ export default function CaissePOS({
                           </label>
                           <input
                             type="text"
-                            placeholder="Ex: 354892110293848"
+                            placeholder="Numéro IMEI 2"
                             value={ligne.imei2 || ""}
                             onChange={(e) =>
                               modifierImeiLigne(ligne.produit.id, ligne.imei1 || "", e.target.value)
@@ -1167,7 +1167,7 @@ export default function CaissePOS({
                   required
                   value={nouveauClientNom}
                   onChange={(e) => setNouveauClientNom(e.target.value)}
-                  placeholder="Ex : Bio Chabi, Mme Adebayo..."
+                  placeholder="Nom et prénoms du client"
                   className="w-full px-3 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -1181,7 +1181,7 @@ export default function CaissePOS({
                   required
                   value={nouveauClientTel}
                   onChange={(e) => setNouveauClientTel(e.target.value)}
-                  placeholder="Ex : +229 97 00 11 22"
+                  placeholder="Numéro de téléphone"
                   className="w-full px-3 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
                 <p className="text-[11px] text-[#8C7A6B] mt-1">

@@ -19,23 +19,28 @@ export default function HistoriquePaiementsTab({
 }: HistoriquePaiementsTabProps) {
   const [factures, setFactures] = useState<FactureDetailItem[]>(facturesInitiales);
   const [factureSelectionnee, setFactureSelectionnee] = useState<FactureDetailItem | null>(null);
+  const [factureAAnnuler, setFactureAAnnuler] = useState<FactureDetailItem | null>(null);
   const [loadingAnnulerId, setLoadingAnnulerId] = useState<string | null>(null);
+  const [erreurAnnulation, setErreurAnnulation] = useState<string | null>(null);
 
-  const handleAnnuler = async (factureId: string) => {
-    if (!confirm("Souhaites-tu annuler cette tentative de paiement en attente ?")) return;
+  const handleConfirmerAnnulation = async () => {
+    if (!factureAAnnuler) return;
+    const factureId = factureAAnnuler.id;
 
     setLoadingAnnulerId(factureId);
+    setErreurAnnulation(null);
     try {
       const res = await annulerFactureEnAttenteAction(factureId);
       if (res.success) {
         setFactures((prev) =>
           prev.map((f) => (f.id === factureId ? { ...f, statut: "annulee" } : f))
         );
+        setFactureAAnnuler(null);
       } else {
-        alert(res.error || "Impossible d'annuler cette facture.");
+        setErreurAnnulation(res.error || "Impossible d'annuler cette facture.");
       }
     } catch {
-      alert("Erreur lors de l'annulation.");
+      setErreurAnnulation("Une erreur réseau est survenue lors de l'annulation.");
     } finally {
       setLoadingAnnulerId(null);
     }
@@ -138,16 +143,17 @@ export default function HistoriquePaiementsTab({
                           </Link>
 
                           <button
-                            onClick={() => handleAnnuler(fc.id)}
+                            type="button"
+                            onClick={() => {
+                              setErreurAnnulation(null);
+                              setFactureAAnnuler(fc);
+                            }}
                             disabled={loadingAnnulerId === fc.id}
-                            className="p-1.5 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer disabled:opacity-50"
+                            className="px-2.5 py-1.5 border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-lg transition inline-flex items-center gap-1.5 text-xs font-bold cursor-pointer disabled:opacity-50"
                             title="Annuler cette tentative"
                           >
-                            {loadingAnnulerId === fc.id ? (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <XCircle className="w-3.5 h-3.5" />
-                            )}
+                            <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                            <span>Annuler</span>
                           </button>
                         </>
                       )}
@@ -187,6 +193,66 @@ export default function HistoriquePaiementsTab({
           nomEntreprise={nomEntreprise}
           forfaitNom={forfaitNom}
         />
+      )}
+
+      {/* Modale de Confirmation d'Annulation */}
+      {factureAAnnuler && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-white rounded-2xl p-6 border border-[#E5DACF] shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1.5">
+              <h3 className="text-base font-extrabold text-[#2B2119]">
+                Annuler cette tentative de paiement ?
+              </h3>
+              <p className="text-xs text-[#6D5D52] leading-relaxed">
+                Tu es sur le point d&apos;annuler la tentative de règlement de{" "}
+                <span className="font-bold text-[#2B2119]">
+                  {factureAAnnuler.montant.toLocaleString("fr-FR")} FCFA
+                </span>
+                . Cette facture sera classée comme annulée et tu pourras relancer un paiement à tout moment.
+              </p>
+            </div>
+
+            {erreurAnnulation && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium text-center">
+                {erreurAnnulation}
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setFactureAAnnuler(null);
+                  setErreurAnnulation(null);
+                }}
+                disabled={loadingAnnulerId === factureAAnnuler.id}
+                className="flex-1 py-2.5 px-4 rounded-xl border border-[#E5DACF] text-xs font-bold text-[#6D5D52] hover:text-[#2B2119] hover:bg-[#FAF6F1] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Garder en attente
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmerAnnulation}
+                disabled={loadingAnnulerId === factureAAnnuler.id}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors shadow-sm cursor-pointer inline-flex items-center justify-center gap-1.5 disabled:opacity-50"
+              >
+                {loadingAnnulerId === factureAAnnuler.id ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Annulation...</span>
+                  </>
+                ) : (
+                  <span>Confirmer l&apos;annulation</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

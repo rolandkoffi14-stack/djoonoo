@@ -277,7 +277,7 @@ export default function ForfaitsManager({
                 <input
                   type="text"
                   required
-                  placeholder="Ex: Solo, Réseau, Empire..."
+                  placeholder="Nom du forfait"
                   value={nom}
                   onChange={(e) => setNom(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#C1652D]"
@@ -296,6 +296,7 @@ export default function ForfaitsManager({
                   step={500}
                   value={prixMensuel}
                   onChange={(e) => setPrixMensuel(e.target.value)}
+                  placeholder="Prix mensuel (FCFA)"
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:border-[#C1652D]"
                 />
               </div>
@@ -312,7 +313,7 @@ export default function ForfaitsManager({
                   value={dureeJours}
                   onChange={(e) => setDureeJours(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:border-[#C1652D]"
-                  placeholder="30"
+                  placeholder="Durée de validité en jours"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
                   Ex: 30 pour 1 mois, 90 pour 1 trimestre, 365 pour 1 an.

@@ -74,7 +74,7 @@ export default function SuperAdminConnexionPage() {
                   type="email"
                   name="email"
                   required
-                  placeholder="admin@djoonoo.com"
+                  placeholder="Adresse email"
                   defaultValue="admin@djoonoo.com"
                   className="w-full pl-11 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
                 />
@@ -92,7 +92,7 @@ export default function SuperAdminConnexionPage() {
                   type="password"
                   name="mot_de_passe"
                   required
-                  placeholder="••••••••••••"
+                  placeholder="Mot de passe"
                   defaultValue="SuperAdmin2026!"
                   className="w-full pl-11 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
                 />
@@ -116,7 +116,7 @@ export default function SuperAdminConnexionPage() {
                   name="code_2fa"
                   required
                   maxLength={6}
-                  placeholder="Ex: 123456"
+                  placeholder="Code à 6 chiffres"
                   className="w-full pl-11 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-base tracking-widest font-mono text-center text-white placeholder-slate-600 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
                 />
               </div>

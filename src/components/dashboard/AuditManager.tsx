@@ -20,7 +20,6 @@ import {
   Key,
   ChevronRight,
   X,
-  RefreshCw,
   Users,
   Receipt,
 } from "lucide-react";
@@ -219,22 +218,6 @@ export default function AuditManager({
           <p className="text-sm text-[#8C7A6B] mt-1">
             Historique inaltérable de toutes les opérations sensibles réalisées au sein de ton entreprise.
           </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF6F1] border border-[#C1652D]/20 text-[#2B2119] text-xs font-bold">
-            <CheckCircle2 className="w-4 h-4 text-[#C1652D]" />
-            <span>Isolation Multi-Tenant Garantie (Règle 5)</span>
-          </div>
-
-          <button
-            onClick={() => rechargerLogs()}
-            disabled={isPending}
-            className="p-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] hover:bg-[#E5DACF]/50 text-[#6D5D52] hover:text-[#2B2119] transition-colors focus:outline-none"
-            title="Rafraîchir les logs"
-          >
-            <RefreshCw className={`w-4 h-4 ${isPending ? "animate-spin text-[#C1652D]" : ""}`} />
-          </button>
         </div>
       </div>
 

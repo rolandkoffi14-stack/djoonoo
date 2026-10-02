@@ -352,7 +352,7 @@ export default function CheckoutClient({
                       type="tel"
                       value={nouveauTelephone}
                       onChange={(e) => setNouveauTelephone(e.target.value)}
-                      placeholder="+229 97 12 34 56"
+                      placeholder="Numéro de téléphone"
                       className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                     />
                   </div>

@@ -122,7 +122,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 type="text"
                 value={formeJuridique}
                 onChange={(e) => setFormeJuridique(e.target.value)}
-                placeholder="Ex: SARL, Entreprise Individuelle, ETS"
+                placeholder="Forme juridique"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>
@@ -140,7 +140,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                   type="text"
                   value={ifu}
                   onChange={(e) => setIfu(e.target.value)}
-                  placeholder="Ex: 0202012345678"
+                  placeholder="Numéro IFU"
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -156,7 +156,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                   type="text"
                   value={rccm}
                   onChange={(e) => setRccm(e.target.value)}
-                  placeholder="Ex: RB/COT/21 B 12345"
+                  placeholder="Numéro RCCM"
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -176,7 +176,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                   required
                   value={telephonePrincipal}
                   onChange={(e) => setTelephonePrincipal(e.target.value)}
-                  placeholder="+229 97 00 00 00"
+                  placeholder="Numéro de téléphone principal"
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -192,7 +192,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                   type="tel"
                   value={telephoneSecondaire}
                   onChange={(e) => setTelephoneSecondaire(e.target.value)}
-                  placeholder="Optionnel"
+                  placeholder="Numéro de téléphone secondaire"
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -212,7 +212,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                   required
                   value={ville}
                   onChange={(e) => setVille(e.target.value)}
-                  placeholder="Ex: Cotonou"
+                  placeholder="Ville du siège"
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -226,7 +226,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 type="text"
                 value={adresseSiege}
                 onChange={(e) => setAdresseSiege(e.target.value)}
-                placeholder="Ex: Haie Vive, Carré 120"
+                placeholder="Adresse du siège"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>

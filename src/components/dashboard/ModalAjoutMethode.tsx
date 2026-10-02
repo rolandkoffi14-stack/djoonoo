@@ -127,7 +127,7 @@ export default function ModalAjoutMethode({
                 required
                 value={numeroTelephone}
                 onChange={(e) => setNumeroTelephone(e.target.value)}
-                placeholder="+229 97 12 34 56"
+                placeholder="Numéro de téléphone"
                 className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D] focus:border-[#C1652D]"
               />
             </div>
@@ -145,7 +145,7 @@ export default function ModalAjoutMethode({
               type="text"
               value={nomTitulaire}
               onChange={(e) => setNomTitulaire(e.target.value)}
-              placeholder="Ex: Roland Koffi"
+              placeholder="Nom et prénoms du titulaire"
               className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D] focus:border-[#C1652D]"
             />
           </div>

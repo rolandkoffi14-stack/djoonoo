@@ -204,10 +204,10 @@ export default function EquipeManager({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="px-3.5 py-2 rounded-xl bg-[#E5DACF]/40 border border-[#E5DACF] text-xs font-semibold text-[#2B2119] flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full lg:w-auto">
+            <div className="px-3.5 py-2 rounded-xl bg-[#E5DACF]/40 border border-[#E5DACF] text-xs font-semibold text-[#2B2119] flex flex-wrap items-center justify-between sm:justify-start gap-2">
               <span className="text-[#6D5D52]">Plafond Forfait {forfait.nom} :</span>
-              <span className="font-bold text-[#C1652D]">
+              <span className="font-bold text-[#C1652D] whitespace-nowrap">
                 {forfait.max_employes_par_boutique === null
                   ? "Collaborateurs illimités"
                   : `${forfait.max_employes_par_boutique} employé(s) / boutique`}
@@ -215,8 +215,9 @@ export default function EquipeManager({
             </div>
 
             <button
+              type="button"
               onClick={handleOuvrirModal}
-              className="px-4 py-2.5 rounded-xl bg-[#C1652D] text-[#FAF6F1] font-bold text-xs hover:bg-[#a95524] transition-colors flex items-center gap-2 shadow-sm focus:outline-none cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-[#C1652D] text-[#FAF6F1] font-bold text-xs hover:bg-[#a95524] transition-colors flex items-center justify-center gap-2 shadow-sm focus:outline-none cursor-pointer w-full sm:w-auto shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>Inviter un collaborateur</span>
@@ -315,17 +316,17 @@ export default function EquipeManager({
                     {/* Sécurité 2FA */}
                     <td className="py-3.5 px-4">
                       {e.deux_fa_active ? (
-                        <span className="inline-flex items-center gap-1 text-[#2B2119] font-bold text-[11px]">
+                        <span className="inline-flex items-center gap-1.5 text-[#2B2119] font-bold text-[11px]">
                           <ShieldCheck className="w-3.5 h-3.5 text-[#C1652D]" />
                           <span>Sécurisé 2FA</span>
                         </span>
                       ) : estEnAttente && e.role === "gerant" ? (
-                        <span className="inline-flex items-center gap-1 text-[#6D5D52] font-semibold text-[11px]">
-                          <Clock className="w-3.5 h-3.5 text-[#C1652D]" />
+                        <span className="inline-flex items-center gap-1.5 text-[#6D5D52] font-semibold text-[11px]">
+                          <Clock className="w-3.5 h-3.5 text-[#8C7A6B]" />
                           <span>2FA à l&apos;activation</span>
                         </span>
                       ) : e.role === "gerant" ? (
-                        <span className="inline-flex items-center gap-1 text-[#6D5D52] font-medium text-[11px]">
+                        <span className="inline-flex items-center gap-1.5 text-[#6D5D52] font-medium text-[11px]">
                           <KeyRound className="w-3.5 h-3.5 text-[#8C7A6B]" />
                           <span>En attente 2FA</span>
                         </span>
@@ -337,19 +338,19 @@ export default function EquipeManager({
                     {/* Statut compte */}
                     <td className="py-3.5 px-4">
                       {estEnAttente ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FAF6F1] text-[#C1652D] border border-[#C1652D]/30">
-                          <Clock className="w-3 h-3 text-[#C1652D]" />
-                          <span>En attente d&apos;activation</span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-amber-50 text-amber-700 border border-amber-200">
+                          <Clock className="w-3 h-3 text-amber-600" />
+                          <span>EN ATTENTE</span>
                         </span>
                       ) : estActif ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FAF6F1] text-[#2B2119] border border-[#E5DACF]">
-                          <CheckCircle2 className="w-3 h-3 text-[#C1652D]" />
-                          <span>Actif</span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span>ACTIF</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#FAF6F1] text-[#8C7A6B] border border-[#E5DACF]">
-                          <XCircle className="w-3 h-3 text-[#8C7A6B]" />
-                          <span>Inactif</span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-rose-50 text-rose-700 border border-rose-200">
+                          <XCircle className="w-3 h-3 text-rose-600" />
+                          <span>INACTIF</span>
                         </span>
                       )}
                     </td>
@@ -536,7 +537,7 @@ export default function EquipeManager({
                     type="text"
                     name="nom"
                     required
-                    placeholder="Ex : Koffi Mensah"
+                    placeholder="Nom et prénoms"
                     className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                   />
                 </div>
@@ -551,7 +552,7 @@ export default function EquipeManager({
                       type="email"
                       name="email"
                       required
-                      placeholder="collaborateur@gmail.com"
+                      placeholder="Adresse email"
                       className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                     />
                   </div>
@@ -564,7 +565,7 @@ export default function EquipeManager({
                       type="tel"
                       name="telephone"
                       required
-                      placeholder="+229 97 00 00 00"
+                      placeholder="Numéro de téléphone"
                       className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                     />
                   </div>

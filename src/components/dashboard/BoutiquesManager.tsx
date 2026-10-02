@@ -334,7 +334,7 @@ export default function BoutiquesManager({
                   type="text"
                   name="nom"
                   required
-                  placeholder="Ex : Boutique Cadjèhoun, Annexe Akpakpa"
+                  placeholder="Nom de la boutique"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>
@@ -348,7 +348,7 @@ export default function BoutiquesManager({
                     type="text"
                     name="ville"
                     required
-                    placeholder="Ex : Cotonou, Parakou"
+                    placeholder="Ville"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                   />
                 </div>
@@ -360,7 +360,7 @@ export default function BoutiquesManager({
                   <input
                     type="tel"
                     name="telephone"
-                    placeholder="Ex : +229 97 00 00 00"
+                    placeholder="Numéro de téléphone"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                   />
                 </div>
@@ -374,7 +374,7 @@ export default function BoutiquesManager({
                   type="text"
                   name="adresse"
                   required
-                  placeholder="Ex : Rue 108, face Pharmacie des Étoiles"
+                  placeholder="Adresse complète"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>
@@ -387,7 +387,7 @@ export default function BoutiquesManager({
                   type="text"
                   name="secteur_activite"
                   defaultValue="Commerce général"
-                  placeholder="Ex : Mode, Quincaillerie, Cosmétique"
+                  placeholder="Secteur d'activité"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                 />
               </div>
@@ -461,7 +461,7 @@ export default function BoutiquesManager({
                   name="nom"
                   required
                   defaultValue={boutiqueEnEdition.nom}
-                  placeholder="Ex : Boutique Principale - Ganhi"
+                  placeholder="Nom de la boutique"
                   className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -476,7 +476,7 @@ export default function BoutiquesManager({
                     name="ville"
                     required
                     defaultValue={boutiqueEnEdition.ville}
-                    placeholder="Ex : Cotonou"
+                    placeholder="Ville"
                     className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
@@ -489,7 +489,7 @@ export default function BoutiquesManager({
                     type="text"
                     name="secteur_activite"
                     defaultValue={boutiqueEnEdition.secteur_activite}
-                    placeholder="Ex : Téléphonie & Électronique"
+                    placeholder="Secteur d'activité"
                     className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
@@ -504,7 +504,7 @@ export default function BoutiquesManager({
                   name="adresse"
                   required
                   defaultValue={boutiqueEnEdition.adresse}
-                  placeholder="Ex : Rue 402, en face du marché Ganhi"
+                  placeholder="Adresse complète"
                   className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
@@ -517,7 +517,7 @@ export default function BoutiquesManager({
                   type="tel"
                   name="telephone"
                   defaultValue={boutiqueEnEdition.telephone || ""}
-                  placeholder="Ex : +229 97 00 00 00"
+                  placeholder="Numéro de téléphone"
                   className="w-full px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>

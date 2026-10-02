@@ -449,7 +449,7 @@ export default function ComptesManager({
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="Ex: Échéance d'abonnement impayée, anomalie détectée..."
+                  placeholder="Motif de la suspension administrative..."
                   value={motifSuspension}
                   onChange={(e) => setMotifSuspension(e.target.value)}
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#C1652D]"

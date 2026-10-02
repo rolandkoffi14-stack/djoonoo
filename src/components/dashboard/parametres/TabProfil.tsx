@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Mail, Phone, Shield, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { User, Mail, Phone, Shield, Loader2, CheckCircle2, AlertCircle, Lock } from "lucide-react";
 import { modifierProfilAction } from "@/app/actions/parametres";
 
 interface TabProfilProps {
@@ -19,7 +19,6 @@ export default function TabProfil({
 }: TabProfilProps) {
   const [nom, setNom] = useState(initialNom);
   const [telephone, setTelephone] = useState(initialTelephone);
-  const [email, setEmail] = useState(initialEmail);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -33,7 +32,6 @@ export default function TabProfil({
     const formData = new FormData();
     formData.append("nom", nom);
     formData.append("telephone", telephone);
-    formData.append("email", email);
 
     try {
       const res = await modifierProfilAction(formData);
@@ -105,7 +103,8 @@ export default function TabProfil({
                 required
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                placeholder="Nom et prénoms"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>
           </div>
@@ -121,31 +120,36 @@ export default function TabProfil({
                 required
                 value={telephone}
                 onChange={(e) => setTelephone(e.target.value)}
-                placeholder="+229 97 00 00 00"
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                placeholder="Numéro de téléphone"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#2B2119] mb-1.5 uppercase tracking-wider">
-              Adresse email (Identifiant de connexion)
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-[#2B2119] uppercase tracking-wider">
+                Adresse email (Identifiant de connexion)
+              </label>
+              <span className="text-[11px] font-semibold text-[#8C7A6B] inline-flex items-center gap-1">
+                <Lock className="w-3 h-3 text-[#8C7A6B]" />
+                Non modifiable
+              </span>
+            </div>
             <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
               <input
                 type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                readOnly
+                disabled
+                value={initialEmail}
+                placeholder="Adresse email"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1]/70 text-[#6D5D52] text-sm cursor-not-allowed select-none"
               />
             </div>
-            {role === "patron" && (
-              <p className="text-[11px] text-neutral-400 mt-1">
-                En tant que Patron, cet email sert également d'adresse de contact principale de l'entreprise.
-              </p>
-            )}
+            <p className="text-[11px] text-[#8C7A6B] mt-1.5">
+              L&apos;adresse email constitue ton identifiant unique et inaltérable de connexion au SaaS djoonoo.
+            </p>
           </div>
 
           <div className="pt-2">

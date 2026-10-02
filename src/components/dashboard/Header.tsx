@@ -81,8 +81,7 @@ export default function Header({
             <span>Essai gratuit ({joursEssaiRestants}j restants)</span>
           </div>
         ) : statutAbonnement === "actif" ? (
-          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-            <Sparkles className="w-3.5 h-3.5 text-green-600" />
+          <div className="hidden sm:inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
             <span>Abonnement Actif</span>
           </div>
         ) : (

@@ -23,7 +23,6 @@ export async function modifierProfilAction(formData: FormData): Promise<ActionRe
 
   const nom = (formData.get("nom") as string)?.trim();
   const telephone = (formData.get("telephone") as string)?.trim();
-  const email = (formData.get("email") as string)?.trim().toLowerCase();
 
   if (!nom || nom.length < 2) {
     return { success: false, error: "Le nom doit comporter au moins 2 caractères." };
@@ -33,41 +32,14 @@ export async function modifierProfilAction(formData: FormData): Promise<ActionRe
     return { success: false, error: "Numéro de téléphone invalide." };
   }
 
-  if (!email || !email.includes("@")) {
-    return { success: false, error: "Adresse email invalide." };
-  }
-
-  // Vérifier si un autre utilisateur utilise déjà cet email
-  const emailExistant = await prisma.utilisateurs.findFirst({
-    where: {
-      email,
-      NOT: { id: session.userId },
-    },
-  });
-
-  if (emailExistant) {
-    return { success: false, error: "Cet email est déjà utilisé par un autre compte." };
-  }
-
-  // Mise à jour de l'utilisateur
+  // Mise à jour de l'utilisateur (nom et téléphone uniquement, email non modifiable)
   await prisma.utilisateurs.update({
     where: { id: session.userId },
     data: {
       nom,
       telephone,
-      email,
     },
   });
-
-  // Si l'utilisateur est le Patron, synchroniser avec comptes.email_principal (décision C10)
-  if (session.role === "patron") {
-    await prisma.comptes.update({
-      where: { id: session.compteId },
-      data: {
-        email_principal: email,
-      },
-    });
-  }
 
   revalidatePath("/dashboard/parametres");
   return { success: true, message: "Profil mis à jour avec succès." };

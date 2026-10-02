@@ -275,7 +275,7 @@ export default function InvitationActivationPage() {
                         minLength={8}
                         value={motDePasse}
                         onChange={(e) => setMotDePasse(e.target.value)}
-                        placeholder="Au moins 8 caractères"
+                        placeholder="Nouveau mot de passe"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                       />
                       <button
@@ -325,7 +325,7 @@ export default function InvitationActivationPage() {
                       required
                       value={confirmationMdp}
                       onChange={(e) => setConfirmationMdp(e.target.value)}
-                      placeholder="Répétez votre mot de passe"
+                      placeholder="Confirmation du mot de passe"
                       className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-medium text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                     />
                   </div>
@@ -389,7 +389,7 @@ export default function InvitationActivationPage() {
                         maxLength={6}
                         value={codeTotp}
                         onChange={(e) => setCodeTotp(e.target.value.replace(/\D/g, ""))}
-                        placeholder="Ex : 123456"
+                        placeholder="Code à 6 chiffres"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm font-mono font-bold tracking-widest text-center text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                       />
                     </div>

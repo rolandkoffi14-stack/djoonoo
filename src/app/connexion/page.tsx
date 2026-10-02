@@ -141,7 +141,7 @@ export default function ConnexionPage() {
                         type="email"
                         required
                         autoFocus
-                        placeholder="Votre email"
+                        placeholder="Adresse email"
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                       />
                     </div>
@@ -241,7 +241,7 @@ export default function ConnexionPage() {
                       autoFocus
                       value={totpCode}
                       onChange={(e) => setTotpCode(e.target.value.replace(/[^0-9]/g, ""))}
-                      placeholder="000000"
+                      placeholder="Code à 6 chiffres"
                       className="w-full text-center tracking-[0.5em] font-mono font-extrabold text-2xl py-3 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                     />
                   </div>

@@ -197,7 +197,7 @@ export default function InscriptionPage() {
                       name="nom_entreprise"
                       type="text"
                       required
-                      placeholder="Raison sociale ou nom boutique"
+                      placeholder="Nom ou raison sociale"
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                     />
                   </div>
@@ -218,7 +218,7 @@ export default function InscriptionPage() {
                         name="nom"
                         type="text"
                         required
-                        placeholder="Nom et prénom"
+                        placeholder="Nom et prénoms"
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                       />
                     </div>
@@ -258,7 +258,7 @@ export default function InscriptionPage() {
                       name="email"
                       type="email"
                       required
-                      placeholder="Votre email"
+                      placeholder="Adresse email"
                       className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                     />
                   </div>
@@ -325,7 +325,7 @@ export default function InscriptionPage() {
                     <input
                       name="secteur_activite"
                       type="text"
-                      placeholder="Activité"
+                      placeholder="Secteur d'activité"
                       className="w-full px-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                     />
                   </div>
@@ -510,7 +510,7 @@ export default function InscriptionPage() {
                     autoFocus
                     value={totpCode}
                     onChange={(e) => setTotpCode(e.target.value.replace(/[^0-9]/g, ""))}
-                    placeholder="123456"
+                    placeholder="Code à 6 chiffres"
                     className="w-full text-center tracking-[0.5em] font-mono font-extrabold text-2xl py-3 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                   />
                 </div>

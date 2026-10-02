@@ -50,6 +50,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showModalDeconnexion, setShowModalDeconnexion] = useState(false);
 
   // Éléments de navigation conditionnés par le rôle (Section 2)
   const getNavItems = (): NavItem[] => {
@@ -196,15 +197,14 @@ export default function Sidebar({
             <div className="text-xs text-[#8C7A6B] truncate">{userEmail}</div>
           </div>
 
-          <form action={deconnexionAction}>
-            <button
-              type="submit"
-              title="Se déconnecter"
-              className="p-2 rounded-xl border border-[#E5DACF] hover:bg-[#E5DACF]/60 text-[#8C7A6B] hover:text-[#2B2119] transition-colors focus:outline-none"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </form>
+          <button
+            type="button"
+            onClick={() => setShowModalDeconnexion(true)}
+            title="Se déconnecter"
+            className="p-2 rounded-xl border border-[#E5DACF] hover:bg-[#E5DACF]/60 text-[#8C7A6B] hover:text-[#2B2119] transition-colors focus:outline-none cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
@@ -240,6 +240,45 @@ export default function Sidebar({
       <aside className="hidden md:block w-64 h-screen sticky top-0 flex-shrink-0 z-20">
         {sidebarContent}
       </aside>
+
+      {/* Modale de Confirmation de Déconnexion */}
+      {showModalDeconnexion && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-sm bg-white rounded-2xl p-6 border border-[#E5DACF] shadow-2xl text-center space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="w-12 h-12 rounded-2xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center mx-auto">
+              <LogOut className="w-6 h-6" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base font-extrabold text-[#2B2119]">
+                Confirmer la déconnexion
+              </h3>
+              <p className="text-xs text-[#6D5D52] leading-relaxed">
+                Souhaites-tu vraiment te déconnecter de ton espace djoonoo ?
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowModalDeconnexion(false)}
+                className="flex-1 py-2.5 px-4 rounded-xl border border-[#E5DACF] text-xs font-bold text-[#6D5D52] hover:text-[#2B2119] hover:bg-[#FAF6F1] transition-colors cursor-pointer"
+              >
+                Annuler
+              </button>
+
+              <form action={deconnexionAction} className="flex-1">
+                <button
+                  type="submit"
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#C1652D] hover:bg-[#a95524] text-[#FAF6F1] text-xs font-bold transition-colors shadow-sm cursor-pointer"
+                >
+                  Se déconnecter
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
