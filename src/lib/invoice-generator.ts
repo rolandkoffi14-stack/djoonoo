@@ -26,6 +26,21 @@ export interface FactureAbonnementData {
   };
 }
 
+export function escapeHtml(val: string | number | null | undefined): string {
+  if (val === null || val === undefined) return "";
+  const str = String(val);
+  return str.replace(/[&<>"']/g, (m) => {
+    switch (m) {
+      case "&": return "&amp;";
+      case "<": return "&lt;";
+      case ">": return "&gt;";
+      case '"': return "&quot;";
+      case "'": return "&#39;";
+      default: return m;
+    }
+  });
+}
+
 export function genererHtmlFactureAbonnement(data: FactureAbonnementData): string {
   const estPayee = data.statut === "payee";
 
@@ -33,7 +48,7 @@ export function genererHtmlFactureAbonnement(data: FactureAbonnementData): strin
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Facture djoonoo - ${data.numeroFacture}</title>
+  <title>Facture djoonoo - ${escapeHtml(data.numeroFacture)}</title>
   <style>
     @page { size: A4; margin: 15mm; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -119,9 +134,9 @@ export function genererHtmlFactureAbonnement(data: FactureAbonnementData): strin
 
       <div class="invoice-details">
         <div class="invoice-title">FACTURE</div>
-        <div class="invoice-number">${data.numeroFacture}</div>
-        <div class="meta-line">Date d'émission : ${data.dateEmission}</div>
-        ${data.datePaiement ? `<div class="meta-line">Date de paiement : ${data.datePaiement}</div>` : ""}
+        <div class="invoice-number">${escapeHtml(data.numeroFacture)}</div>
+        <div class="meta-line">Date d'émission : ${escapeHtml(data.dateEmission)}</div>
+        ${data.datePaiement ? `<div class="meta-line">Date de paiement : ${escapeHtml(data.datePaiement)}</div>` : ""}
         <div>
           <span class="status-badge ${estPayee ? "status-paid" : "status-pending"}">
             ${estPayee ? "ACQUITTÉE" : "EN ATTENTE"}
@@ -133,23 +148,23 @@ export function genererHtmlFactureAbonnement(data: FactureAbonnementData): strin
     <div class="addresses">
       <div class="addr-card">
         <div class="addr-title">Facturé à l'entreprise</div>
-        <div class="addr-name">${data.client.nomEntreprise}</div>
+        <div class="addr-name">${escapeHtml(data.client.nomEntreprise)}</div>
         <div class="addr-details">
-          ${data.client.ville}, République du Bénin<br>
-          ${data.client.adresse ? `${data.client.adresse}<br>` : ""}
-          Téléphone : ${data.client.telephone}<br>
-          E-mail : ${data.client.email}
-          ${data.client.ifu ? `<br>IFU : ${data.client.ifu}` : ""}
+          ${escapeHtml(data.client.ville)}, République du Bénin<br>
+          ${data.client.adresse ? `${escapeHtml(data.client.adresse)}<br>` : ""}
+          Téléphone : ${escapeHtml(data.client.telephone)}<br>
+          E-mail : ${escapeHtml(data.client.email)}
+          ${data.client.ifu ? `<br>IFU : ${escapeHtml(data.client.ifu)}` : ""}
         </div>
       </div>
 
       <div class="addr-card">
         <div class="addr-title">Détails de l'abonnement</div>
-        <div class="addr-name">Formule ${data.forfaitNom}</div>
+        <div class="addr-name">Formule ${escapeHtml(data.forfaitNom)}</div>
         <div class="addr-details">
           Période de validité : ${data.dureeJours} jours<br>
           Passerelle : FedaPay (Bénin)<br>
-          ${data.referenceFedaPay ? `Réf. Transaction : ${data.referenceFedaPay}` : ""}
+          ${data.referenceFedaPay ? `Réf. Transaction : ${escapeHtml(data.referenceFedaPay)}` : ""}
         </div>
       </div>
     </div>
@@ -165,7 +180,7 @@ export function genererHtmlFactureAbonnement(data: FactureAbonnementData): strin
       <tbody>
         <tr>
           <td>
-            <div class="item-desc">Abonnement djoonoo — Forfait ${data.forfaitNom}</div>
+            <div class="item-desc">Abonnement djoonoo — Forfait ${escapeHtml(data.forfaitNom)}</div>
             <div class="item-sub">Accès complet à la plateforme SaaS djoonoo (Caisse POS, Ventes, Stocks, Multi-boutiques)</div>
           </td>
           <td>${data.dureeJours} jours</td>

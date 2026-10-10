@@ -6,7 +6,6 @@ import {
   generateTotpSecret,
   generateTotpQrCode,
   verifyTotpCode,
-  generateTotpCode,
   setSessionCookie,
   clearSessionCookie,
   getCurrentSession,
@@ -22,6 +21,7 @@ import { redirect } from "next/navigation";
 import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
 import { formatSafeError } from "@/lib/safe-action";
 import { siteConfig } from "@/config/site";
+import { AuthLoginSchema, Auth2FASchema } from "@/lib/validations";
 
 // Stockage temporaire en mémoire pour l'étape d'activation 2FA lors de l'inscription
 const pendingRegistrations = new Map<
@@ -280,7 +280,10 @@ export async function inscrirePatronAction(
     console.error("Erreur création compte en base de données :", dbError);
     return {
       success: false,
-      error: "Erreur lors de la création du compte : " + (dbError.message || "Impossible de contacter la base de données."),
+      error: formatSafeError(
+        dbError,
+        "Une erreur est survenue lors de la création du compte. Vérifie tes informations et réessaie."
+      ),
     };
   }
 
@@ -296,12 +299,6 @@ export async function inscrirePatronAction(
     totpSecret,
     statutAbonnement: "essai",
   });
-
-  const codeTotpActuel = generateTotpCode(totpSecret);
-  console.log(`\n==================================================`);
-  console.log(`🔐 [2FA djoonoo] Inscription de ${email}`);
-  console.log(`👉 CODE 2FA TOTP (tolérance 5 minutes) : ${codeTotpActuel}`);
-  console.log(`==================================================\n`);
 
   return {
     success: true,
@@ -324,6 +321,24 @@ export async function validerDeuxFaInscriptionAction(
   userId: string,
   code: string
 ): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
+  // 1. Validation déclarative stricte du code 2FA (Zod)
+  const validation2FA = Auth2FASchema.safeParse({ code });
+  if (!validation2FA.success) {
+    return {
+      success: false,
+      error: validation2FA.error.issues[0]?.message || "Le code 2FA doit comporter exactement 6 chiffres.",
+    };
+  }
+
+  // 2. Limitation de débit : 5 tentatives par tranche de 5 minutes (CWE-307)
+  const rateLimit = checkRateLimit(`totp-signup:${userId}`, 5, 300);
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: `Trop de tentatives de validation 2FA. Veuillez patienter ${rateLimit.resetInSeconds} secondes avant de réessayer.`,
+    };
+  }
+
   let pending = pendingRegistrations.get(userId);
   if (!pending) {
     // Fallback résilient en base de données si le serveur dev Next.js a redémarré
@@ -412,8 +427,10 @@ export async function connexionAction(
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const motDePasse = formData.get("mot_de_passe") as string;
 
-  if (!email || !motDePasse) {
-    return { error: "Indique ton adresse email et ton mot de passe." };
+  // 1. Validation déclarative stricte (Zod)
+  const validation = AuthLoginSchema.safeParse({ email, mot_de_passe: motDePasse });
+  if (!validation.success) {
+    return { error: validation.error.issues[0]?.message || "Indique une adresse email valide et ton mot de passe." };
   }
 
   // Rate Limiting : 5 tentatives par minute par email (CWE-307)
@@ -468,13 +485,6 @@ export async function connexionAction(
 
     // 2FA obligatoire pour Patron et Gérant (Section 2 & 7)
     if (user.role === "patron" || user.role === "gerant" || user.deux_fa_active) {
-      if (user.deux_fa_secret) {
-        const codeTotpConnexion = generateTotpCode(user.deux_fa_secret);
-        console.log(`\n==================================================`);
-        console.log(`🔐 [2FA djoonoo] Connexion de ${user.nom} (${user.email})`);
-        console.log(`👉 CODE 2FA TOTP (tolérance 5 minutes) : ${codeTotpConnexion}`);
-        console.log(`==================================================\n`);
-      }
       return {
         success: true,
         require2FA: true,
@@ -511,6 +521,15 @@ export async function validerDeuxFaConnexionAction(
   userId: string,
   code: string
 ): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
+  // 1. Validation déclarative du format code 2FA (Zod)
+  const validation2FA = Auth2FASchema.safeParse({ code });
+  if (!validation2FA.success) {
+    return {
+      success: false,
+      error: validation2FA.error.issues[0]?.message || "Le code 2FA doit comporter exactement 6 chiffres.",
+    };
+  }
+
   // Rate Limiting : 5 tentatives par tranche de 5 minutes par utilisateur (CWE-307)
   const rateLimit = checkRateLimit(`totp:${userId}`, 5, 300);
   if (!rateLimit.allowed) {

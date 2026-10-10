@@ -6,6 +6,7 @@ import { creerTransactionFedaPay } from "@/lib/fedapay";
 import { ajouterMethodePaiementInterne } from "./payment-methods";
 import { formatSafeError } from "@/lib/safe-action";
 import { siteConfig } from "@/config/site";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export interface InitierPaiementParams {
   forfaitId: string;
@@ -20,6 +21,14 @@ export async function initierPaiementAbonnementAction(
   const session = await getCurrentSession();
   if (!session || session.role !== "patron") {
     return { success: false, error: "Action réservée au Patron du compte." };
+  }
+
+  const rateLimit = checkRateLimit(`fedapay:tx:${session.compteId}`, 5, 300);
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: `Trop d'initiations de paiement en cours. Veuillez patienter ${rateLimit.resetInSeconds} secondes avant de réessayer.`,
+    };
   }
 
   const params: InitierPaiementParams =

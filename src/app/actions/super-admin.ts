@@ -15,6 +15,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { StatutAbonnement, StatutFactureAbonnement } from "@prisma/client";
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
 
 /**
  * Connexion Super-Admin avec 2FA TOTP obligatoire (Section 2 & 6)
@@ -30,6 +31,14 @@ export async function connexionSuperAdminAction(
 
     if (!email || !motDePasse) {
       return { success: false, error: "Identifiant et mot de passe requis." };
+    }
+
+    const rateLimit = checkRateLimit(`sa:login:${email}`, 5, 300);
+    if (!rateLimit.allowed) {
+      return {
+        success: false,
+        error: `Trop de tentatives de connexion Super-Admin. Réessayez dans ${rateLimit.resetInSeconds} secondes.`,
+      };
     }
 
     const admin = await prisma.super_admins.findUnique({
@@ -92,6 +101,8 @@ export async function connexionSuperAdminAction(
         details: { email: admin.email, ip: "interne" },
       },
     });
+
+    resetRateLimit(`sa:login:${email}`);
 
     return { success: true };
   } catch (error) {

@@ -6,6 +6,7 @@ import { genererCodeBoutique, enregistrerAudit } from "@/lib/business-rules";
 import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
 import { StatutBoutique } from "@prisma/client";
+import { BoutiqueInputSchema } from "@/lib/validations";
 
 export interface BoutiqueActionResult {
   success: boolean;
@@ -41,14 +42,26 @@ export async function creerBoutiqueAction(
     return { success: false, error: "Action non autorisée. Seul le Patron peut créer une boutique." };
   }
 
-  const nom = (formData.get("nom") as string)?.trim();
-  const ville = (formData.get("ville") as string)?.trim();
-  const adresse = (formData.get("adresse") as string)?.trim();
+  const nom = (formData.get("nom") as string)?.trim() || "";
+  const ville = (formData.get("ville") as string)?.trim() || "";
+  const adresse = (formData.get("adresse") as string)?.trim() || "";
   const secteurActivite = (formData.get("secteur_activite") as string)?.trim() || "Commerce général";
-  const telephone = (formData.get("telephone") as string)?.trim() || null;
+  const telephoneRaw = (formData.get("telephone") as string)?.trim();
+  const telephone = telephoneRaw && telephoneRaw.length > 0 ? telephoneRaw : undefined;
 
-  if (!nom || !ville || !adresse) {
-    return { success: false, error: "Indique le nom, la ville et l'adresse de la boutique." };
+  const parseResult = BoutiqueInputSchema.safeParse({
+    nom,
+    ville,
+    adresse,
+    secteur_activite: secteurActivite,
+    telephone,
+  });
+
+  if (!parseResult.success) {
+    return {
+      success: false,
+      error: parseResult.error.issues[0]?.message || "Indique le nom, la ville et l'adresse de la boutique.",
+    };
   }
 
   try {
@@ -210,14 +223,26 @@ export async function modifierBoutiqueAction(
     return { success: false, error: guard.erreur };
   }
 
-  const nom = payload.nom.trim();
-  const ville = payload.ville.trim();
-  const adresse = payload.adresse.trim();
+  const nom = payload.nom?.trim() || "";
+  const ville = payload.ville?.trim() || "";
+  const adresse = payload.adresse?.trim() || "";
   const secteurActivite = payload.secteur_activite?.trim() || "Commerce général";
-  const telephone = payload.telephone?.trim() || null;
+  const telephoneRaw = payload.telephone?.trim();
+  const telephone = telephoneRaw && telephoneRaw.length > 0 ? telephoneRaw : undefined;
 
-  if (!nom || !ville || !adresse) {
-    return { success: false, error: "Le nom, la ville et l'adresse sont obligatoires." };
+  const parseResult = BoutiqueInputSchema.safeParse({
+    nom,
+    ville,
+    adresse,
+    secteur_activite: secteurActivite,
+    telephone,
+  });
+
+  if (!parseResult.success) {
+    return {
+      success: false,
+      error: parseResult.error.issues[0]?.message || "Le nom, la ville et l'adresse sont obligatoires.",
+    };
   }
 
   try {

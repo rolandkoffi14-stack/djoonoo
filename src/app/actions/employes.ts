@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { RoleUtilisateur, StatutUtilisateur } from "@prisma/client";
 import { envoyerEmailInvitation } from "@/lib/email";
 import { siteConfig } from "@/config/site";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export interface EmployeActionResult {
   success: boolean;
@@ -233,6 +234,14 @@ export async function renvoyerInvitationAction(
 
   if (session.role !== "patron" && session.role !== "gerant") {
     return { success: false, error: "Action non autorisée." };
+  }
+
+  const rateLimit = checkRateLimit(`email:invite:${utilisateurId}`, 3, 300);
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: `Un email d'invitation a déjà été envoyé récemment. Veuillez patienter ${rateLimit.resetInSeconds} secondes avant de renvoyer.`,
+    };
   }
 
   try {
