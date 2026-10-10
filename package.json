@@ -45,6 +45,9 @@
     "seed": "tsx prisma/seed.ts"
   },
   "overrides": {
-    "axios": "^1.7.9"
+    "axios": "^1.7.9",
+    "braces": "^3.0.3",
+    "micromatch": "^4.0.8",
+    "deepmerge-ts": "^8.0.0"
   }
 }

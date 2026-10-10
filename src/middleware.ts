@@ -1,19 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Middleware central de sécurité Next.js (Phase 2 - Items 3.1 & 3.2 de l'audit)
- * Applique une politique de contrôle d'accès stricte (Refus par défaut).
+ * Liste blanche explicite des routes publiques accessibles sans session (Default-Deny).
+ * Tout chemin absent de cette liste blanche ou de ses préfixes autorisés exige une session active.
+ */
+const EXACT_PUBLIC_PATHS = new Set([
+  "/",
+  "/tarifs",
+  "/connexion",
+  "/inscription",
+  "/cgu",
+  "/confidentialite",
+  "/super-admin/connexion",
+  "/super-admin/initialisation",
+  "/api/webhooks/fedapay",
+  "/api/cron/abonnements",
+  "/favicon.ico",
+  "/robots.txt",
+  "/sitemap.xml",
+]);
+
+function estRoutePublique(pathname: string): boolean {
+  if (EXACT_PUBLIC_PATHS.has(pathname)) {
+    return true;
+  }
+
+  // Préfixes publics dynamiques ou assets
+  if (
+    pathname.startsWith("/invitation/") ||
+    pathname.startsWith("/brand/") ||
+    pathname.startsWith("/_next/")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Middleware central de sécurité Next.js (Default-Deny — Item 3.2 de l'audit)
+ * Applique une politique de contrôle d'accès stricte en refus par défaut.
  */
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // 1. Protection de la console Super-Admin
-  if (pathname.startsWith("/super-admin")) {
-    // Les pages publiques sous /super-admin sont la connexion et l'initialisation initiale
-    if (pathname === "/super-admin/connexion" || pathname === "/super-admin/initialisation") {
-      return NextResponse.next();
-    }
+  // 1. Autoriser immédiatement si la route figure sur la liste blanche publique
+  if (estRoutePublique(pathname)) {
+    return NextResponse.next();
+  }
 
+  // 2. Gestion du périmètre Super-Admin privé
+  if (pathname.startsWith("/super-admin")) {
     const superAdminCookie = req.cookies.get("djoonoo_superadmin_session")?.value;
     if (!superAdminCookie) {
       const loginUrl = new URL("/super-admin/connexion", req.url);
@@ -22,24 +59,22 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Protection du Dashboard Commerçant et de l'Abonnement
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/abonnement")) {
-    const sessionCookie = req.cookies.get("djoonoo_session")?.value;
-    if (!sessionCookie) {
-      const loginUrl = new URL("/connexion", req.url);
-      return NextResponse.redirect(loginUrl);
-    }
-    return NextResponse.next();
-  }
-
-  // 3. Protection des routes API privées
-  if (pathname.startsWith("/api/factures-abonnement") || pathname === "/api/auth/session") {
+  // 3. Gestion des routes API privées (retour JSON 401 au lieu d'une redirection HTML)
+  if (pathname.startsWith("/api/")) {
     const sessionCookie = req.cookies.get("djoonoo_session")?.value;
     const superAdminCookie = req.cookies.get("djoonoo_superadmin_session")?.value;
 
     if (!sessionCookie && !superAdminCookie) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
+    return NextResponse.next();
+  }
+
+  // 4. TOUTES LES AUTRES ROUTES (Default-Deny) : Exigent le cookie djoonoo_session commerçant
+  const sessionCookie = req.cookies.get("djoonoo_session")?.value;
+  if (!sessionCookie) {
+    const loginUrl = new URL("/connexion", req.url);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
@@ -50,14 +85,6 @@ export function middleware(req: NextRequest) {
  */
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - brand (assets graphiques)
-     * - public files with extensions (.svg, .png, .jpg, etc.)
-     */
     "/((?!_next/static|_next/image|favicon.ico|brand|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

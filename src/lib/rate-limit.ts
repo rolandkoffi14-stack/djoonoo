@@ -1,7 +1,11 @@
 /**
- * Service de limitation de débit (Rate Limiting) côté serveur (Section 6 de l'audit)
+ * Service de limitation de débit (Rate Limiting) adaptatif et multi-noeuds (Section 6 de l'audit)
  * Prévient les attaques par force brute, le bourrage d'identifiants (CWE-307)
  * et les dénis de service applicatifs (CWE-770).
+ *
+ * Supporte :
+ * - Mode In-Memory local (Zero-Config, haute performance, nettoyage automatique)
+ * - Mode Distribué Redis / Upstash (si UPSTASH_REDIS_REST_URL ou REDIS_URL configuré)
  */
 
 interface RateLimitRecord {
@@ -9,7 +13,7 @@ interface RateLimitRecord {
   expiresAt: number;
 }
 
-const rateLimitStore = new Map<string, RateLimitRecord>();
+const inMemoryStore = new Map<string, RateLimitRecord>();
 
 // Nettoyage régulier pour éviter les fuites mémoire
 let lastCleanup = Date.now();
@@ -20,9 +24,9 @@ function cleanupExpired() {
   if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
 
   lastCleanup = now;
-  for (const [key, record] of rateLimitStore.entries()) {
+  for (const [key, record] of inMemoryStore.entries()) {
     if (now >= record.expiresAt) {
-      rateLimitStore.delete(key);
+      inMemoryStore.delete(key);
     }
   }
 }
@@ -34,7 +38,17 @@ export interface RateLimitResult {
 }
 
 /**
- * Vérifie et incrémente le compteur de requêtes pour une clé donnée.
+ * Détecte le mode de stockage actif pour le Rate Limiting
+ */
+export function getRateLimitStorageType(): "memory" | "redis" {
+  if (process.env.UPSTASH_REDIS_REST_URL || process.env.REDIS_URL) {
+    return "redis";
+  }
+  return "memory";
+}
+
+/**
+ * Vérification synchrone en mémoire (mode par défaut haute performance)
  *
  * @param key Identifiant de limitation (ex: `login:ip`, `totp:userId`, `pdf:compteId`)
  * @param limit Nombre maximal de requêtes autorisées sur la période
@@ -49,11 +63,11 @@ export function checkRateLimit(
 
   const now = Date.now();
   const windowMs = windowSeconds * 1000;
-  const record = rateLimitStore.get(key);
+  const record = inMemoryStore.get(key);
 
   if (!record || now >= record.expiresAt) {
     // Nouvelle fenêtre
-    rateLimitStore.set(key, {
+    inMemoryStore.set(key, {
       count: 1,
       expiresAt: now + windowMs,
     });
@@ -85,8 +99,58 @@ export function checkRateLimit(
 }
 
 /**
- * Réinitialise manuellement le quota pour une clé (ex: après un login réussi)
+ * Vérification asynchrone pour architectures distribuées (Multi-conteneurs / Cluster)
+ * Si Redis est configuré, interroge le magasin distribué. Sinon, se replie sur la mémoire locale.
+ */
+export async function checkRateLimitDistributed(
+  key: string,
+  limit: number,
+  windowSeconds: number
+): Promise<RateLimitResult> {
+  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (upstashUrl && upstashToken) {
+    try {
+      // Script INCR + EXPIRE standard via Upstash REST API
+      const res = await fetch(`${upstashUrl}/pipeline`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${upstashToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify([
+          ["INCR", `rl:${key}`],
+          ["EXPIRE", `rl:${key}`, windowSeconds, "NX"],
+          ["TTL", `rl:${key}`],
+        ]),
+        cache: "no-store",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const currentCount = Number(data[0]?.result) || 1;
+        const ttl = Number(data[2]?.result) || windowSeconds;
+
+        const allowed = currentCount <= limit;
+        return {
+          allowed,
+          remaining: Math.max(0, limit - currentCount),
+          resetInSeconds: ttl > 0 ? ttl : windowSeconds,
+        };
+      }
+    } catch (err) {
+      console.warn("⚠️ [RateLimit] Échec Redis distant, repli transparent sur la mémoire :", err);
+    }
+  }
+
+  // Repli automatique in-memory
+  return checkRateLimit(key, limit, windowSeconds);
+}
+
+/**
+ * Réinitialise le quota pour une clé (ex: après un login réussi)
  */
 export function resetRateLimit(key: string): void {
-  rateLimitStore.delete(key);
+  inMemoryStore.delete(key);
 }
