@@ -73,6 +73,28 @@ export default function InscriptionClient({
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    const nomPatron = (formData.get("nom_patron") || formData.get("nom")) as string;
+    const telPatron = (formData.get("telephone_patron") || formData.get("telephone")) as string;
+    const mdp = formData.get("mot_de_passe") as string;
+    const mdpConf = formData.get("mot_de_passe_confirmation") as string;
+
+    if (mdp && mdpConf && mdp !== mdpConf) {
+      setErrorMsg("Les mots de passe saisis ne correspondent pas.");
+      setFieldErrors({ mot_de_passe_confirmation: "Les mots de passe ne correspondent pas." });
+      setLoading(false);
+      return;
+    }
+
+    // Assure la présence des deux clés pour compatibilité ascendante
+    if (nomPatron) {
+      formData.set("nom", nomPatron);
+      formData.set("nom_patron", nomPatron);
+    }
+    if (telPatron) {
+      formData.set("telephone", telPatron);
+      formData.set("telephone_patron", telPatron);
+    }
+
     try {
       const res: InscriptionState = await inscrirePatronAction(null, formData);
 
@@ -87,7 +109,12 @@ export default function InscriptionClient({
         });
         setStep("deux_fa");
       } else {
-        setErrorMsg(res.error || "Une erreur est survenue lors de l'inscription.");
+        const errorText =
+          res.error ||
+          (res.fieldErrors && Object.keys(res.fieldErrors).length > 0
+            ? Object.values(res.fieldErrors)[0]
+            : "Une erreur est survenue lors de l'inscription.");
+        setErrorMsg(errorText);
         if (res.fieldErrors) {
           setFieldErrors(res.fieldErrors);
         }
@@ -265,6 +292,9 @@ export default function InscriptionClient({
                             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                           />
                         </div>
+                        {fieldErrors.ville && (
+                          <p className="text-xs text-rose-600 mt-1">{fieldErrors.ville}</p>
+                        )}
                       </div>
 
                       <div>
@@ -305,6 +335,9 @@ export default function InscriptionClient({
                           className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                         />
                       </div>
+                      {(fieldErrors.nom_patron || fieldErrors.nom) && (
+                        <p className="text-xs text-rose-600 mt-1">{fieldErrors.nom_patron || fieldErrors.nom}</p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -341,6 +374,9 @@ export default function InscriptionClient({
                             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                           />
                         </div>
+                        {(fieldErrors.telephone_patron || fieldErrors.telephone) && (
+                          <p className="text-xs text-rose-600 mt-1">{fieldErrors.telephone_patron || fieldErrors.telephone}</p>
+                        )}
                       </div>
                     </div>
 
@@ -385,6 +421,9 @@ export default function InscriptionClient({
                             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                           />
                         </div>
+                        {fieldErrors.mot_de_passe_confirmation && (
+                          <p className="text-xs text-rose-600 mt-1">{fieldErrors.mot_de_passe_confirmation}</p>
+                        )}
                       </div>
                     </div>
                   </div>

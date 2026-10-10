@@ -63,25 +63,41 @@ export async function inscrirePatronAction(
   formData: FormData
 ): Promise<InscriptionState> {
   const nomEntreprise = (formData.get("nom_entreprise") as string)?.trim();
-  const nom = (formData.get("nom") as string)?.trim();
+  const nomBoutique = (formData.get("nom_boutique") as string)?.trim() || nomEntreprise;
+  const nom = ((formData.get("nom_patron") || formData.get("nom")) as string)?.trim();
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const motDePasse = formData.get("mot_de_passe") as string;
-  const telephone = (formData.get("telephone") as string)?.trim();
+  const motDePasseConf = (formData.get("mot_de_passe_confirmation") as string)?.trim();
+  const telephone = ((formData.get("telephone_patron") || formData.get("telephone")) as string)?.trim();
   const ville = (formData.get("ville") as string)?.trim();
   const secteurActivite = (formData.get("secteur_activite") as string)?.trim() || "Commerce général";
-  const adresseSiege = (formData.get("adresse_siege") as string)?.trim() || null;
+  const adresseSiege = ((formData.get("adresse_siege") || formData.get("adresse_boutique")) as string)?.trim() || null;
 
   // 1. Validation côté serveur
   const fieldErrors: Record<string, string> = {};
   if (!nomEntreprise) fieldErrors.nom_entreprise = "Indique le nom de ton entreprise.";
-  if (!nom) fieldErrors.nom = "Indique ton nom complet.";
+  if (!nom) {
+    fieldErrors.nom = "Indique ton nom complet.";
+    fieldErrors.nom_patron = "Indique ton nom complet.";
+  }
   if (!email || !email.includes("@")) fieldErrors.email = "Indique une adresse email valide.";
   if (!motDePasse || motDePasse.length < 8) fieldErrors.mot_de_passe = "Le mot de passe doit comporter au moins 8 caractères.";
-  if (!telephone) fieldErrors.telephone = "Indique ton numéro de téléphone.";
+  if (motDePasseConf && motDePasse !== motDePasseConf) {
+    fieldErrors.mot_de_passe_confirmation = "Les mots de passe ne correspondent pas.";
+  }
+  if (!telephone) {
+    fieldErrors.telephone = "Indique ton numéro de téléphone.";
+    fieldErrors.telephone_patron = "Indique ton numéro de téléphone.";
+  }
   if (!ville) fieldErrors.ville = "Indique la ville d'activité.";
 
   if (Object.keys(fieldErrors).length > 0) {
-    return { success: false, fieldErrors };
+    const premierMessage = Object.values(fieldErrors)[0];
+    return {
+      success: false,
+      error: premierMessage || "Veuillez vérifier les informations renseignées.",
+      fieldErrors,
+    };
   }
 
   // 2. Préparation du secret 2FA TOTP (Section 7 & Section 16.3)
@@ -195,7 +211,7 @@ export async function inscrirePatronAction(
             data: {
               compte_id: nouveauCompte.id,
               code: codeBoutique,
-              nom: nomEntreprise,
+              nom: nomBoutique || nomEntreprise,
               secteur_activite: secteurActivite,
               adresse: adresseSiege || ville,
               ville: ville,
