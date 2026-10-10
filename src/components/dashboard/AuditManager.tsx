@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   ShieldCheck,
   Search,
@@ -22,8 +23,11 @@ import {
   X,
   Users,
   Receipt,
+  Building2,
+  CreditCard,
+  UserCheck,
 } from "lucide-react";
-import { JournalAuditItem, recupererJournalAuditAction } from "@/app/actions/audit";
+import { JournalAuditItem } from "@/app/actions/audit";
 import Pagination from "@/components/ui/Pagination";
 
 interface AuditManagerProps {
@@ -43,6 +47,9 @@ interface AuditManagerProps {
   limit?: number;
   totalPages?: number;
   totalElements?: number;
+  initialCategorie?: string;
+  initialUtilisateur?: string;
+  initialSearch?: string;
 }
 
 export default function AuditManager({
@@ -53,61 +60,94 @@ export default function AuditManager({
   limit = 25,
   totalPages = 1,
   totalElements,
+  initialCategorie = "toutes",
+  initialUtilisateur = "tous",
+  initialSearch = "",
 }: AuditManagerProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
   const [logs, setLogs] = useState<JournalAuditItem[]>(initialLogs);
   const [stats, setStats] = useState(initialStats);
+  const [selectedCategorie, setSelectedCategorie] = useState<string>(initialCategorie);
+  const [selectedUtilisateur, setSelectedUtilisateur] = useState<string>(initialUtilisateur);
+  const [recherche, setRecherche] = useState<string>(initialSearch);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setLogs(initialLogs);
     setStats(initialStats);
   }, [initialLogs, initialStats]);
-  const [selectedCategorie, setSelectedCategorie] = useState<string>("toutes");
-  const [selectedUtilisateur, setSelectedUtilisateur] = useState<string>("tous");
-  const [recherche, setRecherche] = useState<string>("");
-  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setSelectedCategorie(initialCategorie);
+  }, [initialCategorie]);
+
+  useEffect(() => {
+    setSelectedUtilisateur(initialUtilisateur);
+  }, [initialUtilisateur]);
+
+  useEffect(() => {
+    setRecherche(initialSearch);
+  }, [initialSearch]);
 
   // Inspecteur modal pour les détails JSON
   const [inspectModalOpen, setInspectModalOpen] = useState(false);
   const [inspectedLog, setInspectedLog] = useState<JournalAuditItem | null>(null);
 
-  const rechargerLogs = (
-    cat = selectedCategorie,
-    user = selectedUtilisateur,
-    query = recherche
+  const appliquerFiltres = (
+    nouvelleCategorie = selectedCategorie,
+    nouvelUtilisateur = selectedUtilisateur,
+    nouvelleRecherche = recherche
   ) => {
-    startTransition(async () => {
-      const res = await recupererJournalAuditAction({
-        categorie: cat,
-        utilisateurId: user,
-        recherche: query,
-      });
+    const params = new URLSearchParams(searchParams.toString());
 
-      if (res.success && res.data) {
-        setLogs(res.data.logs);
-        setStats(res.data.stats);
-      }
+    if (nouvelleCategorie && nouvelleCategorie !== "toutes") {
+      params.set("categorie", nouvelleCategorie);
+    } else {
+      params.delete("categorie");
+    }
+
+    if (nouvelUtilisateur && nouvelUtilisateur !== "tous") {
+      params.set("utilisateurId", nouvelUtilisateur);
+    } else {
+      params.delete("utilisateurId");
+    }
+
+    if (nouvelleRecherche && nouvelleRecherche.trim() !== "") {
+      params.set("q", nouvelleRecherche.trim());
+    } else {
+      params.delete("q");
+    }
+
+    params.set("page", "1");
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
     });
   };
 
   const handleCategorieChange = (cat: string) => {
     setSelectedCategorie(cat);
-    rechargerLogs(cat, selectedUtilisateur, recherche);
+    appliquerFiltres(cat, selectedUtilisateur, recherche);
   };
 
   const handleUtilisateurChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setSelectedUtilisateur(val);
-    rechargerLogs(selectedCategorie, val, recherche);
+    appliquerFiltres(selectedCategorie, val, recherche);
   };
 
   const handleRecherche = (e: React.FormEvent) => {
     e.preventDefault();
-    rechargerLogs(selectedCategorie, selectedUtilisateur, recherche);
+    appliquerFiltres(selectedCategorie, selectedUtilisateur, recherche);
   };
 
-  // Helper de formatage pour les types d'actions
+  // Helper de formatage exhaustif pour les types d'actions
   const getActionBadge = (action: string) => {
     switch (action) {
+      case "enregistrement_vente":
       case "creation_vente":
         return {
           label: "Vente Enregistrée",
@@ -120,10 +160,11 @@ export default function AuditManager({
           color: "bg-rose-50 text-rose-800 border-rose-300 font-bold",
           icon: XCircle,
         };
+      case "reglement_impaye":
       case "reglement_dette":
         return {
           label: "Règlement Facture",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: "bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold",
           icon: CheckCircle2,
         };
       case "creation_produit":
@@ -132,10 +173,16 @@ export default function AuditManager({
           color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: Package,
         };
+      case "modification_produit":
+        return {
+          label: "Modification Produit",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          icon: Package,
+        };
       case "modification_prix_produit":
         return {
           label: "Changement de Prix",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: "bg-amber-50 text-amber-800 border-amber-200",
           icon: AlertTriangle,
         };
       case "reapprovisionnement_stock":
@@ -144,11 +191,11 @@ export default function AuditManager({
           color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: Package,
         };
-      case "transfert_employe":
+      case "suppression_produit":
         return {
-          label: "Mutation Employé (H20)",
-          color: "bg-[#C1652D]/10 text-[#C1652D] border-[#C1652D]/30 font-bold",
-          icon: ArrowRightLeft,
+          label: "Suppression Produit",
+          color: "bg-rose-50 text-rose-800 border-rose-200",
+          icon: XCircle,
         };
       case "invitation_employe":
         return {
@@ -156,17 +203,90 @@ export default function AuditManager({
           color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: User,
         };
+      case "renvoi_invitation_employe":
+        return {
+          label: "Renvoi Invitation",
+          color: "bg-[#FAF6F1] text-[#6D5D52] border-[#E5DACF]",
+          icon: Clock,
+        };
+      case "activation_compte_collaborateur":
+        return {
+          label: "Compte Activé (2FA)",
+          color: "bg-emerald-50 text-emerald-800 border-emerald-200",
+          icon: CheckCircle2,
+        };
+      case "reactivation_collaborateur":
+        return {
+          label: "Réactivation Employé",
+          color: "bg-emerald-50 text-emerald-800 border-emerald-200",
+          icon: CheckCircle2,
+        };
+      case "desactivation_collaborateur":
+        return {
+          label: "Désactivation Employé",
+          color: "bg-rose-50 text-rose-800 border-rose-200 font-bold",
+          icon: XCircle,
+        };
+      case "transfert_collaborateur":
+      case "transfert_employe":
+        return {
+          label: "Mutation Employé (H20)",
+          color: "bg-[#C1652D]/10 text-[#C1652D] border-[#C1652D]/30 font-bold",
+          icon: ArrowRightLeft,
+        };
       case "creation_boutique":
         return {
           label: "Nouvelle Boutique",
           color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: Store,
         };
+      case "modification_boutique":
+        return {
+          label: "Modification Boutique",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          icon: Store,
+        };
+      case "reactivation_boutique":
+        return {
+          label: "Réactivation Boutique",
+          color: "bg-emerald-50 text-emerald-800 border-emerald-200",
+          icon: Store,
+        };
+      case "desactivation_boutique":
+        return {
+          label: "Désactivation Boutique",
+          color: "bg-amber-50 text-amber-800 border-amber-200 font-bold",
+          icon: Store,
+        };
+      case "creation_client":
+        return {
+          label: "Nouveau Client",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          icon: Users,
+        };
+      case "modification_client":
+        return {
+          label: "Modification Client",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          icon: Users,
+        };
       case "creation_compte":
         return {
           label: "Création Compte SaaS",
           color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
           icon: Key,
+        };
+      case "modification_entreprise":
+        return {
+          label: "Mise à jour Entreprise",
+          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          icon: Building2,
+        };
+      case "paiement_abonnement_fedapay":
+        return {
+          label: "Paiement Abonnement (FedaPay)",
+          color: "bg-emerald-50 text-emerald-800 border-emerald-200 font-bold",
+          icon: CreditCard,
         };
       default:
         return {
@@ -265,6 +385,7 @@ export default function AuditManager({
           { id: "stocks", label: "Stocks & Prix", icon: Package },
           { id: "equipe", label: "Équipe & Mutations", icon: Users },
           { id: "boutiques", label: "Boutiques", icon: Store },
+          { id: "clients", label: "Clients", icon: UserCheck },
           { id: "securite", label: "Sécurité & Compte", icon: ShieldCheck },
         ].map((tab) => {
           const isActive = selectedCategorie === tab.id;

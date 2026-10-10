@@ -62,10 +62,11 @@ interface ProduitsManagerProps {
   totalPages?: number;
   totalElements?: number;
   initialSearch?: string;
+  initialStatut?: FiltreStock;
   totalProduitsGlobal?: number;
 }
 
-type FiltreStock = "tous" | "en_stock" | "stock_bas" | "rupture";
+export type FiltreStock = "tous" | "en_stock" | "stock_bas" | "rupture";
 
 export default function ProduitsManager({
   produits,
@@ -77,6 +78,7 @@ export default function ProduitsManager({
   totalPages = 1,
   totalElements,
   initialSearch = "",
+  initialStatut = "tous",
   totalProduitsGlobal,
 }: ProduitsManagerProps) {
   const router = useRouter();
@@ -86,7 +88,39 @@ export default function ProduitsManager({
 
   // Filtres et recherche
   const [recherche, setRecherche] = useState(initialSearch);
-  const [filtreActif, setFiltreActif] = useState<FiltreStock>("tous");
+  const [filtreActif, setFiltreActif] = useState<FiltreStock>(initialStatut || "tous");
+
+  React.useEffect(() => {
+    setRecherche(initialSearch);
+  }, [initialSearch]);
+
+  React.useEffect(() => {
+    setFiltreActif(initialStatut || "tous");
+  }, [initialStatut]);
+
+  const appliquerFiltres = (nouveauFiltre?: FiltreStock, nouvelleRecherche?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const filtre = nouveauFiltre !== undefined ? nouveauFiltre : filtreActif;
+    const q = nouvelleRecherche !== undefined ? nouvelleRecherche : recherche;
+
+    if (filtre && filtre !== "tous") {
+      params.set("statut", filtre);
+    } else {
+      params.delete("statut");
+    }
+
+    if (q.trim()) {
+      params.set("q", q.trim());
+    } else {
+      params.delete("q");
+    }
+
+    params.set("page", "1");
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
 
   // Modales
   const [modalAjoutOuverte, setModalAjoutOuverte] = useState(false);
@@ -124,26 +158,14 @@ export default function ProduitsManager({
     };
   }, [produits]);
 
-  // Filtrage des articles
+  // Filtrage des articles : données paginées du serveur avec filtre local réactif pendant la saisie
   const produitsFiltres = useMemo(() => {
-    return produits.filter((p) => {
-      const matchNom = p.nom.toLowerCase().includes(recherche.toLowerCase());
-
-      if (!matchNom) return false;
-
-      if (filtreActif === "en_stock") {
-        return p.quantite_stock > p.seuil_alerte;
-      }
-      if (filtreActif === "stock_bas") {
-        return p.quantite_stock <= p.seuil_alerte && p.quantite_stock > 0;
-      }
-      if (filtreActif === "rupture") {
-        return p.quantite_stock === 0;
-      }
-
-      return true;
-    });
-  }, [produits, recherche, filtreActif]);
+    if (!recherche) return produits;
+    return produits.filter((p) =>
+      p.nom.toLowerCase().includes(recherche.toLowerCase()) ||
+      (p.code_barre && p.code_barre.toLowerCase().includes(recherche.toLowerCase()))
+    );
+  }, [produits, recherche]);
 
   // Handlers formulaires
   async function handleCreerProduit(e: React.FormEvent<HTMLFormElement>) {
@@ -322,18 +344,24 @@ export default function ProduitsManager({
         {/* Filtres de stock rapides */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           <button
-            onClick={() => setFiltreActif("tous")}
+            onClick={() => {
+              setFiltreActif("tous");
+              appliquerFiltres("tous", recherche);
+            }}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors whitespace-nowrap focus:outline-none cursor-pointer ${
               filtreActif === "tous"
                 ? "bg-[#C1652D] text-[#FAF6F1]"
                 : "text-[#6D5D52] hover:bg-[#E5DACF]/50"
             }`}
           >
-            Tous ({produits.length})
+            Tous ({totalProduitsGlobal ?? produits.length})
           </button>
 
           <button
-            onClick={() => setFiltreActif("en_stock")}
+            onClick={() => {
+              setFiltreActif("en_stock");
+              appliquerFiltres("en_stock", recherche);
+            }}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors whitespace-nowrap focus:outline-none cursor-pointer ${
               filtreActif === "en_stock"
                 ? "bg-[#C1652D] text-[#FAF6F1]"
@@ -344,7 +372,10 @@ export default function ProduitsManager({
           </button>
 
           <button
-            onClick={() => setFiltreActif("stock_bas")}
+            onClick={() => {
+              setFiltreActif("stock_bas");
+              appliquerFiltres("stock_bas", recherche);
+            }}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors whitespace-nowrap focus:outline-none cursor-pointer ${
               filtreActif === "stock_bas"
                 ? "bg-orange-600 text-white"
@@ -355,7 +386,10 @@ export default function ProduitsManager({
           </button>
 
           <button
-            onClick={() => setFiltreActif("rupture")}
+            onClick={() => {
+              setFiltreActif("rupture");
+              appliquerFiltres("rupture", recherche);
+            }}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors whitespace-nowrap focus:outline-none cursor-pointer ${
               filtreActif === "rupture"
                 ? "bg-red-600 text-white"

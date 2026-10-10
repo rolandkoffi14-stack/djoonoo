@@ -577,6 +577,22 @@ export async function creerClientRapideAction(
       },
     });
 
+    await enregistrerAudit(prisma, {
+      compte_id: session.compteId,
+      utilisateur_id: session.userId,
+      action: "creation_client",
+      entite_concernee: "clients",
+      entite_id: nouveauClient.id,
+      details: {
+        nom: nouveauClient.nom,
+        telephone: nouveauClient.telephone,
+        source: "caisse_pos",
+      },
+    });
+
+    revalidatePath("/dashboard/clients");
+    revalidatePath("/dashboard/caisse");
+
     return {
       success: true,
       client: {

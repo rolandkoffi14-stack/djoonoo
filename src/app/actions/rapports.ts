@@ -102,7 +102,14 @@ export async function getRapportFinancierAction(params: {
     if (session.role === "gerant" && session.boutiqueId) {
       targetBoutiqueId = session.boutiqueId;
     } else if (boutiqueId && boutiqueId !== "tous") {
-      targetBoutiqueId = boutiqueId;
+      // Vérification stricte que la boutique demandée appartient bien au compte
+      const boutiqueValide = await scoped.boutiques.findFirst({
+        where: { id: boutiqueId, compte_id: session.compteId },
+        select: { id: true },
+      });
+      if (boutiqueValide) {
+        targetBoutiqueId = boutiqueValide.id;
+      }
     }
 
     const whereClause: any = {

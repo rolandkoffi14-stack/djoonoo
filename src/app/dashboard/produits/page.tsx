@@ -2,8 +2,8 @@ import React from "react";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { getCurrentSession } from "@/lib/auth";
-import { getScopedPrisma } from "@/lib/prisma";
-import ProduitsManager, { ProduitItem, BoutiqueOption } from "@/components/dashboard/ProduitsManager";
+import { getScopedPrisma, prisma } from "@/lib/prisma";
+import ProduitsManager, { ProduitItem, BoutiqueOption, FiltreStock } from "@/components/dashboard/ProduitsManager";
 import { parsePaginationParams } from "@/lib/pagination";
 
 export const metadata = {
@@ -16,6 +16,7 @@ interface ProduitsPageProps {
     page?: string;
     limit?: string;
     q?: string;
+    statut?: string;
     filtreStock?: string;
   }>;
 }
@@ -30,7 +31,7 @@ export default async function ProduitsPage(props: ProduitsPageProps) {
   const searchParams = props.searchParams ? await props.searchParams : {};
   const { page, limit, skip } = parsePaginationParams(searchParams, 25);
   const q = searchParams.q?.trim() || "";
-  const filtreStock = searchParams.filtreStock || "tous";
+  const filtreStock = ((searchParams.statut || searchParams.filtreStock || "tous") as FiltreStock);
 
   const scoped = getScopedPrisma(session.compteId);
 
@@ -86,6 +87,16 @@ export default async function ProduitsPage(props: ProduitsPageProps) {
     whereCondition.quantite_stock = 0;
   } else if (filtreStock === "en_stock") {
     whereCondition.quantite_stock = { gt: 0 };
+  } else if (filtreStock === "stock_bas") {
+    const rawAlertes = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM produits
+      WHERE compte_id = ${session.compteId}
+        AND boutique_id = ${activeBoutique.id}
+        AND quantite_stock > 0
+        AND quantite_stock <= seuil_alerte
+    `;
+    const ids = rawAlertes.map((r: { id: string }) => r.id);
+    whereCondition.id = { in: ids };
   }
 
   // 4. Double requête atomique avec pagination et calcul de stock
@@ -146,6 +157,7 @@ export default async function ProduitsPage(props: ProduitsPageProps) {
         totalPages={totalPages}
         totalElements={totalCount}
         initialSearch={q}
+        initialStatut={filtreStock}
         totalProduitsGlobal={totalProduitsBoutique}
       />
     </div>

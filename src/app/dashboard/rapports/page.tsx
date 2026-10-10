@@ -43,14 +43,14 @@ export default async function RapportsPage() {
     if (b) boutiques = [b];
   }
 
-  // Boutique active par défaut
-  const cookieStore = await cookies();
-  const activeBoutiqueCookie = cookieStore.get("djoonoo_active_boutique")?.value;
-
+  // Détermination de la boutique active :
+  // Le Gérant est strictement verrouillé sur sa boutique.
+  // Pour le Patron, les rapports s'ouvrent par défaut en vue consolidée ("tous"),
+  // avec possibilité de filtrer par boutique via le sélecteur.
   const activeBoutiqueId =
     session.role === "gerant"
       ? session.boutiqueId || undefined
-      : activeBoutiqueCookie || "tous";
+      : "tous";
 
   // 2. Récupération des données du rapport (par défaut pour le mois en cours)
   const rapportResult = await getRapportFinancierAction({

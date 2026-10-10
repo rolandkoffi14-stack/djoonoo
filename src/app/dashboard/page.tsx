@@ -37,14 +37,18 @@ export default async function DashboardPage() {
   const targetBoutiqueId =
     session.role === "patron" ? activeBoutiqueCookie : session.boutiqueId;
 
-  const activeBoutique = targetBoutiqueId
+  let activeBoutique = targetBoutiqueId
     ? await scoped.boutiques.findFirst({
         where: { id: targetBoutiqueId, compte_id: session.compteId },
       })
-    : await scoped.boutiques.findFirst({
-        where: { compte_id: session.compteId },
-        orderBy: { code: "asc" },
-      });
+    : null;
+
+  if (!activeBoutique) {
+    activeBoutique = await scoped.boutiques.findFirst({
+      where: { compte_id: session.compteId },
+      orderBy: { code: "asc" },
+    });
+  }
 
   let alertesStockCount = 0;
   let ventesAujourdhuiTotal = 0;
@@ -75,7 +79,7 @@ export default async function DashboardPage() {
         _sum: { montant_total: true },
         _count: true,
       }),
-      // 3. Échantillon borné des impayés pour le calcul du tableau de bord
+      // 3. Calcul exact des créances impayées de la boutique active
       scoped.ventes.findMany({
         where: {
           compte_id: session.compteId,
@@ -87,7 +91,6 @@ export default async function DashboardPage() {
           montant_total: true,
           paiements: { select: { montant: true } },
         },
-        take: 50,
       }),
     ]);
 

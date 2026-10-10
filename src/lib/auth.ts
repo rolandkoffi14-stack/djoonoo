@@ -81,6 +81,7 @@ export async function setSessionCookie(payload: SessionPayload) {
 export async function clearSessionCookie() {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
+  cookieStore.delete("djoonoo_active_boutique");
 }
 
 /**

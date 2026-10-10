@@ -29,11 +29,50 @@ export interface JournalAuditItem {
 }
 
 const CATEGORIES_ACTIONS: Record<string, string[]> = {
-  ventes: ["creation_vente", "annulation_vente", "reglement_dette", "suppression_vente"],
-  stocks: ["creation_produit", "modification_prix_produit", "reapprovisionnement_stock", "suppression_produit"],
-  equipe: ["invitation_employe", "modification_statut_employe", "transfert_employe"],
-  boutiques: ["creation_boutique", "modification_statut_boutique"],
-  securite: ["creation_compte", "connexion", "modification_mot_de_passe", "changement_forfait"]
+  ventes: [
+    "enregistrement_vente",
+    "annulation_vente",
+    "reglement_impaye",
+    "creation_vente",
+    "reglement_dette",
+    "suppression_vente",
+  ],
+  stocks: [
+    "creation_produit",
+    "modification_produit",
+    "modification_prix_produit",
+    "reapprovisionnement_stock",
+    "suppression_produit",
+  ],
+  equipe: [
+    "invitation_employe",
+    "renvoi_invitation_employe",
+    "reactivation_collaborateur",
+    "desactivation_collaborateur",
+    "transfert_collaborateur",
+    "activation_compte_collaborateur",
+    "modification_statut_employe",
+    "transfert_employe",
+  ],
+  boutiques: [
+    "creation_boutique",
+    "modification_boutique",
+    "reactivation_boutique",
+    "desactivation_boutique",
+    "modification_statut_boutique",
+  ],
+  clients: [
+    "creation_client",
+    "modification_client",
+  ],
+  securite: [
+    "creation_compte",
+    "connexion",
+    "modification_mot_de_passe",
+    "modification_entreprise",
+    "changement_forfait",
+    "paiement_abonnement_fedapay",
+  ],
 };
 
 export async function recupererJournalAuditAction(filtres: AuditFiltres = {}) {
@@ -131,10 +170,19 @@ export async function recupererJournalAuditAction(filtres: AuditFiltres = {}) {
         where: {
           compte_id: session.compteId,
           action: {
-            in: ["annulation_vente", "transfert_employe", "modification_prix_produit", "suppression_produit"]
-          }
-        }
-      })
+            in: [
+              "annulation_vente",
+              "transfert_collaborateur",
+              "transfert_employe",
+              "desactivation_collaborateur",
+              "desactivation_boutique",
+              "modification_produit",
+              "modification_prix_produit",
+              "suppression_produit",
+            ],
+          },
+        },
+      }),
     ]);
 
     return {

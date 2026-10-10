@@ -55,7 +55,14 @@ interface ClientsManagerProps {
   totalPages?: number;
   totalElements?: number;
   initialSearch?: string;
+  initialStatut?: "tous" | "debiteurs" | "actifs";
   totalClientsGlobal?: number;
+  statsGlobales?: {
+    nbClients: number;
+    caCumule: number;
+    creancesTotales: number;
+    nbDebiteurs: number;
+  };
 }
 
 export default function ClientsManager({
@@ -66,7 +73,9 @@ export default function ClientsManager({
   totalPages = 1,
   totalElements,
   initialSearch = "",
+  initialStatut = "tous",
   totalClientsGlobal,
+  statsGlobales,
 }: ClientsManagerProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -75,7 +84,47 @@ export default function ClientsManager({
 
   const [clients, setClients] = useState<ClientItem[]>(clientsInitiaux);
   const [recherche, setRecherche] = useState(initialSearch);
-  const [filtreType, setFiltreType] = useState<"tous" | "debiteurs" | "actifs">("tous");
+  const [filtreType, setFiltreType] = useState<"tous" | "debiteurs" | "actifs">(initialStatut || "tous");
+
+  // Synchronisation avec les props
+  useEffect(() => {
+    setClients(clientsInitiaux);
+  }, [clientsInitiaux]);
+
+  useEffect(() => {
+    setRecherche(initialSearch);
+  }, [initialSearch]);
+
+  useEffect(() => {
+    setFiltreType(initialStatut || "tous");
+  }, [initialStatut]);
+
+  const appliquerFiltres = (
+    nouveauFiltre?: "tous" | "debiteurs" | "actifs",
+    nouvelleRecherche?: string
+  ) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const filtre = nouveauFiltre !== undefined ? nouveauFiltre : filtreType;
+    const q = nouvelleRecherche !== undefined ? nouvelleRecherche : recherche;
+
+    if (filtre && filtre !== "tous") {
+      params.set("statut", filtre);
+    } else {
+      params.delete("statut");
+    }
+
+    if (q.trim()) {
+      params.set("q", q.trim());
+    } else {
+      params.delete("q");
+    }
+
+    params.set("page", "1");
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
 
   // Modale Création / Édition
   const [modalClientOuverte, setModalClientOuverte] = useState(false);
@@ -91,11 +140,6 @@ export default function ClientsManager({
   // Modale Fiche Client Détaillée
   const [ficheClient, setFicheClient] = useState<ClientDetailPayload | null>(null);
   const [chargementFicheId, setChargementFicheId] = useState<string | null>(null);
-
-  // Synchronisation avec les props
-  useEffect(() => {
-    setClients(clientsInitiaux);
-  }, [clientsInitiaux]);
 
   // Détection / Recherche de rapprochement à la frappe du téléphone (Décision C11)
   useEffect(() => {
@@ -274,7 +318,7 @@ export default function ClientsManager({
               <UserCheck className="w-3.5 h-3.5 text-[#8C7A6B]" />
             </div>
             <div className="text-xl font-extrabold text-[#2B2119] font-mono">
-              {stats.nbClients}
+              {statsGlobales ? statsGlobales.nbClients : stats.nbClients}
             </div>
           </div>
 
@@ -284,7 +328,7 @@ export default function ClientsManager({
               <TrendingUp className="w-3.5 h-3.5 text-[#C1652D]" />
             </div>
             <div className="text-xl font-extrabold text-[#2B2119] font-mono truncate">
-              {stats.caCumule.toLocaleString("fr-FR")}{" "}
+              {(statsGlobales ? statsGlobales.caCumule : stats.caCumule).toLocaleString("fr-FR")}{" "}
               <span className="text-xs font-sans text-[#6D5D52]">FCFA</span>
             </div>
           </div>
@@ -295,7 +339,7 @@ export default function ClientsManager({
               <Clock className="w-3.5 h-3.5 text-red-600" />
             </div>
             <div className="text-xl font-extrabold text-red-700 font-mono truncate">
-              {stats.creancesTotales.toLocaleString("fr-FR")}{" "}
+              {(statsGlobales ? statsGlobales.creancesTotales : stats.creancesTotales).toLocaleString("fr-FR")}{" "}
               <span className="text-xs font-sans text-red-600">FCFA</span>
             </div>
           </div>
@@ -306,7 +350,7 @@ export default function ClientsManager({
               <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
             </div>
             <div className="text-xl font-extrabold text-amber-800 font-mono">
-              {stats.nbDebiteurs}
+              {statsGlobales ? statsGlobales.nbDebiteurs : stats.nbDebiteurs}
             </div>
           </div>
         </div>
@@ -322,16 +366,7 @@ export default function ClientsManager({
             onChange={(e) => setRecherche(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                const params = new URLSearchParams(searchParams.toString());
-                if (recherche.trim()) {
-                  params.set("q", recherche.trim());
-                } else {
-                  params.delete("q");
-                }
-                params.set("page", "1");
-                startTransition(() => {
-                  router.push(`${pathname}?${params.toString()}`);
-                });
+                appliquerFiltres(filtreType, recherche);
               }
             }}
             placeholder="Rechercher par nom ou téléphone... (Entrée pour valider)"
@@ -342,12 +377,7 @@ export default function ClientsManager({
               type="button"
               onClick={() => {
                 setRecherche("");
-                const params = new URLSearchParams(searchParams.toString());
-                params.delete("q");
-                params.set("page", "1");
-                startTransition(() => {
-                  router.push(`${pathname}?${params.toString()}`);
-                });
+                appliquerFiltres(filtreType, "");
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2B2119] cursor-pointer"
             >
@@ -365,7 +395,7 @@ export default function ClientsManager({
             <button
               key={onglet.id}
               type="button"
-              onClick={() => setFiltreType(onglet.id as any)}
+              onClick={() => appliquerFiltres(onglet.id as any)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 filtreType === onglet.id
                   ? "bg-[#FAF6F1] text-[#2B2119] shadow-xs"

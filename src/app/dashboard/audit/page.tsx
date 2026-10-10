@@ -64,6 +64,9 @@ export default async function AuditPage(props: AuditPageProps) {
         limit={limit}
         totalPages={totalPages}
         totalElements={totalLogs}
+        initialCategorie={categorie}
+        initialUtilisateur={utilisateurId}
+        initialSearch={recherche}
       />
     </div>
   );

@@ -15,6 +15,7 @@ interface ClientsPageProps {
     page?: string;
     limit?: string;
     q?: string;
+    statut?: string;
   }>;
 }
 
@@ -28,6 +29,7 @@ export default async function ClientsPage(props: ClientsPageProps) {
   const searchParams = props.searchParams ? await props.searchParams : {};
   const { page, limit, skip } = parsePaginationParams(searchParams, 25);
   const q = searchParams.q?.trim() || "";
+  const statut = (searchParams.statut as "tous" | "debiteurs" | "actifs") || "tous";
 
   const scoped = getScopedPrisma(session.compteId);
 
@@ -39,8 +41,30 @@ export default async function ClientsPage(props: ClientsPageProps) {
     ];
   }
 
-  // 1. Récupération paginée des clients et comptage total
-  const [totalCount, clientsDb, totalClientsGlobal] = await Promise.all([
+  if (statut === "debiteurs") {
+    whereCondition.ventes = {
+      some: {
+        statut_vente: "validee",
+        statut_paiement: { in: ["impaye", "partiel"] },
+      },
+    };
+  } else if (statut === "actifs") {
+    whereCondition.ventes = {
+      some: {
+        statut_vente: "validee",
+      },
+    };
+  }
+
+  // 1. Récupération paginée des clients, comptage total et métriques globales
+  const [
+    totalCount,
+    clientsDb,
+    totalClientsGlobal,
+    statsVentesClients,
+    statsPaiementsClients,
+    nbDebiteursGlobal,
+  ] = await Promise.all([
     scoped.clients.count({ where: whereCondition }),
     scoped.clients.findMany({
       where: whereCondition,
@@ -58,6 +82,35 @@ export default async function ClientsPage(props: ClientsPageProps) {
       },
     }),
     scoped.clients.count({ where: { compte_id: session.compteId } }),
+    scoped.ventes.aggregate({
+      where: {
+        compte_id: session.compteId,
+        statut_vente: "validee",
+        client_id: { not: null },
+      },
+      _sum: { montant_total: true },
+    }),
+    scoped.paiements.aggregate({
+      where: {
+        compte_id: session.compteId,
+        vente: {
+          statut_vente: "validee",
+          client_id: { not: null },
+        },
+      },
+      _sum: { montant: true },
+    }),
+    scoped.clients.count({
+      where: {
+        compte_id: session.compteId,
+        ventes: {
+          some: {
+            statut_vente: "validee",
+            statut_paiement: { in: ["impaye", "partiel"] },
+          },
+        },
+      },
+    }),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
@@ -89,6 +142,17 @@ export default async function ClientsPage(props: ClientsPageProps) {
     };
   });
 
+  const caCumuleGlobal = statsVentesClients._sum.montant_total || 0;
+  const payeCumuleGlobal = statsPaiementsClients._sum.montant || 0;
+  const creancesTotalesGlobal = Math.max(0, caCumuleGlobal - payeCumuleGlobal);
+
+  const statsGlobales = {
+    nbClients: totalClientsGlobal,
+    caCumule: caCumuleGlobal,
+    creancesTotales: creancesTotalesGlobal,
+    nbDebiteurs: nbDebiteursGlobal,
+  };
+
   return (
     <ClientsManager
       clientsInitiaux={clients}
@@ -98,7 +162,9 @@ export default async function ClientsPage(props: ClientsPageProps) {
       totalPages={totalPages}
       totalElements={totalCount}
       initialSearch={q}
+      initialStatut={statut}
       totalClientsGlobal={totalClientsGlobal}
+      statsGlobales={statsGlobales}
     />
   );
 }
