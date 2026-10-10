@@ -76,12 +76,22 @@ export async function setSessionCookie(payload: SessionPayload) {
 }
 
 /**
- * Supprime le cookie de session (déconnexion)
+ * Supprime le cookie de session (déconnexion avec révocation explicite OWASP — Point 3)
  */
 export async function clearSessionCookie() {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
   cookieStore.delete("djoonoo_active_boutique");
+
+  // Révocation explicite avec maxAge 0 et date révolue pour invalider tout cache navigateur
+  cookieStore.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+    expires: new Date(0),
+  });
 }
 
 /**

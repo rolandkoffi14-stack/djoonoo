@@ -13,6 +13,7 @@ describe("Middleware de Sécurité & Contrôle d'Accès (Phase 2 - Items 3.1 & 3
       "/cgu",
       "/confidentialite",
       "/invitation/token123",
+      "/verification-email/token123",
       "/api/webhooks/fedapay",
       "/api/cron/abonnements",
     ];

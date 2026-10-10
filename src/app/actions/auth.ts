@@ -21,7 +21,9 @@ import { redirect } from "next/navigation";
 import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
 import { formatSafeError } from "@/lib/safe-action";
 import { siteConfig } from "@/config/site";
-import { AuthLoginSchema, Auth2FASchema } from "@/lib/validations";
+import { AuthLoginSchema, Auth2FASchema, MotDePasseFortSchema } from "@/lib/validations";
+import crypto from "crypto";
+import { envoyerEmailVerificationPatron } from "@/lib/email";
 
 // Stockage temporaire en mémoire pour l'étape d'activation 2FA lors de l'inscription
 const pendingRegistrations = new Map<
@@ -81,7 +83,12 @@ export async function inscrirePatronAction(
     fieldErrors.nom_patron = "Indique ton nom complet.";
   }
   if (!email || !email.includes("@")) fieldErrors.email = "Indique une adresse email valide.";
-  if (!motDePasse || motDePasse.length < 8) fieldErrors.mot_de_passe = "Le mot de passe doit comporter au moins 8 caractères.";
+  const validationMdp = MotDePasseFortSchema.safeParse(motDePasse);
+  if (!validationMdp.success) {
+    fieldErrors.mot_de_passe =
+      validationMdp.error.issues[0]?.message ||
+      "Le mot de passe doit comporter au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.";
+  }
   if (motDePasseConf && motDePasse !== motDePasseConf) {
     fieldErrors.mot_de_passe_confirmation = "Les mots de passe ne correspondent pas.";
   }
@@ -251,10 +258,24 @@ export async function inscrirePatronAction(
             },
           });
 
+          // F. Jeton de vérification d'email Patron (Point 13)
+          const rawToken = crypto.randomBytes(32).toString("hex");
+          const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+          const dateExpiration = new Date(Date.now() + 24 * 3600 * 1000); // 24h
+
+          await tx.tokens_invitation.create({
+            data: {
+              utilisateur_id: patronUser.id,
+              token_hash: tokenHash,
+              date_expiration: dateExpiration,
+            },
+          });
+
           return {
             compte: nouveauCompte,
             boutique: nouvelleBoutique,
             patron: patronUser,
+            rawVerificationToken: rawToken,
           };
         });
       } catch (err: any) {
@@ -276,6 +297,17 @@ export async function inscrirePatronAction(
     compteId = compteCree.compte.id;
     codeCompteFinal = compteCree.compte.code;
     codeBoutiqueFinal = compteCree.boutique.code;
+
+    // Envoi asynchrone non-bloquant de l'email de confirmation Patron (Point 13)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || siteConfig.app.url;
+    const lienVerification = `${baseUrl}/verification-email/${compteCree.rawVerificationToken}`;
+    envoyerEmailVerificationPatron({
+      destinataire: email,
+      nom: nom,
+      lienVerification,
+    }).catch((err) => {
+      console.error("Erreur envoi email confirmation patron :", err);
+    });
   } catch (dbError: any) {
     console.error("Erreur création compte en base de données :", dbError);
     return {
@@ -587,4 +619,70 @@ export async function validerDeuxFaConnexionAction(
 export async function deconnexionAction() {
   await clearSessionCookie();
   redirect("/connexion");
+}
+
+/**
+ * Action de validation du jeton de confirmation d'email Patron (Point 13)
+ */
+export async function verifierEmailPatronAction(
+  rawToken: string
+): Promise<{ success: boolean; error?: string; email?: string }> {
+  if (!rawToken || typeof rawToken !== "string") {
+    return { success: false, error: "Jeton de confirmation manquant ou invalide." };
+  }
+
+  try {
+    const tokenHash = crypto.createHash("sha256").update(rawToken.trim()).digest("hex");
+    const tokenRecord = await prisma.tokens_invitation.findUnique({
+      where: { token_hash: tokenHash },
+      include: {
+        utilisateur: {
+          include: { compte: true },
+        },
+      },
+    });
+
+    if (!tokenRecord) {
+      return {
+        success: false,
+        error: "Ce lien de confirmation est invalide ou a déjà été utilisé.",
+      };
+    }
+
+    if (new Date() > tokenRecord.date_expiration) {
+      await prisma.tokens_invitation.delete({
+        where: { id: tokenRecord.id },
+      });
+      return {
+        success: false,
+        error: "Ce lien de confirmation a expiré. Veuillez contacter le support ou vous reconnecter.",
+      };
+    }
+
+    // Consommer le jeton (suppression atomique)
+    await prisma.tokens_invitation.delete({
+      where: { id: tokenRecord.id },
+    });
+
+    // Enregistrer l'audit
+    await enregistrerAudit(prisma, {
+      compte_id: tokenRecord.utilisateur.compte_id,
+      utilisateur_id: tokenRecord.utilisateur.id,
+      action: "confirmation_email",
+      entite_concernee: "utilisateurs",
+      entite_id: tokenRecord.utilisateur.id,
+      details: { email: tokenRecord.utilisateur.email },
+    });
+
+    return {
+      success: true,
+      email: tokenRecord.utilisateur.email,
+    };
+  } catch (err: any) {
+    console.error("Erreur vérification email patron :", err);
+    return {
+      success: false,
+      error: "Une erreur est survenue lors de la validation de votre adresse email.",
+    };
+  }
 }

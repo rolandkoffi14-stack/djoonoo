@@ -79,11 +79,21 @@ export async function getSuperAdminSession(): Promise<SuperAdminSessionPayload |
 }
 
 /**
- * Supprime la session Super-Admin active
+ * Supprime la session Super-Admin active (déconnexion avec révocation explicite OWASP — Point 3)
  */
 export async function destroySuperAdminSession() {
   const cookieStore = await cookies();
   cookieStore.delete(SUPERADMIN_COOKIE_NAME);
+
+  // Révocation explicite avec maxAge 0 et date révolue pour invalider tout cache navigateur
+  cookieStore.set(SUPERADMIN_COOKIE_NAME, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+    expires: new Date(0),
+  });
 }
 
 /**

@@ -91,3 +91,10 @@ export const Auth2FASchema = z.object({
     .trim()
     .regex(/^\d{6}$/, "Le code 2FA doit être composé exactement de 6 chiffres"),
 });
+
+export const MotDePasseFortSchema = z
+  .string()
+  .min(8, "Le mot de passe doit comporter au moins 8 caractères.")
+  .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
+  .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre.")
+  .regex(/[^a-zA-Z0-9]/, "Le mot de passe doit contenir au moins un caractère spécial.");

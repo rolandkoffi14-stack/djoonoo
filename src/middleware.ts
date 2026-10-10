@@ -28,6 +28,7 @@ function estRoutePublique(pathname: string): boolean {
   // Préfixes publics dynamiques ou assets
   if (
     pathname.startsWith("/invitation/") ||
+    pathname.startsWith("/verification-email/") ||
     pathname.startsWith("/brand/") ||
     pathname.startsWith("/_next/")
   ) {

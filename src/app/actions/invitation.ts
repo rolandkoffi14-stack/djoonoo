@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword, generateTotpSecret, generateTotpQrCode, verifyTotpCode } from "@/lib/auth";
 import { enregistrerAudit } from "@/lib/business-rules";
 import { RoleUtilisateur } from "@prisma/client";
+import { MotDePasseFortSchema } from "@/lib/validations";
 
 export interface InfoInvitation {
   nom: string;
@@ -135,8 +136,14 @@ export async function finaliserActivationCompteAction(
     return { success: false, error: "Jeton d'invitation invalide." };
   }
 
-  if (!cleanMdp || cleanMdp.length < 8) {
-    return { success: false, error: "Le mot de passe doit comporter au moins 8 caractères." };
+  const validationMdp = MotDePasseFortSchema.safeParse(cleanMdp);
+  if (!validationMdp.success) {
+    return {
+      success: false,
+      error:
+        validationMdp.error.issues[0]?.message ||
+        "Le mot de passe doit comporter au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.",
+    };
   }
 
   try {
