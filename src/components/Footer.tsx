@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Mail, MapPin } from "lucide-react";
+import { siteConfig } from "@/config/site";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -14,32 +15,31 @@ export default function Footer() {
             <Link href="/" className="inline-block focus:outline-none">
               <div className="relative h-9 w-40">
                 <Image
-                  src="/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg"
-                  alt="djoonoo logo"
+                  src={siteConfig.app.logos.transparentClair}
+                  alt={siteConfig.app.nom}
                   fill
                   className="object-contain object-left"
                 />
               </div>
             </Link>
             <p className="text-sm text-[#6B5C52] max-w-sm leading-relaxed">
-              Ta boutique, à portée de main, où que tu sois. Solution de gestion des ventes,
-              du stock et des impayés conçue pour les commerçants.
+              {siteConfig.app.slogan} {siteConfig.app.descriptionCourte}
             </p>
             <div className="pt-2 text-xs text-[#6B5C52] space-y-1.5">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-[#C1652D] shrink-0" />
-                <span>Ilôt 251, parcelle C&apos;, Cocotomey, Abomey-Calavi, Bénin</span>
+                <span>{siteConfig.entreprise.adresseSiege}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-[#C1652D] shrink-0" />
-                <a href="tel:+2290162169101" className="hover:text-[#C1652D] transition-colors">
-                  +229 01 62 16 91 01
+                <a href={siteConfig.entreprise.telephoneHref} className="hover:text-[#C1652D] transition-colors">
+                  {siteConfig.entreprise.telephone}
                 </a>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-[#C1652D] shrink-0" />
-                <a href="mailto:rolandkoffi14@gmail.com" className="hover:text-[#C1652D] transition-colors">
-                  rolandkoffi14@gmail.com
+                <a href={`mailto:${siteConfig.entreprise.emailContact}`} className="hover:text-[#C1652D] transition-colors">
+                  {siteConfig.entreprise.emailContact}
                 </a>
               </div>
             </div>
@@ -80,7 +80,7 @@ export default function Footer() {
               Éditeur & Légal
             </h4>
             <p className="text-xs text-[#6B5C52] leading-relaxed">
-              Édité par <strong className="text-[#2B2119]">ETS. 2KR DIGITAL</strong>.
+              Édité par <strong className="text-[#2B2119]">{siteConfig.entreprise.nom}</strong>.
             </p>
             <div className="pt-2 flex flex-col gap-2 text-xs text-[#6B5C52]">
               <Link href="/cgu" className="hover:text-[#C1652D] transition-colors underline">
@@ -95,8 +95,8 @@ export default function Footer() {
 
         {/* Ligne du bas : Copyright dynamique */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B5C52]">
-          <p>© {currentYear} djoonoo — Tous droits réservés.</p>
-          <p className="font-semibold text-[#2B2119]">ETS. 2KR DIGITAL</p>
+          <p>© {currentYear} {siteConfig.app.nom} — Tous droits réservés.</p>
+          <p className="font-semibold text-[#2B2119]">{siteConfig.entreprise.nom}</p>
         </div>
       </div>
     </footer>

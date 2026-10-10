@@ -47,9 +47,9 @@ export default function ModalDetailFacture({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl border border-neutral-200 overflow-hidden">
+      <div className="bg-[#FAF6F1] rounded-2xl w-full max-w-lg shadow-xl border border-[#E5DACF] overflow-hidden">
         {/* En-tête */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-[#FAF6F1]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#E5DACF] bg-[#FAF6F1]">
           <div className="flex items-center gap-3">
             <div className="relative w-9 h-9 shrink-0">
               <Image
@@ -61,12 +61,12 @@ export default function ModalDetailFacture({
             </div>
             <div>
               <h3 className="font-bold text-[#2B2119] text-base">Détail du règlement</h3>
-              <p className="text-xs text-neutral-500">Transaction certifiée djoonoo</p>
+              <p className="text-xs text-[#6D5D52]">Transaction certifiée djoonoo</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition cursor-pointer"
+            className="p-1.5 text-[#8C7A6B] hover:text-[#2B2119] hover:bg-[#E5DACF]/50 rounded-lg transition cursor-pointer"
             aria-label="Fermer"
           >
             <X className="w-5 h-5" />
@@ -76,11 +76,11 @@ export default function ModalDetailFacture({
         {/* Corps */}
         <div className="p-6 space-y-5">
           {/* Montant & Statut */}
-          <div className="flex items-center justify-between p-4 bg-[#FAF6F1] rounded-xl border border-neutral-200/60">
+          <div className="flex items-center justify-between p-4 bg-[#E5DACF]/30 rounded-xl border border-[#E5DACF]">
             <div>
-              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Montant réglé</p>
+              <p className="text-xs font-semibold text-[#8C7A6B] uppercase tracking-wider">Montant réglé</p>
               <p className="text-2xl font-extrabold text-[#2B2119]">
-                {facture.montant.toLocaleString()} <span className="text-sm font-semibold text-neutral-500">FCFA</span>
+                {facture.montant.toLocaleString()} <span className="text-sm font-semibold text-[#6D5D52]">FCFA</span>
               </p>
             </div>
 
@@ -106,39 +106,39 @@ export default function ModalDetailFacture({
 
           {/* Grille des caractéristiques */}
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-              <span className="text-xs text-neutral-500 font-medium">Bénéficiaire</span>
+            <div className="p-3 bg-[#E5DACF]/20 rounded-xl border border-[#E5DACF]">
+              <span className="text-xs text-[#8C7A6B] font-medium">Bénéficiaire</span>
               <p className="font-semibold text-[#2B2119] mt-0.5">{nomEntreprise}</p>
             </div>
 
-            <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-              <span className="text-xs text-neutral-500 font-medium">Prestation</span>
+            <div className="p-3 bg-[#E5DACF]/20 rounded-xl border border-[#E5DACF]">
+              <span className="text-xs text-[#8C7A6B] font-medium">Prestation</span>
               <p className="font-semibold text-[#2B2119] mt-0.5">{facture.forfaitNom || forfaitNom}</p>
             </div>
 
-            <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-              <span className="text-xs text-neutral-500 font-medium">Passerelle de paiement</span>
+            <div className="p-3 bg-[#E5DACF]/20 rounded-xl border border-[#E5DACF]">
+              <span className="text-xs text-[#8C7A6B] font-medium">Passerelle de paiement</span>
               <p className="font-semibold text-[#2B2119] mt-0.5 capitalize">
                 {facture.fournisseur_paiement === "fedapay" ? "FedaPay (MoMo / Moov)" : facture.fournisseur_paiement}
               </p>
             </div>
 
-            <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-              <span className="text-xs text-neutral-500 font-medium">Date d'opération</span>
+            <div className="p-3 bg-[#E5DACF]/20 rounded-xl border border-[#E5DACF]">
+              <span className="text-xs text-[#8C7A6B] font-medium">Date d'opération</span>
               <p className="font-semibold text-[#2B2119] mt-0.5 text-xs">{dateAffichage}</p>
             </div>
           </div>
 
           {facture.reference_externe && (
-            <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100 text-xs">
-              <span className="text-neutral-500 font-medium">Référence transaction FedaPay :</span>
+            <div className="p-3 bg-[#E5DACF]/20 rounded-xl border border-[#E5DACF] text-xs">
+              <span className="text-[#8C7A6B] font-medium">Référence transaction FedaPay :</span>
               <span className="font-mono font-semibold text-[#2B2119] ml-2">{facture.reference_externe}</span>
             </div>
           )}
         </div>
 
         {/* Pied de page & Téléchargement PDF */}
-        <div className="px-6 py-4 border-t border-neutral-100 bg-[#FAF6F1] flex items-center justify-between gap-3">
+        <div className="px-6 py-4 border-t border-[#E5DACF] bg-[#FAF6F1] flex items-center justify-between gap-3">
           <a
             href={`/api/factures-abonnement/${facture.id}/pdf`}
             target="_blank"
@@ -151,7 +151,7 @@ export default function ModalDetailFacture({
 
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-neutral-700 bg-white border border-neutral-200 hover:bg-neutral-50 transition cursor-pointer"
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#6D5D52] bg-[#FAF6F1] border border-[#E5DACF] hover:bg-[#E5DACF]/50 transition cursor-pointer"
           >
             Fermer
           </button>

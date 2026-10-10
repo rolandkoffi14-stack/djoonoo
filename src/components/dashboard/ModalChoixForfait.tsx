@@ -43,9 +43,9 @@ export default function ModalChoixForfait({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto">
-      <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl border border-neutral-200 overflow-hidden my-8">
+      <div className="bg-[#FAF6F1] rounded-3xl w-full max-w-4xl shadow-2xl border border-[#E5DACF] overflow-hidden my-8">
         {/* En-tête de la modale */}
-        <div className="flex items-center justify-between px-6 sm:px-8 py-6 border-b border-neutral-100 bg-[#FAF6F1]">
+        <div className="flex items-center justify-between px-6 sm:px-8 py-6 border-b border-[#E5DACF] bg-[#FAF6F1]">
           <div>
             <div className="flex items-center gap-2">
               <span className="p-1.5 bg-[#C1652D]/10 text-[#C1652D] rounded-lg">
@@ -55,14 +55,14 @@ export default function ModalChoixForfait({
                 Choisis la formule adaptée à ton commerce
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-neutral-600 mt-1">
+            <p className="text-xs sm:text-sm text-[#6D5D52] mt-1">
               Règlement 100% sécurisé par MTN Mobile Money et Moov Money.
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition cursor-pointer"
+            className="p-2 text-[#8C7A6B] hover:text-[#2B2119] hover:bg-[#E5DACF]/50 rounded-xl transition cursor-pointer"
             aria-label="Fermer"
           >
             <X className="w-5 h-5" />
@@ -101,10 +101,10 @@ export default function ModalChoixForfait({
                   key={f.id}
                   className={`relative rounded-2xl p-6 flex flex-col justify-between transition border-2 ${
                     affichage.estDesactive
-                      ? "bg-neutral-50/80 border-neutral-200 opacity-90"
+                      ? "bg-[#E5DACF]/20 border-[#E5DACF] opacity-90"
                       : isPopular
-                      ? "bg-white border-[#C1652D] shadow-md ring-4 ring-[#C1652D]/10"
-                      : "bg-white border-neutral-200 hover:border-neutral-300 shadow-xs"
+                      ? "bg-[#FAF6F1] border-[#C1652D] shadow-md ring-4 ring-[#C1652D]/10"
+                      : "bg-[#FAF6F1] border-[#E5DACF] hover:border-[#C1652D]/40 shadow-sm"
                   }`}
                 >
                   {/* Badge en haut */}

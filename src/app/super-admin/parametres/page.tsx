@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSuperAdminSession } from "@/lib/super-admin-auth";
 import { prisma } from "@/lib/prisma";
 import ParametresManager, { ParametreItem } from "@/components/super-admin/ParametresManager";
+import { estPlateformeInitialisee } from "@/lib/plateforme-config";
 
 export const metadata = {
   title: "Paramètres Plateforme — Super-Admin djoonoo",
@@ -11,6 +12,10 @@ export const metadata = {
 export default async function SuperAdminParametresPage() {
   const session = await getSuperAdminSession();
   if (!session) {
+    const initialisee = await estPlateformeInitialisee();
+    if (!initialisee) {
+      redirect("/super-admin/initialisation");
+    }
     redirect("/super-admin/connexion");
   }
 

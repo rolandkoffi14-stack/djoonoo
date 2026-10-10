@@ -198,11 +198,11 @@ export default function AbonnementClient({
       {activeTab === "forfait" && (
         <div className="space-y-6">
           {/* Ligne synthétique épurée / Bento Card */}
-          <div className="bg-white rounded-2xl p-6 sm:p-7 border border-neutral-200/80 shadow-xs">
+          <div className="bg-[#FAF6F1] rounded-2xl p-6 sm:p-7 border border-[#E5DACF] shadow-sm">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               {/* Colonne 1 : Formule & Statut */}
               <div className="space-y-2 lg:min-w-[200px]">
-                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-[#8C7A6B] uppercase tracking-wider">
                   Formule & Statut
                 </span>
                 <div className="flex items-center gap-3">
@@ -219,32 +219,32 @@ export default function AbonnementClient({
               </div>
 
               {/* Colonne 2 : Tarif & Cycle */}
-              <div className="space-y-1 lg:border-l lg:border-neutral-100 lg:pl-6">
-                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+              <div className="space-y-1 lg:border-l lg:border-[#E5DACF] lg:pl-6">
+                <span className="text-[11px] font-bold text-[#8C7A6B] uppercase tracking-wider">
                   Tarif & Cycle
                 </span>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-2xl font-extrabold text-[#2B2119]">
                     {forfaitPrixMensuel.toLocaleString()}
                   </span>
-                  <span className="text-xs font-semibold text-neutral-500">FCFA</span>
-                  <span className="text-xs text-neutral-400">/{forfaitDureeJours}j</span>
+                  <span className="text-xs font-semibold text-[#6D5D52]">FCFA</span>
+                  <span className="text-xs text-[#8C7A6B]">/{forfaitDureeJours}j</span>
                 </div>
-                <p className="text-xs text-neutral-500">Sans engagement</p>
+                <p className="text-xs text-[#6D5D52]">Sans engagement</p>
               </div>
 
               {/* Colonne 3 : Validité & Prochaine échéance */}
-              <div className="space-y-1 lg:border-l lg:border-neutral-100 lg:pl-6">
-                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+              <div className="space-y-1 lg:border-l lg:border-[#E5DACF] lg:pl-6">
+                <span className="text-[11px] font-bold text-[#8C7A6B] uppercase tracking-wider">
                   {statutAbonnement === "essai" ? "Fin de l'essai" : "Valide jusqu'au"}
                 </span>
                 <div className="flex items-center gap-2 mt-1">
-                  <Calendar className="w-4 h-4 text-neutral-400" />
+                  <Calendar className="w-4 h-4 text-[#8C7A6B]" />
                   <span className="text-sm font-bold text-[#2B2119]">
                     {dateEcheanceAffichage}
                   </span>
                 </div>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-[#6D5D52]">
                   {statutAbonnement === "expire"
                     ? "Accès en lecture seule"
                     : "Renouvellement en ligne"}
@@ -252,20 +252,20 @@ export default function AbonnementClient({
               </div>
 
               {/* Colonne 4 : Quotas réels d'utilisation */}
-              <div className="space-y-1 lg:border-l lg:border-neutral-100 lg:pl-6">
-                <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+              <div className="space-y-1 lg:border-l lg:border-[#E5DACF] lg:pl-6">
+                <span className="text-[11px] font-bold text-[#8C7A6B] uppercase tracking-wider">
                   Ressources Actives
                 </span>
                 <div className="space-y-1.5 mt-1 text-xs">
-                  <div className="flex items-center gap-2 text-neutral-700">
+                  <div className="flex items-center gap-2 text-[#6D5D52]">
                     <Store className="w-3.5 h-3.5 text-[#C1652D]" />
                     <span>
                       Boutiques : <strong className="text-[#2B2119]">{nbBoutiquesActives}</strong>
                       {maxBoutiquesForfait !== null ? ` / ${maxBoutiquesForfait}` : " (illimité)"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-neutral-700">
-                    <Users className="w-3.5 h-3.5 text-neutral-500" />
+                  <div className="flex items-center gap-2 text-[#6D5D52]">
+                    <Users className="w-3.5 h-3.5 text-[#8C7A6B]" />
                     <span>
                       Employés : <strong className="text-[#2B2119]">{nbEmployes}</strong>
                       {maxEmployesForfait !== null ? ` (max ${maxEmployesForfait}/boutique)` : " (illimité)"}
@@ -275,7 +275,7 @@ export default function AbonnementClient({
               </div>
 
               {/* Colonne 5 : Actions standardisées (Dilemme 1) */}
-              <div className="lg:border-l lg:border-neutral-100 lg:pl-6 flex flex-col sm:flex-row lg:flex-col gap-2.5 justify-center">
+              <div className="lg:border-l lg:border-[#E5DACF] lg:pl-6 flex flex-col sm:flex-row lg:flex-col gap-2.5 justify-center">
                 {isPatron ? (
                   <>
                     <button
@@ -297,7 +297,7 @@ export default function AbonnementClient({
                     )}
                   </>
                 ) : (
-                  <span className="text-xs text-neutral-400 italic">
+                  <span className="text-xs text-[#8C7A6B] italic">
                     Gestion réservée au Patron
                   </span>
                 )}
@@ -306,20 +306,20 @@ export default function AbonnementClient({
           </div>
 
           {/* Réassurance FedaPay */}
-          <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="bg-[#FAF6F1] rounded-2xl p-6 border border-[#E5DACF] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-[#C1652D]/10 text-[#C1652D] rounded-xl">
                 <Smartphone className="w-6 h-6" />
               </div>
               <div>
                 <h4 className="font-bold text-[#2B2119] text-sm">Règlement direct par Mobile Money</h4>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-[#6D5D52]">
                   Compatible MTN Mobile Money Bénin et Moov Money.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-semibold text-neutral-600 bg-[#FAF6F1] px-4 py-2 rounded-xl border border-neutral-200">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#6D5D52] bg-[#E5DACF]/30 px-4 py-2 rounded-xl border border-[#E5DACF]">
               <Lock className="w-3.5 h-3.5 text-[#C1652D]" />
               <span>Passerelle certifiée FedaPay • Chiffrement 256-bit</span>
             </div>

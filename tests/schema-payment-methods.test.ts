@@ -22,7 +22,7 @@ describe("Schéma Prisma Méthodes de Paiement", () => {
     expect(testMethode.derniers_chiffres).toBe("56");
     expect(testMethode.par_defaut).toBe(true);
 
-    // Nettoyage
-    await prisma.methodes_paiement_compte.delete({ where: { id: testMethode.id } });
+    // Nettoyage résilient
+    await prisma.methodes_paiement_compte.deleteMany({ where: { id: testMethode.id } });
   });
 });

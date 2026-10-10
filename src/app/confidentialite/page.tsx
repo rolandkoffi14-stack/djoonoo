@@ -1,11 +1,12 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, ShieldCheck, Lock } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
+import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: "djoonoo — Politique de Confidentialité & Protection des Données",
-  description: "Politique de confidentialité et protection des données commerciales de djoonoo par ETS. 2KR DIGITAL",
+  title: `${siteConfig.app.nom} — Politique de Confidentialité & Protection des Données`,
+  description: `Politique de confidentialité et protection des données commerciales de ${siteConfig.app.nom} par ${siteConfig.entreprise.nom}`,
 };
 
 export default function ConfidentialitePage() {
@@ -16,8 +17,8 @@ export default function ConfidentialitePage() {
           <Link href="/" className="inline-block">
             <div className="relative h-8 w-32">
               <Image
-                src="/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg"
-                alt="djoonoo logo"
+                src={siteConfig.app.logos.transparentClair}
+                alt={siteConfig.app.nom}
                 fill
                 className="object-contain"
                 priority
@@ -44,14 +45,14 @@ export default function ConfidentialitePage() {
             Politique de Confidentialité
           </h1>
           <p className="text-xs text-[#8C7A6B] mt-1 font-mono">
-            Édité par ETS. 2KR DIGITAL &bull; République du Bénin
+            Édité par {siteConfig.entreprise.nom} &bull; {siteConfig.entreprise.pays}
           </p>
         </div>
 
         <section className="space-y-3 text-sm leading-relaxed text-[#57483E]">
           <h2 className="text-lg font-bold text-[#2B2119]">1. Collecte et finalité des données</h2>
           <p>
-            Dans le cadre de l&apos;utilisation de <strong>djoonoo</strong>, nous collectons exclusivement les données
+            Dans le cadre de l&apos;utilisation de <strong>{siteConfig.app.nom}</strong>, nous collectons exclusivement les données
             strictement nécessaires à l&apos;exploitation du progiciel :
           </p>
           <ul className="list-disc pl-5 space-y-1 text-xs">
@@ -62,11 +63,11 @@ export default function ConfidentialitePage() {
         </section>
 
         <section className="space-y-3 text-sm leading-relaxed text-[#57483E]">
-          <h2 className="text-lg font-bold text-[#2B2119]">2. Étanchéité Multi-Tenant &amp; Règle 5</h2>
+          <h2 className="text-lg font-bold text-[#2B2119]">2. Étanchéité Multi-Tenant</h2>
           <p>
             Chaque entreprise dispose d&apos;un espace rigoureusement isolé. Aucune boutique ni aucun employé d&apos;une
             entreprise tierce ne peut accéder aux chiffres d&apos;affaires, aux créances ou aux stocks d&apos;une autre
-            entreprise. Ce cloisonnement est garanti au niveau architectural et applicatif (Règle 5).
+            entreprise. Ce cloisonnement est garanti au niveau architectural et applicatif.
           </p>
         </section>
 
@@ -83,14 +84,14 @@ export default function ConfidentialitePage() {
           <h2 className="text-lg font-bold text-[#2B2119]">4. Contact &amp; Exercice de vos droits</h2>
           <p>
             Pour toute demande relative à vos données ou à la suppression de votre compte, contactez l&apos;équipe
-            support par courriel à <strong>rolandkoffi14@gmail.com</strong> ou par téléphone au{" "}
-            <strong>+229 01 62 16 91 01</strong>.
+            support par courriel à <strong>{siteConfig.entreprise.emailSupport}</strong> ou par téléphone au{" "}
+            <strong>{siteConfig.entreprise.telephone}</strong>.
           </p>
         </section>
       </main>
 
       <footer className="border-t border-[#E5DACF] py-6 text-center text-xs text-[#8C7A6B]">
-        djoonoo &bull; ETS. 2KR DIGITAL &bull; Tous droits réservés
+        {siteConfig.app.nom} &bull; {siteConfig.entreprise.nom} &bull; Tous droits réservés
       </footer>
     </div>
   );

@@ -114,12 +114,12 @@ export default function MethodesPaiementTab({
 
       {/* Grille des moyens de paiement */}
       {methodes.length === 0 ? (
-        <div className="bg-white rounded-2xl p-10 border border-neutral-200/80 text-center">
-          <div className="w-12 h-12 mx-auto mb-3 bg-[#FAF6F1] rounded-2xl flex items-center justify-center text-[#C1652D]">
+        <div className="bg-[#FAF6F1] rounded-2xl p-10 border border-[#E5DACF] text-center">
+          <div className="w-12 h-12 mx-auto mb-3 bg-[#E5DACF]/30 rounded-2xl flex items-center justify-center text-[#C1652D]">
             <Smartphone className="w-6 h-6" />
           </div>
           <h4 className="font-bold text-[#2B2119] text-sm">Aucun moyen de paiement enregistré</h4>
-          <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
+          <p className="text-xs text-[#6D5D52] mt-1 max-w-sm mx-auto">
             Ajoute ton compte MTN MoMo ou Moov Money pour accélérer tes prochains renouvellements.
           </p>
           {isPatron && (
@@ -141,10 +141,10 @@ export default function MethodesPaiementTab({
             return (
               <div
                 key={m.id}
-                className={`relative rounded-2xl p-5 border-2 transition bg-white flex flex-col justify-between ${
+                className={`relative rounded-2xl p-5 border-2 transition bg-[#FAF6F1] flex flex-col justify-between ${
                   m.par_defaut
                     ? "border-[#C1652D] shadow-sm ring-2 ring-[#C1652D]/10"
-                    : "border-neutral-200 hover:border-neutral-300"
+                    : "border-[#E5DACF] hover:border-[#C1652D]/40"
                 }`}
               >
                 <div>

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Pagination from "@/components/ui/Pagination";
 import {
   CreditCard,
   CheckCircle2,
@@ -43,15 +45,60 @@ export interface FactureAbonnementItem {
 
 interface PaiementsAbonnementManagerProps {
   initialFactures: FactureAbonnementItem[];
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalElements?: number;
+  initialSearch?: string;
+  initialStatut?: string;
+  statsGlobales?: {
+    totalEnAttente: number;
+    totalPayeesFedaPay: number;
+    montantTotalEncaisse: number;
+  };
 }
 
 export default function PaiementsAbonnementManager({
   initialFactures,
+  page = 1,
+  limit = 25,
+  totalPages = 1,
+  totalElements,
+  initialSearch = "",
+  initialStatut = "tous",
+  statsGlobales,
 }: PaiementsAbonnementManagerProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [factures, setFactures] = useState<FactureAbonnementItem[]>(initialFactures);
-  const [filtreStatut, setFiltreStatut] = useState<string>("tous");
-  const [recherche, setRecherche] = useState("");
+  const [filtreStatut, setFiltreStatut] = useState<string>(initialStatut);
+  const [recherche, setRecherche] = useState(initialSearch);
   const [isPending, startTransition] = useTransition();
+
+  const appliquerFiltres = (nouveauStatut?: string, nouvelleRecherche?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const stat = nouveauStatut !== undefined ? nouveauStatut : filtreStatut;
+    const q = nouvelleRecherche !== undefined ? nouvelleRecherche : recherche;
+
+    if (stat && stat !== "tous") {
+      params.set("statut", stat);
+    } else {
+      params.delete("statut");
+    }
+
+    if (q.trim()) {
+      params.set("q", q.trim());
+    } else {
+      params.delete("q");
+    }
+
+    params.set("page", "1");
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
 
   const handleConfirmerPaiement = (
     factureId: string,
@@ -115,27 +162,21 @@ export default function PaiementsAbonnementManager({
     }
   };
 
-  const facturesFiltrees = factures.filter((f) => {
-    const matchQuery =
-      f.compte.nom_entreprise.toLowerCase().includes(recherche.toLowerCase()) ||
-      f.compte.code.toLowerCase().includes(recherche.toLowerCase()) ||
-      f.compte.email_principal.toLowerCase().includes(recherche.toLowerCase()) ||
-      (f.reference_externe && f.reference_externe.toLowerCase().includes(recherche.toLowerCase())) ||
-      f.fournisseur_paiement.toLowerCase().includes(recherche.toLowerCase());
+  const facturesFiltrees = factures;
 
-    const matchStatut =
-      filtreStatut === "tous" || f.statut === filtreStatut;
-
-    return matchQuery && matchStatut;
-  });
-
-  const totalEnAttente = factures.filter((f) => f.statut === "en_attente").length;
-  const totalPayeesFedaPay = factures.filter(
-    (f) => f.statut === "payee" && f.fournisseur_paiement === "fedapay"
-  ).length;
-  const montantTotalEncaisse = factures
-    .filter((f) => f.statut === "payee")
-    .reduce((acc, curr) => acc + curr.montant, 0);
+  const totalEnAttente = statsGlobales
+    ? statsGlobales.totalEnAttente
+    : factures.filter((f) => f.statut === "en_attente").length;
+  const totalPayeesFedaPay = statsGlobales
+    ? statsGlobales.totalPayeesFedaPay
+    : factures.filter(
+        (f) => f.statut === "payee" && f.fournisseur_paiement === "fedapay"
+      ).length;
+  const montantTotalEncaisse = statsGlobales
+    ? statsGlobales.montantTotalEncaisse
+    : factures
+        .filter((f) => f.statut === "payee")
+        .reduce((acc, curr) => acc + curr.montant, 0);
 
   return (
     <div className="space-y-6">
@@ -187,7 +228,13 @@ export default function PaiementsAbonnementManager({
 
       {/* Filtres & Recherche */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            appliquerFiltres(filtreStatut, recherche);
+          }}
+          className="relative flex-1"
+        >
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -196,11 +243,14 @@ export default function PaiementsAbonnementManager({
             onChange={(e) => setRecherche(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D]/30"
           />
-        </div>
+        </form>
 
         <select
           value={filtreStatut}
-          onChange={(e) => setFiltreStatut(e.target.value)}
+          onChange={(e) => {
+            setFiltreStatut(e.target.value);
+            appliquerFiltres(e.target.value, recherche);
+          }}
           aria-label="Filtrer par statut de paiement"
           className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#C1652D]"
         >
@@ -350,6 +400,14 @@ export default function PaiementsAbonnementManager({
             </tbody>
           </table>
         </div>
+
+        {/* Pagination du tableau */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements ?? factures.length}
+          limit={limit}
+        />
       </div>
     </div>
   );

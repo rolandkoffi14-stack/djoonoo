@@ -2,10 +2,11 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
+import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: "djoonoo — Conditions Générales d'Utilisation (CGU)",
-  description: "Conditions générales d'utilisation du service SaaS djoonoo par ETS. 2KR DIGITAL",
+  title: `${siteConfig.app.nom} — Conditions Générales d'Utilisation (CGU)`,
+  description: `Conditions générales d'utilisation du service SaaS ${siteConfig.app.nom} par ${siteConfig.entreprise.nom}`,
 };
 
 export default function CguPage() {
@@ -16,8 +17,8 @@ export default function CguPage() {
           <Link href="/" className="inline-block">
             <div className="relative h-8 w-32">
               <Image
-                src="/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg"
-                alt="djoonoo logo"
+                src={siteConfig.app.logos.transparentClair}
+                alt={siteConfig.app.nom}
                 fill
                 className="object-contain"
                 priority
@@ -43,42 +44,48 @@ export default function CguPage() {
             Conditions Générales d&apos;Utilisation (CGU)
           </h1>
           <p className="text-xs text-[#8C7A6B] mt-1 font-mono">
-            Dernière mise à jour : 26 septembre 2026 &bull; Conforme à la législation de la République du Bénin
+            Dernière mise à jour : {siteConfig.entreprise.dateDerniereMajMentions} &bull; Conforme à la législation de la {siteConfig.entreprise.pays}
           </p>
         </div>
 
         <section className="space-y-3 text-sm leading-relaxed text-[#57483E]">
           <h2 className="text-lg font-bold text-[#2B2119]">1. Éditeur de la plateforme</h2>
           <p>
-            La plateforme logicielle <strong>djoonoo</strong> est éditée et exploitée par l&apos;entreprise{" "}
-            <strong>ETS. 2KR DIGITAL</strong>, immatriculée en République du Bénin :
+            La plateforme logicielle <strong>{siteConfig.app.nom}</strong> est éditée et exploitée par l&apos;entreprise{" "}
+            <strong>{siteConfig.entreprise.nom}</strong>, immatriculée en {siteConfig.entreprise.pays} :
           </p>
           <ul className="list-disc pl-5 space-y-1 text-xs font-mono">
-            <li><strong>Siège social</strong> : Ilôt 251, parcelle C&apos;, Cocotomey, Abomey-Calavi, Bénin</li>
-            <li><strong>Téléphone</strong> : +229 01 62 16 91 01</li>
-            <li><strong>Courriel de contact</strong> : rolandkoffi14@gmail.com</li>
+            <li><strong>Siège social</strong> : {siteConfig.entreprise.adresseSiege}</li>
+            <li><strong>Téléphone</strong> : {siteConfig.entreprise.telephone}</li>
+            <li><strong>Courriel de contact</strong> : {siteConfig.entreprise.emailContact}</li>
+            {siteConfig.entreprise.ifu && (
+              <li><strong>IFU</strong> : {siteConfig.entreprise.ifu}</li>
+            )}
+            {siteConfig.entreprise.rccm && (
+              <li><strong>RCCM</strong> : {siteConfig.entreprise.rccm}</li>
+            )}
           </ul>
         </section>
 
         <section className="space-y-3 text-sm leading-relaxed text-[#57483E]">
           <h2 className="text-lg font-bold text-[#2B2119]">2. Objet du service</h2>
           <p>
-            djoonoo est un progiciel de gestion intégrée en mode SaaS (Software as a Service) dédié à la
+            {siteConfig.app.nom} est un progiciel de gestion intégrée en mode SaaS (Software as a Service) dédié à la
             gestion des points de vente, des stocks, de la facturation et du suivi des créances impayées
-            pour les commerçants exerçant sur le territoire de la République du Bénin.
+            pour les commerçants exerçant sur le territoire de la {siteConfig.entreprise.pays}.
           </p>
         </section>
 
         <section className="space-y-3 text-sm leading-relaxed text-[#57483E]">
           <h2 className="text-lg font-bold text-[#2B2119]">3. Période d&apos;essai et forfaits d&apos;abonnement</h2>
           <p>
-            Tout nouveau compte Patron bénéficie d&apos;une période d&apos;essai gratuite de 14 jours. À l&apos;issue de
-            cette période, le maintien de l&apos;accès est conditionné à la souscription d&apos;un forfait mensuel
-            (Solo, Réseau, Empire ou tout forfait personnalisé défini sur la plateforme).
+            Tout nouveau compte Patron bénéficie d&apos;une période d&apos;essai gratuite configurable sur la plateforme.
+            À l&apos;issue de cette période, le maintien de l&apos;accès est conditionné à la souscription d&apos;un forfait
+            selon la grille tarifaire active.
           </p>
           <p>
-            En cas de retard de règlement, un délai de grâce de 7 jours est accordé au commerçant (statut
-            impayé) avant toute suspension administrative de l&apos;accès à son tableau de bord.
+            En cas de retard de règlement, un délai de grâce est accordé au commerçant (statut
+            impayé) avant tout basculement en mode lecture seule ou suspension administrative.
           </p>
         </section>
 
@@ -86,7 +93,7 @@ export default function CguPage() {
           <h2 className="text-lg font-bold text-[#2B2119]">4. Responsabilité &amp; Sécurité des données</h2>
           <p>
             Les données de ventes, de stock et de clientèle sont strictement isolées par compte entreprise
-            (Règle 5 multi-tenant). Chaque utilisateur est responsable de la conservation de ses identifiants
+            (Règle multi-tenant). Chaque utilisateur est responsable de la conservation de ses identifiants
             et de l&apos;activation obligatoire de l&apos;authentification à double facteur (2FA TOTP) pour les rôles
             de Patron et Gérant.
           </p>
@@ -94,7 +101,7 @@ export default function CguPage() {
       </main>
 
       <footer className="border-t border-[#E5DACF] py-6 text-center text-xs text-[#8C7A6B]">
-        djoonoo &bull; ETS. 2KR DIGITAL &bull; Tous droits réservés
+        {siteConfig.app.nom} &bull; {siteConfig.entreprise.nom} &bull; Tous droits réservés
       </footer>
     </div>
   );

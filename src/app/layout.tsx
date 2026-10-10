@@ -9,13 +9,14 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
+import { siteConfig } from "@/config/site";
+
 export const metadata: Metadata = {
-  title: "djoonoo — ta boutique, à portée de main",
-  description:
-    "djoonoo voit ta boutique pour toi. Ventes, stock, impayés — en un coup d'œil, où que tu sois.",
+  title: `${siteConfig.app.nom} — ${siteConfig.app.slogan.toLowerCase()}`,
+  description: siteConfig.app.description,
   icons: {
-    icon: "/brand/03_web_pwa/favicon.ico",
-    apple: "/brand/03_web_pwa/apple-touch-icon.png",
+    icon: siteConfig.app.logos.favicon,
+    apple: siteConfig.app.logos.appleTouchIcon,
   },
 };
 
@@ -25,8 +26,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${montserrat.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans selection:bg-[#C1652D] selection:text-[#FAF6F1]">
+    <html lang="fr" className={`${montserrat.variable} h-full antialiased`} suppressHydrationWarning>
+      <body
+        className="min-h-full flex flex-col font-sans selection:bg-[#C1652D] selection:text-[#FAF6F1]"
+        suppressHydrationWarning
+      >
         {children}
       </body>
     </html>

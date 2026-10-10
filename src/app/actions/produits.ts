@@ -5,6 +5,8 @@ import { prisma, getScopedPrisma } from "@/lib/prisma";
 import { enregistrerAudit, genererCodeSKU } from "@/lib/business-rules";
 import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
+import { ProduitInputSchema } from "@/lib/validations";
+import { formatSafeError } from "@/lib/safe-action";
 
 export interface ProduitActionResult {
   success: boolean;
@@ -69,8 +71,21 @@ export async function creerProduitAction(
   const quantiteStock = quantiteInitialeRaw ? Math.max(0, parseInt(quantiteInitialeRaw, 10)) : 0;
   const seuilAlerte = seuilAlerteRaw ? Math.max(0, parseInt(seuilAlerteRaw, 10)) : 5;
 
-  if (isNaN(prixUnitaire) || prixUnitaire <= 0) {
-    return { success: false, error: "Le prix unitaire doit être un montant entier strictement positif en FCFA." };
+  // Validation déclarative stricte par schéma Zod (Phase 5 - Item 4.1 de l'audit)
+  const validation = ProduitInputSchema.safeParse({
+    nom,
+    boutique_id: boutiqueId,
+    prix_unitaire: prixUnitaire,
+    quantite_stock: quantiteStock,
+    seuil_alerte: seuilAlerte,
+    code_barre: codeBarreSaisi || undefined,
+  });
+
+  if (!validation.success) {
+    return {
+      success: false,
+      error: validation.error.issues[0]?.message || "Données du produit invalides.",
+    };
   }
 
   try {
@@ -158,7 +173,7 @@ export async function creerProduitAction(
     };
   } catch (err: any) {
     console.error("Erreur création produit :", err);
-    return { success: false, error: "Erreur serveur lors de la création : " + (err.message || "") };
+    return { success: false, error: formatSafeError(err, "Erreur lors de la création du produit.") };
   }
 }
 

@@ -4,6 +4,8 @@ import { getCurrentSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { creerTransactionFedaPay } from "@/lib/fedapay";
 import { ajouterMethodePaiementInterne } from "./payment-methods";
+import { formatSafeError } from "@/lib/safe-action";
+import { siteConfig } from "@/config/site";
 
 export interface InitierPaiementParams {
   forfaitId: string;
@@ -71,7 +73,7 @@ export async function initierPaiementAbonnementAction(
   }
 
   try {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || siteConfig.app.url;
     const callbackUrl = `${appUrl}/dashboard/abonnement?status=verif`;
 
     const telFinal = telephonePaiement || compte.telephone_principal;
@@ -90,7 +92,7 @@ export async function initierPaiementAbonnementAction(
   } catch (err: any) {
     return {
       success: false,
-      error: err.message || "Erreur lors de l'initialisation du paiement.",
+      error: formatSafeError(err, "Erreur lors de l'initialisation du paiement."),
     };
   }
 }

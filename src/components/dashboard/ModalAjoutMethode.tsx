@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { X, Smartphone, CreditCard, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
 import { ajouterMethodePaiementAction } from "@/app/actions/payment-methods";
+import { siteConfig } from "@/config/site";
 
 interface ModalAjoutMethodeProps {
   isOpen: boolean;
@@ -52,21 +53,21 @@ export default function ModalAjoutMethode({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-xl border border-neutral-200 overflow-hidden">
+      <div className="bg-[#FAF6F1] rounded-2xl w-full max-w-md shadow-xl border border-[#E5DACF] overflow-hidden">
         {/* En-tête */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-[#FAF6F1]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-[#E5DACF] bg-[#FAF6F1]">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-[#C1652D]/10 rounded-lg text-[#C1652D]">
               <Smartphone className="w-5 h-5" />
             </div>
             <div>
               <h3 className="font-bold text-[#2B2119] text-base">Ajouter un moyen de paiement</h3>
-              <p className="text-xs text-neutral-500">MTN MoMo & Moov Money Bénin</p>
+              <p className="text-xs text-[#6D5D52]">MTN MoMo & Moov Money Bénin</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-lg transition cursor-pointer"
+            className="p-1.5 text-[#8C7A6B] hover:text-[#2B2119] hover:bg-[#E5DACF]/50 rounded-lg transition cursor-pointer"
             aria-label="Fermer"
           >
             <X className="w-5 h-5" />
@@ -94,7 +95,7 @@ export default function ModalAjoutMethode({
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
                   type === "mtn_momo"
                     ? "bg-[#C1652D]/10 border-[#C1652D] text-[#C1652D] ring-2 ring-[#C1652D]/20"
-                    : "bg-white border-neutral-200 hover:bg-neutral-50 text-neutral-700"
+                    : "bg-[#FAF6F1] border-[#E5DACF] hover:bg-[#E5DACF]/40 text-[#2B2119]"
                 }`}
               >
                 <Smartphone className="w-3.5 h-3.5 text-[#C1652D]" />
@@ -107,7 +108,7 @@ export default function ModalAjoutMethode({
                 className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer ${
                   type === "moov_money"
                     ? "bg-[#C1652D]/10 border-[#C1652D] text-[#C1652D] ring-2 ring-[#C1652D]/20"
-                    : "bg-white border-neutral-200 hover:bg-neutral-50 text-neutral-700"
+                    : "bg-[#FAF6F1] border-[#E5DACF] hover:bg-[#E5DACF]/40 text-[#2B2119]"
                 }`}
               >
                 <Smartphone className="w-3.5 h-3.5 text-[#C1652D]" />
@@ -128,25 +129,25 @@ export default function ModalAjoutMethode({
                 value={numeroTelephone}
                 onChange={(e) => setNumeroTelephone(e.target.value)}
                 placeholder="Numéro de téléphone"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D] focus:border-[#C1652D]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D] focus:border-[#C1652D]"
               />
             </div>
-            <p className="text-[11px] text-neutral-500 mt-1">
-              Format béninois (+229) ou numéro local sans indicatif.
+            <p className="text-[11px] text-[#8C7A6B] mt-1">
+              {siteConfig.regional.formatTelAide}
             </p>
           </div>
 
           {/* Nom du titulaire */}
           <div>
             <label className="block text-xs font-bold text-[#2B2119] mb-1.5">
-              Nom du titulaire <span className="font-normal text-neutral-500">(optionnel)</span>
+              Nom du titulaire <span className="font-normal text-[#8C7A6B]">(optionnel)</span>
             </label>
             <input
               type="text"
               value={nomTitulaire}
               onChange={(e) => setNomTitulaire(e.target.value)}
               placeholder="Nom et prénoms du titulaire"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D] focus:border-[#C1652D]"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D] focus:border-[#C1652D]"
             />
           </div>
 
@@ -156,7 +157,7 @@ export default function ModalAjoutMethode({
               type="checkbox"
               checked={parDefaut}
               onChange={(e) => setParDefaut(e.target.checked)}
-              className="w-4 h-4 rounded text-[#C1652D] focus:ring-[#C1652D] border-neutral-300 cursor-pointer"
+              className="w-4 h-4 rounded text-[#C1652D] focus:ring-[#C1652D] border-[#E5DACF] cursor-pointer"
             />
             <span className="text-xs font-semibold text-[#2B2119]">
               Définir comme méthode de paiement par défaut
@@ -168,7 +169,7 @@ export default function ModalAjoutMethode({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-neutral-700 bg-white border border-neutral-200 hover:bg-neutral-50 transition cursor-pointer"
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#6D5D52] bg-[#FAF6F1] border border-[#E5DACF] hover:bg-[#E5DACF]/50 transition cursor-pointer"
             >
               Annuler
             </button>

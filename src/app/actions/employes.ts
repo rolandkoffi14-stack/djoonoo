@@ -8,6 +8,7 @@ import { enregistrerAudit } from "@/lib/business-rules";
 import { revalidatePath } from "next/cache";
 import { RoleUtilisateur, StatutUtilisateur } from "@prisma/client";
 import { envoyerEmailInvitation } from "@/lib/email";
+import { siteConfig } from "@/config/site";
 
 export interface EmployeActionResult {
   success: boolean;
@@ -115,7 +116,7 @@ export async function creerEmployeAction(
     // 5. Génération du token cryptographique d'invitation (32 octets, valable 48h)
     const rawToken = crypto.randomBytes(32).toString("hex");
     const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
-    const dateExpiration = new Date(Date.now() + 48 * 60 * 60 * 1000);
+    const dateExpiration = new Date(Date.now() + siteConfig.saas.dureeExpirationInvitationHeures * 60 * 60 * 1000);
 
     // 6. Transaction atomique Prisma : utilisateur (en_attente) + token d'invitation + affectation + audit
     const nouvelEmploye = await prisma.$transaction(async (tx) => {
@@ -181,7 +182,7 @@ export async function creerEmployeAction(
         const proto = headersList.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
         baseUrl = `${proto}://${host}`;
       } catch {
-        baseUrl = "http://localhost:3000";
+        baseUrl = siteConfig.app.url;
       }
     }
     const lienInvitation = `${baseUrl}/invitation/${rawToken}`;
@@ -260,7 +261,7 @@ export async function renvoyerInvitationAction(
 
     const rawToken = crypto.randomBytes(32).toString("hex");
     const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
-    const dateExpiration = new Date(Date.now() + 48 * 60 * 60 * 1000);
+    const dateExpiration = new Date(Date.now() + siteConfig.saas.dureeExpirationInvitationHeures * 60 * 60 * 1000);
 
     // Mettre à jour le token
     await prisma.tokens_invitation.upsert({
@@ -284,7 +285,7 @@ export async function renvoyerInvitationAction(
         const proto = headersList.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
         baseUrl = `${proto}://${host}`;
       } catch {
-        baseUrl = "http://localhost:3000";
+        baseUrl = siteConfig.app.url;
       }
     }
     const lienInvitation = `${baseUrl}/invitation/${rawToken}`;

@@ -389,7 +389,7 @@ export default function InvitationActivationPage() {
                         maxLength={6}
                         value={codeTotp}
                         onChange={(e) => setCodeTotp(e.target.value.replace(/\D/g, ""))}
-                        placeholder="Code à 6 chiffres"
+                        placeholder="000000"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm font-mono font-bold tracking-widest text-center text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                       />
                     </div>

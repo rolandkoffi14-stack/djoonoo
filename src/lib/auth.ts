@@ -5,11 +5,8 @@ import { generateSecret, generateURI, verifySync, generateSync } from "otplib";
 import QRCode from "qrcode";
 import { RoleUtilisateur, StatutAbonnement } from "@prisma/client";
 
-const AUTH_SECRET =
-  process.env.AUTH_SECRET ||
-  process.env.NEXTAUTH_SECRET ||
-  "djoonoo-production-secret-must-be-configured-securely-32chars";
-const KEY = new TextEncoder().encode(AUTH_SECRET);
+import { getJwtSecret } from "@/lib/env";
+
 const COOKIE_NAME = "djoonoo_session";
 
 export interface SessionPayload {
@@ -46,7 +43,7 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(KEY);
+    .sign(getJwtSecret());
 }
 
 /**
@@ -54,7 +51,7 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
  */
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, KEY, {
+    const { payload } = await jwtVerify(token, getJwtSecret(), {
       algorithms: ["HS256"],
     });
     return payload as unknown as SessionPayload;

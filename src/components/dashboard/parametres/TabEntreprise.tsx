@@ -64,25 +64,25 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-neutral-200/80 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-neutral-100 gap-4">
+      <div className="bg-[#FAF6F1] rounded-2xl p-6 sm:p-8 border border-[#E5DACF] shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-[#E5DACF] gap-4">
           <div>
             <h3 className="font-bold text-[#2B2119] text-lg">Identité légale & Siège social</h3>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <p className="text-xs text-[#6D5D52] mt-0.5">
               Ces informations figurent sur tes reçus et documents officiels djoonoo.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-neutral-400 font-medium">Code compte :</span>
-            <span className="font-mono text-xs font-bold px-2.5 py-1 bg-neutral-100 text-[#2B2119] rounded-lg border border-neutral-200">
+            <span className="text-xs text-[#8C7A6B] font-medium">Code compte :</span>
+            <span className="font-mono text-xs font-bold px-2.5 py-1 bg-[#E5DACF]/40 text-[#2B2119] rounded-lg border border-[#E5DACF]">
               {entreprise.code}
             </span>
           </div>
         </div>
 
         {message && (
-          <div className="mb-6 p-4 bg-[#FAF6F1] border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
+          <div className="mb-6 p-4 bg-[#E5DACF]/30 border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
             <span className="font-medium">{message}</span>
           </div>
@@ -103,13 +103,13 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 Raison sociale / Nom commercial *
               </label>
               <div className="relative">
-                <Building2 className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <Building2 className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                 <input
                   type="text"
                   required
                   value={nomEntreprise}
                   onChange={(e) => setNomEntreprise(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
             </div>
@@ -123,7 +123,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 value={formeJuridique}
                 onChange={(e) => setFormeJuridique(e.target.value)}
                 placeholder="Forme juridique"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>
           </div>
@@ -135,13 +135,13 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 Numéro IFU (Fiscal)
               </label>
               <div className="relative">
-                <Hash className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <Hash className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                 <input
                   type="text"
                   value={ifu}
                   onChange={(e) => setIfu(e.target.value)}
                   placeholder="Numéro IFU"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
             </div>
@@ -151,13 +151,13 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 Numéro RCCM (Commerce)
               </label>
               <div className="relative">
-                <FileText className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <FileText className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                 <input
                   type="text"
                   value={rccm}
                   onChange={(e) => setRccm(e.target.value)}
                   placeholder="Numéro RCCM"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
             </div>
@@ -170,14 +170,14 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 Téléphone principal *
               </label>
               <div className="relative">
-                <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                 <input
                   type="tel"
                   required
                   value={telephonePrincipal}
                   onChange={(e) => setTelephonePrincipal(e.target.value)}
                   placeholder="Numéro de téléphone principal"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
             </div>
@@ -187,13 +187,13 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 Téléphone secondaire
               </label>
               <div className="relative">
-                <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                 <input
                   type="tel"
                   value={telephoneSecondaire}
                   onChange={(e) => setTelephoneSecondaire(e.target.value)}
                   placeholder="Numéro de téléphone secondaire"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
             </div>
@@ -206,14 +206,14 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 Ville du siège *
               </label>
               <div className="relative">
-                <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                 <input
                   type="text"
                   required
                   value={ville}
                   onChange={(e) => setVille(e.target.value)}
                   placeholder="Ville du siège"
-                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
               </div>
             </div>
@@ -227,7 +227,7 @@ export default function TabEntreprise({ entreprise }: TabEntrepriseProps) {
                 value={adresseSiege}
                 onChange={(e) => setAdresseSiege(e.target.value)}
                 placeholder="Adresse du siège"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>
           </div>

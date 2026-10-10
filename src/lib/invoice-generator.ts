@@ -3,6 +3,8 @@
  * Produit un document HTML print-ready format A4 avec mentions légales complètes.
  */
 
+import { siteConfig } from "@/config/site";
+
 export interface FactureAbonnementData {
   numeroFacture: string;
   dateEmission: string;
@@ -108,10 +110,10 @@ export function genererHtmlFactureAbonnement(data: FactureAbonnementData): strin
           </svg>
         </div>
         <div class="issuer-info">
-          <strong>djoonoo Technologies</strong><br>
-          Cotonou, République du Bénin<br>
-          RCCM : RB/COT/24 B 12345 • IFU : 0202412345678<br>
-          Contact : support@djoonoo.com • +229 01 00 00 00
+          <strong>${siteConfig.entreprise.nom}</strong><br>
+          ${siteConfig.entreprise.adresseSiege}<br>
+          ${siteConfig.entreprise.rccm || siteConfig.entreprise.ifu ? `${siteConfig.entreprise.rccm ? `RCCM : ${siteConfig.entreprise.rccm}` : ""}${siteConfig.entreprise.rccm && siteConfig.entreprise.ifu ? " • " : ""}${siteConfig.entreprise.ifu ? `IFU : ${siteConfig.entreprise.ifu}` : ""}<br>` : ""}
+          Contact : ${siteConfig.entreprise.emailSupport} • ${siteConfig.entreprise.telephone}
         </div>
       </div>
 
@@ -202,8 +204,8 @@ export function genererHtmlFactureAbonnement(data: FactureAbonnementData): strin
     }
 
     <div class="footer">
-      Facture générée automatiquement par la plateforme djoonoo.<br>
-      Pour toute question comptable ou fiscale, contactez notre support à support@djoonoo.com.
+      Facture générée automatiquement par la plateforme ${siteConfig.app.nom}.<br>
+      Pour toute question comptable ou fiscale, contactez notre support à ${siteConfig.entreprise.emailSupport}.
     </div>
   </div>
 </body>

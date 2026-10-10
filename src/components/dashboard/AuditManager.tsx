@@ -223,7 +223,7 @@ export default function AuditManager({
 
       {/* Cartes KPI / Statistiques */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-white border border-[#E5DACF] shadow-xs">
+        <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#E5DACF] shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold text-[#8C7A6B] uppercase tracking-wider mb-2">
             <span>Événements Enregistrés</span>
             <FileText className="w-4 h-4 text-[#8C7A6B]" />
@@ -234,7 +234,7 @@ export default function AuditManager({
           <p className="text-xs text-[#8C7A6B] mt-1">Traçabilité complète depuis la création</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-[#E5DACF] shadow-xs">
+        <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#E5DACF] shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold text-[#8C7A6B] uppercase tracking-wider mb-2">
             <span>Activité Aujourd&apos;hui</span>
             <Calendar className="w-4 h-4 text-[#C1652D]" />
@@ -245,7 +245,7 @@ export default function AuditManager({
           <p className="text-xs text-[#8C7A6B] mt-1">Actions posées ces dernières 24h</p>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-[#E5DACF] shadow-xs">
+        <div className="p-5 rounded-2xl bg-[#FAF6F1] border border-[#E5DACF] shadow-sm">
           <div className="flex items-center justify-between text-xs font-bold text-[#8C7A6B] uppercase tracking-wider mb-2">
             <span>Opérations Sensibles</span>
             <AlertTriangle className="w-4 h-4 text-[#C1652D]" />
@@ -276,7 +276,7 @@ export default function AuditManager({
               className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 focus:outline-none ${
                 isActive
                   ? "bg-[#C1652D] text-[#FAF6F1] shadow-xs"
-                  : "bg-white text-[#6D5D52] border border-[#E5DACF] hover:bg-[#FAF6F1] hover:text-[#2B2119]"
+                  : "bg-[#FAF6F1] text-[#6D5D52] border border-[#E5DACF] hover:bg-[#E5DACF]/40 hover:text-[#2B2119]"
               }`}
             >
               {Icon && <Icon className="w-3.5 h-3.5" />}
@@ -295,7 +295,7 @@ export default function AuditManager({
             placeholder="Rechercher par action, entité, numéro de facture, nom d'employé..."
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
-            className="w-full pl-10 pr-24 py-2.5 bg-white border border-[#E5DACF] rounded-xl text-sm text-[#2B2119] focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D]"
+            className="w-full pl-10 pr-24 py-2.5 bg-[#FAF6F1] border border-[#E5DACF] rounded-xl text-sm text-[#2B2119] focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D]"
           />
           <button
             type="submit"
@@ -310,7 +310,7 @@ export default function AuditManager({
             value={selectedUtilisateur}
             onChange={handleUtilisateurChange}
             aria-label="Filtrer par collaborateur"
-            className="px-3.5 py-2.5 bg-white border border-[#E5DACF] rounded-xl text-sm font-semibold text-[#2B2119] focus:outline-none focus:border-[#C1652D]"
+            className="px-3.5 py-2.5 bg-[#FAF6F1] border border-[#E5DACF] rounded-xl text-sm font-semibold text-[#2B2119] focus:outline-none focus:border-[#C1652D]"
           >
             <option value="tous">Tous les collaborateurs</option>
             {utilisateurs.map((u) => (
@@ -323,7 +323,7 @@ export default function AuditManager({
       </div>
 
       {/* Tableau / Liste du Journal d'Audit */}
-      <div className="bg-white rounded-2xl border border-[#E5DACF] overflow-hidden shadow-xs">
+      <div className="bg-[#FAF6F1] rounded-2xl border border-[#E5DACF] overflow-hidden shadow-sm">
         {logs.length === 0 ? (
           <div className="p-12 text-center">
             <ShieldCheck className="w-12 h-12 text-[#E5DACF] mx-auto mb-3" />
@@ -442,7 +442,7 @@ export default function AuditManager({
       {/* MODALE D'INSPECTION DES DÉTAILS DE L'AUDIT */}
       {inspectModalOpen && inspectedLog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-          <div className="bg-white border border-[#E5DACF] rounded-2xl shadow-2xl max-w-xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl shadow-2xl max-w-xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Header de la modale */}
             <div className="p-5 border-b border-[#E5DACF] flex items-center justify-between bg-[#FAF6F1]">
               <div className="flex items-center gap-2.5">

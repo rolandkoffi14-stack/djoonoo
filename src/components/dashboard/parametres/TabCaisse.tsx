@@ -32,21 +32,21 @@ export default function TabCaisse() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-neutral-200/80 shadow-xs">
-        <div className="flex items-center gap-3 pb-6 mb-6 border-b border-neutral-100">
-          <div className="p-2.5 bg-[#FAF6F1] text-[#C1652D] rounded-xl">
+      <div className="bg-[#FAF6F1] rounded-2xl p-6 sm:p-8 border border-[#E5DACF] shadow-sm">
+        <div className="flex items-center gap-3 pb-6 mb-6 border-b border-[#E5DACF]">
+          <div className="p-2.5 bg-[#E5DACF]/40 text-[#C1652D] rounded-xl">
             <Printer className="w-5 h-5" />
           </div>
           <div>
             <h3 className="font-bold text-[#2B2119] text-lg">Caisse POS & Reçus de Vente</h3>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <p className="text-xs text-[#6D5D52] mt-0.5">
               Personnalise ton imprimante de caisse et les mentions imprimées remises aux clients.
             </p>
           </div>
         </div>
 
         {sauvegarde && (
-          <div className="mb-6 p-4 bg-[#FAF6F1] border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
+          <div className="mb-6 p-4 bg-[#E5DACF]/30 border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
             <span className="font-medium">Préférences de caisse enregistrées avec succès sur ce poste.</span>
           </div>
@@ -65,11 +65,11 @@ export default function TabCaisse() {
                 onClick={() => setFormatImpression("ticket_80mm")}
                 className={`p-4 rounded-2xl border-2 transition cursor-pointer flex items-start gap-3.5 ${
                   formatImpression === "ticket_80mm"
-                    ? "border-[#C1652D] bg-[#FAF6F1]/50 ring-2 ring-[#C1652D]/10"
-                    : "border-neutral-200 hover:border-neutral-300 bg-white"
+                    ? "border-[#C1652D] bg-[#FAF6F1] ring-2 ring-[#C1652D]/10"
+                    : "border-[#E5DACF] hover:border-[#C1652D]/40 bg-[#FAF6F1]"
                 }`}
               >
-                <div className={`p-2.5 rounded-xl ${formatImpression === "ticket_80mm" ? "bg-[#C1652D] text-white" : "bg-neutral-100 text-neutral-500"}`}>
+                <div className={`p-2.5 rounded-xl ${formatImpression === "ticket_80mm" ? "bg-[#C1652D] text-white" : "bg-[#E5DACF]/50 text-[#6D5D52]"}`}>
                   <Receipt className="w-5 h-5" />
                 </div>
                 <div>
@@ -79,7 +79,7 @@ export default function TabCaisse() {
                       Recommandé
                     </span>
                   </div>
-                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                  <p className="text-xs text-[#6D5D52] mt-1 leading-relaxed">
                     Idéal pour les imprimantes de caisse POS / tickets de caisse compacts à sortie rapide.
                   </p>
                 </div>
@@ -90,16 +90,16 @@ export default function TabCaisse() {
                 onClick={() => setFormatImpression("facture_a4")}
                 className={`p-4 rounded-2xl border-2 transition cursor-pointer flex items-start gap-3.5 ${
                   formatImpression === "facture_a4"
-                    ? "border-[#C1652D] bg-[#FAF6F1]/50 ring-2 ring-[#C1652D]/10"
-                    : "border-neutral-200 hover:border-neutral-300 bg-white"
+                    ? "border-[#C1652D] bg-[#FAF6F1] ring-2 ring-[#C1652D]/10"
+                    : "border-[#E5DACF] hover:border-[#C1652D]/40 bg-[#FAF6F1]"
                 }`}
               >
-                <div className={`p-2.5 rounded-xl ${formatImpression === "facture_a4" ? "bg-[#C1652D] text-white" : "bg-neutral-100 text-neutral-500"}`}>
+                <div className={`p-2.5 rounded-xl ${formatImpression === "facture_a4" ? "bg-[#C1652D] text-white" : "bg-[#E5DACF]/50 text-[#6D5D52]"}`}>
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-[#2B2119]">Facture A4 Standard</h4>
-                  <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
+                  <p className="text-xs text-[#6D5D52] mt-1 leading-relaxed">
                     Format pleine page adapté aux imprimantes bureautiques traditionnelles et archivage.
                   </p>
                 </div>
@@ -113,32 +113,32 @@ export default function TabCaisse() {
               Message personnalisé en bas de ticket
             </label>
             <div className="relative">
-              <MessageSquare className="w-4 h-4 absolute left-3.5 top-3 text-neutral-400" />
+              <MessageSquare className="w-4 h-4 absolute left-3.5 top-3 text-[#8C7A6B]" />
               <textarea
                 rows={2}
                 value={messagePied}
                 onChange={(e) => setMessagePied(e.target.value)}
                 placeholder="Message personnalisé en pied de ticket..."
-                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>
-            <p className="text-[11px] text-neutral-400 mt-1">
+            <p className="text-[11px] text-[#8C7A6B] mt-1">
               Ce texte sera imprimé au bas de chaque reçu délivré au client en caisse.
             </p>
           </div>
 
           {/* Aperçu direct du ticket */}
-          <div className="max-w-sm p-4 bg-[#FAF6F1] rounded-2xl border border-neutral-200/80 space-y-3">
+          <div className="max-w-sm p-4 bg-[#E5DACF]/30 rounded-2xl border border-[#E5DACF] space-y-3">
             <div className="flex items-center gap-2 text-xs font-bold text-[#2B2119]">
               <Sparkles className="w-3.5 h-3.5 text-[#C1652D]" />
               <span>Aperçu du pied de reçu</span>
             </div>
-            <div className="bg-white p-3.5 rounded-xl border border-dashed border-neutral-300 text-center font-mono text-xs text-neutral-600">
-              <p className="text-[11px] text-neutral-400">--- FIN DE TICKET ---</p>
+            <div className="bg-[#FAF6F1] p-3.5 rounded-xl border border-dashed border-[#E5DACF] text-center font-mono text-xs text-[#6D5D52]">
+              <p className="text-[11px] text-[#8C7A6B]">--- FIN DE TICKET ---</p>
               <p className="font-semibold text-[#2B2119] mt-1.5 italic text-xs">
                 « {messagePied || "Merci pour votre achat !"} »
               </p>
-              <p className="text-[10px] text-neutral-400 mt-2 font-sans">
+              <p className="text-[10px] text-[#8C7A6B] mt-2 font-sans">
                 Logiciel de caisse propulsé par djoonoo
               </p>
             </div>

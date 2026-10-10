@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { StatutAbonnement, StatutFactureAbonnement } from "@prisma/client";
+import { siteConfig } from "@/config/site";
 
 export interface RapportCycleAbonnements {
   success: boolean;
@@ -39,8 +40,8 @@ export async function executerCycleAbonnements(): Promise<RapportCycleAbonnement
     prisma.parametres_plateforme.findUnique({ where: { cle: "duree_essai_jours" } }),
   ]);
 
-  const delaiGraceJours = parseInt(paramDelaiGrace?.valeur || "7", 10);
-  const dureeEssaiJours = parseInt(paramDureeEssai?.valeur || "14", 10);
+  const delaiGraceJours = parseInt(paramDelaiGrace?.valeur || String(siteConfig.saas.delaiGraceJoursDefaut), 10);
+  const dureeEssaiJours = parseInt(paramDureeEssai?.valeur || String(siteConfig.saas.dureeEssaiJoursDefaut), 10);
 
   const rapport: RapportCycleAbonnements = {
     success: true,

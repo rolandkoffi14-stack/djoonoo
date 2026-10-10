@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSuperAdminSession } from "@/lib/super-admin-auth";
 import { prisma } from "@/lib/prisma";
 import ForfaitsManager, { ForfaitItem } from "@/components/super-admin/ForfaitsManager";
+import { estPlateformeInitialisee } from "@/lib/plateforme-config";
 
 export const metadata = {
   title: "Forfaits & Quotas — Super-Admin djoonoo",
@@ -11,6 +12,10 @@ export const metadata = {
 export default async function SuperAdminForfaitsPage() {
   const session = await getSuperAdminSession();
   if (!session) {
+    const initialisee = await estPlateformeInitialisee();
+    if (!initialisee) {
+      redirect("/super-admin/initialisation");
+    }
     redirect("/super-admin/connexion");
   }
 

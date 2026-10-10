@@ -1,20 +1,21 @@
 import { PrismaClient } from "@prisma/client";
+import { siteConfig } from "../src/config/site";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Démarrage du seed djoonoo...");
+  console.log("🌱 Démarrage du seed djoonoo depuis siteConfig...");
 
-  // 1. Paramètres plateforme initiaux (Section 3, Section 5.2, Section 16 point 6 & 7)
+  // 1. Paramètres plateforme initiaux configurés depuis siteConfig
   const parametres = [
     {
       cle: "duree_essai_jours",
-      valeur: "14",
+      valeur: String(siteConfig.saas.dureeEssaiJoursDefaut),
       description: "Durée de la période d'essai initiale en jours (standard SaaS)",
     },
     {
       cle: "delai_grace_jours",
-      valeur: "7",
+      valeur: String(siteConfig.saas.delaiGraceJoursDefaut),
       description: "Délai de grâce entre impayé et suspendu en jours",
     },
   ];
@@ -35,35 +36,8 @@ async function main() {
     console.log(`✓ Paramètre plateforme initialisé : ${param.cle} = ${param.valeur}`);
   }
 
-  // 2. Forfaits initiaux (Solo, Réseau, Empire — Section 0 & 5, Décision B7 NULL = illimité)
-  const forfaitsInitiaux = [
-    {
-      nom: "Solo",
-      prix_mensuel: 5000,
-      duree_jours: 30,
-      max_boutiques: 1,
-      max_employes_par_boutique: 1,
-      actif: true,
-    },
-    {
-      nom: "Réseau",
-      prix_mensuel: 15000,
-      duree_jours: 30,
-      max_boutiques: 3,
-      max_employes_par_boutique: 5,
-      actif: true,
-    },
-    {
-      nom: "Empire",
-      prix_mensuel: 35000,
-      duree_jours: 30,
-      max_boutiques: null, // NULL = illimité (décision B7)
-      max_employes_par_boutique: null, // NULL = illimité
-      actif: true,
-    },
-  ];
-
-  for (const f of forfaitsInitiaux) {
+  // 2. Forfaits initiaux depuis siteConfig.forfaitsInitiaux
+  for (const f of siteConfig.forfaitsInitiaux) {
     const existing = await prisma.forfaits.findFirst({
       where: { nom: f.nom },
     });
@@ -82,13 +56,20 @@ async function main() {
       console.log(`✓ Forfait mis à jour : ${f.nom} (${f.prix_mensuel} FCFA/${f.duree_jours} jours)`);
     } else {
       await prisma.forfaits.create({
-        data: f,
+        data: {
+          nom: f.nom,
+          prix_mensuel: f.prix_mensuel,
+          duree_jours: f.duree_jours,
+          max_boutiques: f.max_boutiques,
+          max_employes_par_boutique: f.max_employes_par_boutique,
+          actif: f.actif,
+        },
       });
       console.log(`✓ Forfait créé : ${f.nom} (${f.prix_mensuel} FCFA/${f.duree_jours} jours)`);
     }
   }
 
-  console.log("✅ Seed djoonoo terminé avec succès.");
+  console.log("✅ Seed djoonoo terminé avec succès (Zéro identifiant super-admin codé en dur).");
 }
 
 main()

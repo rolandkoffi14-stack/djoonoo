@@ -87,10 +87,10 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
 
   if (!boutiqueActuelle) {
     return (
-      <div className="bg-white rounded-2xl p-8 border border-neutral-200 text-center">
-        <Store className="w-8 h-8 mx-auto text-neutral-400 mb-2" />
+      <div className="bg-[#FAF6F1] rounded-2xl p-8 border border-[#E5DACF] text-center">
+        <Store className="w-8 h-8 mx-auto text-[#8C7A6B] mb-2" />
         <h4 className="font-bold text-[#2B2119]">Aucune boutique rattachée</h4>
-        <p className="text-xs text-neutral-500 mt-1">
+        <p className="text-xs text-[#6D5D52] mt-1">
           Aucune boutique active n'a été trouvée pour ce compte.
         </p>
       </div>
@@ -101,20 +101,20 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-neutral-200/80 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-neutral-100 gap-4">
+      <div className="bg-[#FAF6F1] rounded-2xl p-6 sm:p-8 border border-[#E5DACF] shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-[#E5DACF] gap-4">
           <div>
             <h3 className="font-bold text-[#2B2119] text-lg">
               {role === "patron" ? "Coordonnées de la Boutique" : "Ma Boutique Assignée"}
             </h3>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <p className="text-xs text-[#6D5D52] mt-0.5">
               Ces coordonnées apparaissent sur les reçus émis par ce point de vente.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-neutral-400 font-medium">Code boutique :</span>
-            <span className="font-mono text-xs font-bold px-2.5 py-1 bg-[#FAF6F1] text-[#C1652D] rounded-lg border border-[#C1652D]/20">
+            <span className="text-xs text-[#8C7A6B] font-medium">Code boutique :</span>
+            <span className="font-mono text-xs font-bold px-2.5 py-1 bg-[#E5DACF]/40 text-[#C1652D] rounded-lg border border-[#C1652D]/20">
               {boutiqueActuelle.code}
             </span>
           </div>
@@ -122,14 +122,14 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
 
         {/* Sélecteur de boutique si rôle Patron avec plusieurs boutiques */}
         {role === "patron" && boutiques.length > 1 && (
-          <div className="mb-6 p-4 bg-[#FAF6F1] rounded-xl border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="mb-6 p-4 bg-[#E5DACF]/30 rounded-xl border border-[#E5DACF] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <label className="text-xs font-bold text-[#2B2119] uppercase tracking-wider">
               Sélectionner la boutique à modifier :
             </label>
             <select
               value={selectedBoutiqueId}
               onChange={(e) => handleChangerBoutique(e.target.value)}
-              className="px-3.5 py-2 rounded-xl border border-neutral-200 bg-white text-xs font-semibold text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D] cursor-pointer"
+              className="px-3.5 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs font-semibold text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D] cursor-pointer"
             >
               {boutiques.map((b) => (
                 <option key={b.id} value={b.id}>
@@ -157,31 +157,31 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
         {isLectureSeule ? (
           /* Vue lecture seule pour Gérant et Vendeur */
           <div className="space-y-4 max-w-xl text-xs text-neutral-700">
-            <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 space-y-2.5">
+            <div className="p-4 bg-[#E5DACF]/20 rounded-xl border border-[#E5DACF] space-y-2.5">
               <div className="flex justify-between">
-                <span className="text-neutral-500">Nom de la boutique</span>
+                <span className="text-[#6D5D52]">Nom de la boutique</span>
                 <span className="font-bold text-[#2B2119]">{boutiqueActuelle.nom}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500">Secteur d'activité</span>
+                <span className="text-[#6D5D52]">Secteur d'activité</span>
                 <span className="font-bold text-[#2B2119]">{boutiqueActuelle.secteur_activite || "Commerce général"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500">Ville</span>
+                <span className="text-[#6D5D52]">Ville</span>
                 <span className="font-bold text-[#2B2119]">{boutiqueActuelle.ville}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500">Adresse</span>
+                <span className="text-[#6D5D52]">Adresse</span>
                 <span className="font-bold text-[#2B2119]">{boutiqueActuelle.adresse}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500">Téléphone caisse</span>
+                <span className="text-[#6D5D52]">Téléphone caisse</span>
                 <span className="font-bold text-[#2B2119]">
                   {boutiqueActuelle.telephone || "Non défini"}
                 </span>
               </div>
             </div>
-            <p className="text-[11px] text-neutral-400 italic">
+            <p className="text-[11px] text-[#8C7A6B] italic">
               La modification des coordonnées de la boutique est réservée au Patron.
             </p>
           </div>
@@ -194,13 +194,13 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                   Nom de la boutique *
                 </label>
                 <div className="relative">
-                  <Store className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <Store className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                   <input
                     type="text"
                     required
                     value={nom}
                     onChange={(e) => setNom(e.target.value)}
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
               </div>
@@ -210,13 +210,13 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                   Secteur d'activité
                 </label>
                 <div className="relative">
-                  <Tag className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <Tag className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                   <input
                     type="text"
                     value={secteurActivite}
                     onChange={(e) => setSecteurActivite(e.target.value)}
                     placeholder="Secteur d'activité"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
               </div>
@@ -228,14 +228,14 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                   Ville d'implantation *
                 </label>
                 <div className="relative">
-                  <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                   <input
                     type="text"
                     required
                     value={ville}
                     onChange={(e) => setVille(e.target.value)}
                     placeholder="Ville d'implantation"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
               </div>
@@ -245,13 +245,13 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                   Ligne téléphonique dédiée
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C7A6B]" />
                   <input
                     type="tel"
                     value={telephone}
                     onChange={(e) => setTelephone(e.target.value)}
                     placeholder="Numéro de téléphone de la boutique"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                   />
                 </div>
               </div>
@@ -267,7 +267,7 @@ export default function TabBoutique({ boutiques, role, boutiqueAssigneeId }: Tab
                 value={adresse}
                 onChange={(e) => setAdresse(e.target.value)}
                 placeholder="Adresse physique ou repères"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-sm text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
               />
             </div>
 

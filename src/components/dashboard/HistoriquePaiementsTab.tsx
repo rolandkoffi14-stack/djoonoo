@@ -22,6 +22,10 @@ export default function HistoriquePaiementsTab({
   const [factureAAnnuler, setFactureAAnnuler] = useState<FactureDetailItem | null>(null);
   const [loadingAnnulerId, setLoadingAnnulerId] = useState<string | null>(null);
   const [erreurAnnulation, setErreurAnnulation] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const totalPages = Math.max(1, Math.ceil(factures.length / limit));
+  const facturesAffichees = factures.slice((page - 1) * limit, page * limit);
 
   const handleConfirmerAnnulation = async () => {
     if (!factureAAnnuler) return;
@@ -48,12 +52,12 @@ export default function HistoriquePaiementsTab({
 
   if (factures.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-12 border border-neutral-200/80 text-center">
-        <div className="w-14 h-14 mx-auto mb-4 bg-[#FAF6F1] rounded-2xl flex items-center justify-center text-[#C1652D]">
+      <div className="bg-[#FAF6F1] rounded-2xl p-12 border border-[#E5DACF] text-center">
+        <div className="w-14 h-14 mx-auto mb-4 bg-[#E5DACF]/30 rounded-2xl flex items-center justify-center text-[#C1652D]">
           <ReceiptText className="w-7 h-7" />
         </div>
         <h3 className="text-lg font-bold text-[#2B2119]">Aucune transaction pour le moment</h3>
-        <p className="text-sm text-neutral-500 mt-1 max-w-md mx-auto">
+        <p className="text-sm text-[#6D5D52] mt-1 max-w-md mx-auto">
           Dès que tu effectues un règlement d'abonnement djoonoo par Mobile Money (MTN MoMo ou Moov Money), la facture apparaîtra ici avec possibilité de téléchargement officiel.
         </p>
       </div>
@@ -62,22 +66,22 @@ export default function HistoriquePaiementsTab({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
-        <div className="p-5 border-b border-neutral-100 flex items-center justify-between">
+      <div className="bg-[#FAF6F1] rounded-2xl border border-[#E5DACF] shadow-sm overflow-hidden">
+        <div className="p-5 border-b border-[#E5DACF] flex items-center justify-between">
           <div>
             <h3 className="font-bold text-[#2B2119] text-base">Historique des factures d'abonnement</h3>
-            <p className="text-xs text-neutral-500 mt-0.5">
+            <p className="text-xs text-[#6D5D52] mt-0.5">
               Factures officielles délivrées par l'entreprise éditrice de djoonoo.
             </p>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 bg-neutral-100 text-neutral-600 rounded-full">
+          <span className="text-xs font-semibold px-2.5 py-1 bg-[#E5DACF]/40 text-[#2B2119] rounded-full">
             {factures.length} transaction{factures.length > 1 ? "s" : ""}
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#FAF6F1]/80 text-xs text-neutral-500 uppercase tracking-wider border-b border-neutral-100">
+            <thead className="bg-[#E5DACF]/30 text-xs text-[#6D5D52] uppercase tracking-wider border-b border-[#E5DACF]">
               <tr>
                 <th className="py-3.5 px-6 font-semibold">Montant</th>
                 <th className="py-3.5 px-6 font-semibold">Date d'échéance</th>
@@ -86,9 +90,9 @@ export default function HistoriquePaiementsTab({
                 <th className="py-3.5 px-6 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {factures.map((fc) => (
-                <tr key={fc.id} className="hover:bg-neutral-50/60 transition">
+            <tbody className="divide-y divide-[#E5DACF]/60">
+              {facturesAffichees.map((fc) => (
+                <tr key={fc.id} className="hover:bg-[#E5DACF]/20 transition">
                   <td className="py-4 px-6 font-bold text-[#2B2119]">
                     {fc.montant.toLocaleString()}{" "}
                     <span className="text-xs font-normal text-neutral-500">FCFA</span>
@@ -184,6 +188,35 @@ export default function HistoriquePaiementsTab({
             </tbody>
           </table>
         </div>
+
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-[#E5DACF] flex items-center justify-between text-xs text-[#6D5D52]">
+            <span>
+              Affichage de {(page - 1) * limit + 1} à {Math.min(page * limit, factures.length)} sur {factures.length} factures
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="px-3 py-1.5 rounded-lg border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] font-bold disabled:opacity-40 hover:bg-[#E5DACF]/30 transition-colors cursor-pointer"
+              >
+                Précédent
+              </button>
+              <span className="font-mono font-bold text-[#2B2119]">
+                {page} / {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="px-3 py-1.5 rounded-lg border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] font-bold disabled:opacity-40 hover:bg-[#E5DACF]/30 transition-colors cursor-pointer"
+              >
+                Suivant
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {factureSelectionnee && (
@@ -198,7 +231,7 @@ export default function HistoriquePaiementsTab({
       {/* Modale de Confirmation d'Annulation */}
       {factureAAnnuler && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-white rounded-2xl p-6 border border-[#E5DACF] shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-md bg-[#FAF6F1] rounded-2xl p-6 border border-[#E5DACF] shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
             <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />
             </div>

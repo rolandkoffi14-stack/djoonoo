@@ -19,6 +19,9 @@ import {
 } from "@/lib/business-rules";
 import { RoleUtilisateur, StatutAbonnement } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
+import { formatSafeError } from "@/lib/safe-action";
+import { siteConfig } from "@/config/site";
 
 // Stockage temporaire en mémoire pour l'étape d'activation 2FA lors de l'inscription
 const pendingRegistrations = new Map<
@@ -132,24 +135,27 @@ export async function inscrirePatronAction(
     }
 
     if (!forfait) {
-      // Fallback ultime si base vide
+      // Si la base est vide (ex: premier test sans seed), initialiser depuis siteConfig
+      const templateDefaut = siteConfig.forfaitsInitiaux[0];
       forfait = await prisma.forfaits.create({
         data: {
-          nom: "Solo",
-          prix_mensuel: 5000,
-          duree_jours: 30,
-          max_boutiques: 1,
-          max_employes_par_boutique: 1,
+          nom: templateDefaut.nom,
+          prix_mensuel: templateDefaut.prix_mensuel,
+          duree_jours: templateDefaut.duree_jours,
+          max_boutiques: templateDefaut.max_boutiques,
+          max_employes_par_boutique: templateDefaut.max_employes_par_boutique,
           actif: true,
         },
       });
     }
 
-    // Période d'essai : 14 jours (Section 5.2 & Section 16.6)
+    // Période d'essai configurée en BDD avec repli sur siteConfig (Section 5.2 & Section 16.6)
     const dureeEssaiParam = await prisma.parametres_plateforme.findUnique({
       where: { cle: "duree_essai_jours" },
     });
-    const dureeEssaiJours = dureeEssaiParam ? parseInt(dureeEssaiParam.valeur, 10) : 14;
+    const dureeEssaiJours = dureeEssaiParam
+      ? parseInt(dureeEssaiParam.valeur, 10)
+      : siteConfig.saas.dureeEssaiJoursDefaut;
 
     const dateDebut = new Date();
     const dateFinEssai = new Date();
@@ -394,6 +400,14 @@ export async function connexionAction(
     return { error: "Indique ton adresse email et ton mot de passe." };
   }
 
+  // Rate Limiting : 5 tentatives par minute par email (CWE-307)
+  const rateLimit = checkRateLimit(`login:${email}`, 5, 60);
+  if (!rateLimit.allowed) {
+    return {
+      error: `Trop de tentatives de connexion. Veuillez patienter ${rateLimit.resetInSeconds} secondes avant de réessayer.`,
+    };
+  }
+
   try {
     const user = await prisma.utilisateurs.findUnique({
       where: { email },
@@ -419,6 +433,9 @@ export async function connexionAction(
     if (!mdpValide) {
       return { error: "Identifiants invalides." };
     }
+
+    // Réinitialisation du compteur de login en cas de succès
+    resetRateLimit(`login:${email}`);
 
     // Vérification statut utilisateur
     if (user.statut === "inactif") {
@@ -466,7 +483,7 @@ export async function connexionAction(
   } catch (dbErr: any) {
     console.error("Erreur connexion base de données :", dbErr);
     return {
-      error: "Connexion impossible à la base de données. Vérifie ta connexion ou contacte le support.",
+      error: formatSafeError(dbErr, "Connexion impossible. Vérifie ta connexion ou contacte le support."),
     };
   }
 }
@@ -478,6 +495,15 @@ export async function validerDeuxFaConnexionAction(
   userId: string,
   code: string
 ): Promise<{ success: boolean; error?: string; redirectUrl?: string }> {
+  // Rate Limiting : 5 tentatives par tranche de 5 minutes par utilisateur (CWE-307)
+  const rateLimit = checkRateLimit(`totp:${userId}`, 5, 300);
+  if (!rateLimit.allowed) {
+    return {
+      success: false,
+      error: `Trop de tentatives de validation 2FA. Veuillez patienter ${rateLimit.resetInSeconds} secondes avant de réessayer.`,
+    };
+  }
+
   try {
     const user = await prisma.utilisateurs.findUnique({
       where: { id: userId },
@@ -492,6 +518,8 @@ export async function validerDeuxFaConnexionAction(
     if (!isValid) {
       return { success: false, error: "Code à 6 chiffres incorrect ou expiré." };
     }
+
+    resetRateLimit(`totp:${userId}`);
 
     if (user.compte.statut_abonnement === "suspendu") {
       return {
@@ -514,7 +542,7 @@ export async function validerDeuxFaConnexionAction(
 
     return { success: true, redirectUrl: "/dashboard" };
   } catch (err: any) {
-    return { success: false, error: "Erreur lors de la validation 2FA : " + err.message };
+    return { success: false, error: formatSafeError(err, "Erreur lors de la validation 2FA.") };
   }
 }
 

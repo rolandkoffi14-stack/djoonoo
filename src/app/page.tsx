@@ -6,8 +6,16 @@ import Pricing from "@/components/Pricing";
 import SecuritySection from "@/components/SecuritySection";
 import CtaFinal from "@/components/CtaFinal";
 import Footer from "@/components/Footer";
+import { getForfaitsCatalogue, getPlateformeParametres } from "@/lib/plateforme-config";
 
-export default function Home() {
+export const revalidate = 60; // Revalidation ISR toutes les 60 secondes pour refléter immédiatement les modifs BDD
+
+export default async function Home() {
+  const [forfaits, { dureeEssaiJours }] = await Promise.all([
+    getForfaitsCatalogue(),
+    getPlateformeParametres(),
+  ]);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF6F1]">
       <Navbar />
@@ -15,9 +23,9 @@ export default function Home() {
         <Hero />
         <InteractiveDemo />
         <Features />
-        <Pricing />
+        <Pricing forfaits={forfaits} dureeEssaiJours={dureeEssaiJours} />
         <SecuritySection />
-        <CtaFinal />
+        <CtaFinal dureeEssaiJours={dureeEssaiJours} />
       </main>
       <Footer />
     </div>

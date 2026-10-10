@@ -4,12 +4,8 @@ import { cookies } from "next/headers";
 import { generateSecret, generateURI, verifySync } from "otplib";
 import QRCode from "qrcode";
 
-const SUPERADMIN_AUTH_SECRET =
-  process.env.SUPERADMIN_AUTH_SECRET ||
-  process.env.AUTH_SECRET ||
-  process.env.NEXTAUTH_SECRET ||
-  "djoonoo-superadmin-secret-must-be-configured-securely-32chars";
-const KEY = new TextEncoder().encode(SUPERADMIN_AUTH_SECRET);
+import { getSuperAdminJwtSecret } from "@/lib/env";
+
 export const SUPERADMIN_COOKIE_NAME = "djoonoo_superadmin_session";
 
 export interface SuperAdminSessionPayload {
@@ -41,7 +37,7 @@ export async function createSuperAdminSessionToken(payload: SuperAdminSessionPay
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("2d") // Session plus courte pour la sécurité plateforme
-    .sign(KEY);
+    .sign(getSuperAdminJwtSecret());
 }
 
 /**
@@ -49,7 +45,7 @@ export async function createSuperAdminSessionToken(payload: SuperAdminSessionPay
  */
 export async function verifySuperAdminSessionToken(token: string): Promise<SuperAdminSessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, KEY, {
+    const { payload } = await jwtVerify(token, getSuperAdminJwtSecret(), {
       algorithms: ["HS256"],
     });
     return payload as unknown as SuperAdminSessionPayload;

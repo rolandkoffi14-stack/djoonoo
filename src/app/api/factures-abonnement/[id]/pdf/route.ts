@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentSession } from "@/lib/auth";
+import { getSuperAdminSession } from "@/lib/super-admin-auth";
 import { prisma } from "@/lib/prisma";
 import { genererHtmlFactureAbonnement } from "@/lib/invoice-generator";
 
@@ -7,8 +8,12 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getCurrentSession();
-  if (!session) {
+  const [session, superAdminSession] = await Promise.all([
+    getCurrentSession(),
+    getSuperAdminSession(),
+  ]);
+
+  if (!session && !superAdminSession) {
     return new NextResponse("Non autorisé", { status: 401 });
   }
 
@@ -27,8 +32,8 @@ export async function GET(
     return new NextResponse("Facture introuvable", { status: 404 });
   }
 
-  // Contrôle strict de l'isolation multi-tenant
-  if (facture.compte_id !== session.compteId) {
+  // Contrôle strict de l'isolation multi-tenant pour les tenants ordinaires
+  if (!superAdminSession && facture.compte_id !== session?.compteId) {
     return new NextResponse("Accès refusé", { status: 403 });
   }
 

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Pagination from "@/components/ui/Pagination";
 import {
   Building2,
   Search,
@@ -49,6 +51,12 @@ export interface CompteAdminItem {
 
 interface ComptesManagerProps {
   initialComptes: CompteAdminItem[];
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalElements?: number;
+  initialSearch?: string;
+  initialStatut?: string;
   stats: {
     totalComptes: number;
     comptesActifs: number;
@@ -60,12 +68,45 @@ interface ComptesManagerProps {
 
 export default function ComptesManager({
   initialComptes,
+  page = 1,
+  limit = 25,
+  totalPages = 1,
+  totalElements,
+  initialSearch = "",
+  initialStatut = "tous",
   stats,
 }: ComptesManagerProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [comptes, setComptes] = useState<CompteAdminItem[]>(initialComptes);
-  const [recherche, setRecherche] = useState("");
-  const [filtreStatut, setFiltreStatut] = useState<string>("tous");
+  const [recherche, setRecherche] = useState(initialSearch);
+  const [filtreStatut, setFiltreStatut] = useState<string>(initialStatut);
   const [isPending, startTransition] = useTransition();
+
+  const appliquerFiltres = (nouveauStatut?: string, nouvelleRecherche?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const stat = nouveauStatut !== undefined ? nouveauStatut : filtreStatut;
+    const q = nouvelleRecherche !== undefined ? nouvelleRecherche : recherche;
+
+    if (stat && stat !== "tous") {
+      params.set("statut", stat);
+    } else {
+      params.delete("statut");
+    }
+
+    if (q.trim()) {
+      params.set("q", q.trim());
+    } else {
+      params.delete("q");
+    }
+
+    params.set("page", "1");
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
 
   // Modale de suspension
   const [modalOpen, setModalOpen] = useState(false);
@@ -166,18 +207,7 @@ export default function ComptesManager({
     });
   };
 
-  const comptesFiltres = comptes.filter((c) => {
-    const matchQuery =
-      c.nom_entreprise.toLowerCase().includes(recherche.toLowerCase()) ||
-      c.code.toLowerCase().includes(recherche.toLowerCase()) ||
-      c.email_principal.toLowerCase().includes(recherche.toLowerCase()) ||
-      c.telephone_principal.includes(recherche);
-
-    const matchStatut =
-      filtreStatut === "tous" || c.statut_abonnement === filtreStatut;
-
-    return matchQuery && matchStatut;
-  });
+  const comptesFiltres = comptes;
 
   return (
     <div className="space-y-6">
@@ -269,7 +299,13 @@ export default function ComptesManager({
 
       {/* Barre de Recherche et Filtres */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            appliquerFiltres(filtreStatut, recherche);
+          }}
+          className="relative flex-1"
+        >
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -278,11 +314,14 @@ export default function ComptesManager({
             onChange={(e) => setRecherche(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D]"
           />
-        </div>
+        </form>
 
         <select
           value={filtreStatut}
-          onChange={(e) => setFiltreStatut(e.target.value)}
+          onChange={(e) => {
+            setFiltreStatut(e.target.value);
+            appliquerFiltres(e.target.value, recherche);
+          }}
           aria-label="Filtrer par statut d'abonnement"
           className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:border-[#C1652D]"
         >
@@ -291,6 +330,7 @@ export default function ComptesManager({
           <option value="essai">Essai Gratuit</option>
           <option value="impaye">Impayé</option>
           <option value="suspendu">Suspendu</option>
+          <option value="expire">Expiré (Lecture seule)</option>
           <option value="resilie">Résilié</option>
         </select>
       </div>
@@ -404,6 +444,14 @@ export default function ComptesManager({
             </tbody>
           </table>
         </div>
+
+        {/* Pagination du tableau */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements ?? comptes.length}
+          limit={limit}
+        />
       </div>
 
       {/* Modale de Confirmation de Suspension / Réactivation */}

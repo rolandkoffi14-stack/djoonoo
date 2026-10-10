@@ -1,88 +1,53 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { siteConfig } from "@/config/site";
+import type { ForfaitCatalogue } from "@/lib/plateforme-config";
 
-interface Forfait {
-  id: string;
-  nom: string;
-  prix: number;
-  badge?: string;
-  description: string;
-  boutiques: string;
-  employes: string;
-  avantages: string[];
+interface PricingProps {
+  forfaits?: ForfaitCatalogue[];
+  dureeEssaiJours?: number;
 }
 
-const FORFAITS: Forfait[] = [
-  {
-    id: "solo",
-    nom: "Solo",
-    prix: 5000,
-    description: "Idéal pour le commerçant indépendant gérant une boutique unique.",
-    boutiques: "1 boutique",
-    employes: "1 employé inclus",
-    avantages: [
-      "1 boutique unique",
-      "1 compte employé (gérant ou vendeur)",
-      "Gestion complète du stock et alertes",
-      "Émission de factures numérotées",
-      "Suivi des impayés et créances clients",
-      "Rapports de ventes quotidiens",
-    ],
-  },
-  {
-    id: "reseau",
-    nom: "Réseau",
-    prix: 15000,
-    badge: "Recommandé",
-    description: "Pour les commerces en développement avec plusieurs points de vente.",
-    boutiques: "Jusqu'à 3 boutiques",
-    employes: "Jusqu'à 5 employés par boutique",
-    avantages: [
-      "Jusqu'à 3 boutiques distinctes",
-      "Jusqu'à 5 employés par boutique",
-      "Base de clients unifiée entre boutiques",
-      "Transferts d'employés avec historique intact",
-      "Rapports consolidés ou boutique par boutique",
-      "Sécurité à double vérification incluse",
-    ],
-  },
-  {
-    id: "empire",
-    nom: "Empire",
-    prix: 35000,
-    description: "Pour les grossistes, demi-grossistes et grands réseaux commerciaux.",
-    boutiques: "Boutiques illimitées",
-    employes: "Employés illimités",
-    avantages: [
-      "Nombre de boutiques illimité",
-      "Nombre d'employés illimité",
-      "Volume de ventes et produits sans restriction",
-      "Historique et traçabilité de toutes les actions",
-      "Rapprochement immédiat des clients par téléphone",
-      "Assistance prioritaire 2KR DIGITAL",
-    ],
-  },
-];
+export default function Pricing({
+  forfaits,
+  dureeEssaiJours = siteConfig.saas.dureeEssaiJoursDefaut,
+}: PricingProps) {
+  // Liste de repli si forfaits non passés en props
+  const listeForfaits =
+    forfaits && forfaits.length > 0
+      ? forfaits
+      : siteConfig.forfaitsInitiaux.map((f, i) => ({
+          id: `default-${i}`,
+          nom: f.nom,
+          prix: f.prix_mensuel,
+          dureeJours: f.duree_jours,
+          maxBoutiques: f.max_boutiques,
+          maxEmployesParBoutique: f.max_employes_par_boutique,
+          badge: f.badge,
+          description: f.description,
+          boutiques: f.boutiquesLabel,
+          employes: f.employesLabel,
+          avantages: [...f.avantages],
+        }));
 
-export default function Pricing() {
   return (
     <section id="tarifs" className="py-20 sm:py-28 bg-[#FAF6F1] border-t border-[rgba(43,33,25,0.08)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(193,101,45,0.2)] bg-[#F5EDE3] px-3.5 py-1 text-xs font-semibold text-[#C1652D] mb-3">
-            <span>Tarifs en Francs CFA</span>
+            <span>Tarifs en {siteConfig.regional.devise}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#2B2119]">
             Choisis la formule adaptée à ton commerce
           </h2>
           <p className="mt-4 text-base sm:text-lg text-[#6B5C52]">
-            Commence par <strong>14 jours d'essai gratuit</strong>, sans engagement.
+            Commence par <strong>{dureeEssaiJours} jours d&apos;essai gratuit</strong>, sans engagement.
           </p>
         </div>
 
-        {/* 3 cartes de tarifs */}
+        {/* Grille dynamique des forfaits */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {FORFAITS.map((forfait) => {
+          {listeForfaits.map((forfait) => {
             const isFeatured = Boolean(forfait.badge);
 
             return (
@@ -109,7 +74,9 @@ export default function Pricing() {
                       <span className="text-2xl sm:text-3xl font-bold text-[#2B2119]">
                         {forfait.prix.toLocaleString("fr-FR")}
                       </span>
-                      <span className="text-xs font-semibold text-[#6B5C52] ml-1">FCFA/mois</span>
+                      <span className="text-xs font-semibold text-[#6B5C52] ml-1">
+                        {siteConfig.regional.devise}/mois
+                      </span>
                     </div>
                   </div>
 
@@ -146,7 +113,7 @@ export default function Pricing() {
                       : "border border-[rgba(43,33,25,0.22)] bg-transparent text-[#2B2119] hover:bg-[rgba(43,33,25,0.05)]"
                   }`}
                 >
-                  <span>Essai gratuit 14 jours</span>
+                  <span>Essai gratuit {dureeEssaiJours} jours</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>

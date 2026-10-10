@@ -133,10 +133,11 @@ export default async function CaissePage() {
     code_barre: p.code_barre,
   }));
 
-  // 4. Récupération des clients du compte
+  // 4. Récupération des clients récents du compte (chargement initial optimisé borné à 25, recherche dynamique pour le reste)
   const clientsDb = await scoped.clients.findMany({
     where: { compte_id: session.compteId },
-    orderBy: { nom: "asc" },
+    orderBy: { date_creation: "desc" },
+    take: 25,
     select: {
       id: true,
       nom: true,

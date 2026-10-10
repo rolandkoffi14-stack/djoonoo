@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { prisma } from "./prisma";
 import { StatutAbonnement, StatutFactureAbonnement } from "@prisma/client";
+import { siteConfig } from "@/config/site";
 
 const FEDAPAY_SECRET_KEY = process.env.FEDAPAY_SECRET_KEY || "";
 const FEDAPAY_WEBHOOK_SECRET = process.env.FEDAPAY_WEBHOOK_SECRET || "";
@@ -80,17 +81,17 @@ export async function creerTransactionFedaPay(params: InitPaiementParams) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      description: `Abonnement djoonoo — Forfait ${forfait.nom}`,
+      description: `Abonnement ${siteConfig.app.nom} — Forfait ${forfait.nom}`,
       amount: params.montant,
-      currency: { iso: "XOF" },
+      currency: { iso: siteConfig.regional.deviseIso },
       callback_url: params.callbackUrl,
       customer: {
         firstname: params.nom.split(" ")[0] || "Client",
-        lastname: params.nom.split(" ").slice(1).join(" ") || "djoonoo",
+        lastname: params.nom.split(" ").slice(1).join(" ") || siteConfig.app.nom,
         email: params.email,
         phone_number: {
           number: params.telephone.replace(/[^0-9]/g, ""),
-          country: "BJ",
+          country: siteConfig.regional.paysCode,
         },
       },
       custom_metadata: {

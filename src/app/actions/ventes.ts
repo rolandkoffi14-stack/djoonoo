@@ -11,6 +11,8 @@ import {
 import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
 import { ModePaiement, StatutPaiementVente } from "@prisma/client";
+import { VenteInputSchema } from "@/lib/validations";
+import { formatSafeError } from "@/lib/safe-action";
 
 export interface LigneVenteInput {
   produit_id: string;
@@ -99,8 +101,21 @@ export async function enregistrerVenteAction(
 
   const { boutique_id, client_id, lignes, remise = 0, paiement, cle_idempotence } = payload;
 
-  if (!boutique_id || !lignes || lignes.length === 0) {
-    return { success: false, error: "Le panier est vide ou la boutique n'est pas spécifiée." };
+  // Validation déclarative stricte par schéma Zod (Phase 5 - Item 4.1 de l'audit)
+  const validation = VenteInputSchema.safeParse({
+    boutique_id,
+    client_id,
+    montant_remise: remise,
+    mode_paiement: paiement?.mode_paiement || "especes",
+    montant_recu: paiement?.montant,
+    lignes,
+  });
+
+  if (!validation.success) {
+    return {
+      success: false,
+      error: validation.error.issues[0]?.message || "Données du panier de vente invalides.",
+    };
   }
 
   // Contrôle de permission sur la boutique :
@@ -409,7 +424,7 @@ export async function enregistrerVenteAction(
     if (err instanceof StockInsuffisantError) {
       return { success: false, error: "Stock insuffisant lors de la validation. La vente a été annulée." };
     }
-    return { success: false, error: "Erreur serveur : " + (err.message || "Impossible de finaliser la vente.") };
+    return { success: false, error: formatSafeError(err, "Impossible de finaliser la vente.") };
   }
 }
 

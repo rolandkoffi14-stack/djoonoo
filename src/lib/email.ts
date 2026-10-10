@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { siteConfig } from "@/config/site";
 
 export interface InvitationEmailPayload {
   destinataire: string;
@@ -23,12 +24,12 @@ export function genererHtmlInvitation(payload: InvitationEmailPayload): string {
   const { nom, role, nomEntreprise, boutiqueNom, lienInvitation } = payload;
   const roleLibelle = role === "gerant" ? "Gérant de boutique" : "Vendeur de boutique";
 
-  let baseUrl = "https://djoonoo.com";
+  let baseUrl = siteConfig.app.url;
   try {
     const urlObj = new URL(lienInvitation);
     baseUrl = `${urlObj.protocol}//${urlObj.host}`;
   } catch {}
-  const logoUrl = `${baseUrl}/brand/01_horizontal_logos/djoonoo_logo_clair_transparent@2x.png`;
+  const logoUrl = `${baseUrl}${siteConfig.app.logos.transparentClairPng}`;
 
   return `
 <!DOCTYPE html>
@@ -95,7 +96,7 @@ export function genererHtmlInvitation(payload: InvitationEmailPayload): string {
 
               <!-- Avertissement expiration -->
               <p style="font-size: 12px; color: #8C7A6B; text-align: center; margin: 0 0 24px;">
-                Ce lien d'invitation est strictement personnel et expire dans <strong>48 heures</strong>.
+                Ce lien d'invitation est strictement personnel et expire dans <strong>${siteConfig.saas.dureeExpirationInvitationHeures} heures</strong>.
               </p>
 
               <hr style="border: none; border-top: 1px solid #E5DACF; margin: 24px 0 16px;">
@@ -110,8 +111,8 @@ export function genererHtmlInvitation(payload: InvitationEmailPayload): string {
           <!-- Pied de page -->
           <tr>
             <td style="padding: 20px 32px; background-color: #FAF6F1; text-align: center; border-top: 1px solid #E5DACF; font-size: 11px; color: #8C7A6B;">
-              © 2026 djoonoo. Tous droits réservés.<br>
-              Plateforme SaaS d'encaissement et de gestion commerciale.
+              © ${new Date().getFullYear()} ${siteConfig.app.nom}. Tous droits réservés.<br>
+              ${siteConfig.app.sousSloganFacture}.
             </td>
           </tr>
         </table>
@@ -146,8 +147,8 @@ export async function envoyerEmailInvitation(
     const expediteur =
       process.env.EMAIL_FROM ||
       process.env.RESEND_FROM_EMAIL ||
-      "djoonoo <notifications@djoonoo.2krdigital.online>";
-    const sujet = `Invitation à rejoindre l'équipe de ${payload.nomEntreprise} sur djoonoo`;
+      siteConfig.app.emailExpediteurDefaut;
+    const sujet = `Invitation à rejoindre l'équipe de ${payload.nomEntreprise} sur ${siteConfig.app.nom}`;
     const html = genererHtmlInvitation(payload);
 
     console.info(`📧 Envoi email invitation vers ${payload.destinataire} depuis ${expediteur}...`);

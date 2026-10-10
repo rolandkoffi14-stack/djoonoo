@@ -3,9 +3,22 @@ import { prisma } from "../src/lib/prisma";
 import { executerCycleAbonnements } from "../src/lib/subscriptions-cron";
 import { StatutAbonnement } from "@prisma/client";
 
+async function getOrCreateForfait() {
+  const existing = await prisma.forfaits.findFirst({ where: { actif: true } });
+  if (existing) return existing;
+  return prisma.forfaits.create({
+    data: {
+      nom: "Solo",
+      prix_mensuel: 5000,
+      duree_jours: 30,
+      actif: true,
+    },
+  });
+}
+
 describe("Moteur du Cycle de Vie des Abonnements", { timeout: 60000 }, () => {
   it("doit passer DIRECTEMENT un compte d'essai expiré en EXPIRE sans lui accorder de délai de grâce", async () => {
-    const forfait = await prisma.forfaits.findFirst();
+    const forfait = await getOrCreateForfait();
     const codeTest = "TST" + Math.floor(Math.random() * 899 + 100);
 
     const hier = new Date();
@@ -42,7 +55,7 @@ describe("Moteur du Cycle de Vie des Abonnements", { timeout: 60000 }, () => {
   });
 
   it("doit passer un compte ACTIF dont la période est échue en IMPAYE avec un délai de grâce", async () => {
-    const forfait = await prisma.forfaits.findFirst();
+    const forfait = await getOrCreateForfait();
     const codeTest = "ACT" + Math.floor(Math.random() * 899 + 100);
 
     const hier = new Date();
@@ -53,7 +66,7 @@ describe("Moteur du Cycle de Vie des Abonnements", { timeout: 60000 }, () => {
         code: codeTest,
         nom_entreprise: "Test Actif Expiré",
         email_principal: `test-${codeTest}@test.com`,
-        forfait_id: forfait!.id,
+        forfait_id: forfait.id,
         statut_abonnement: StatutAbonnement.actif,
         telephone_principal: "+22901000001",
         ville: "Cotonou",
@@ -76,7 +89,7 @@ describe("Moteur du Cycle de Vie des Abonnements", { timeout: 60000 }, () => {
   });
 
   it("doit passer un compte IMPAYE dont le délai de grâce est dépassé en EXPIRE (et non suspendu)", async () => {
-    const forfait = await prisma.forfaits.findFirst();
+    const forfait = await getOrCreateForfait();
     const codeTest = "IMP" + Math.floor(Math.random() * 899 + 100);
 
     const hier = new Date();
@@ -87,7 +100,7 @@ describe("Moteur du Cycle de Vie des Abonnements", { timeout: 60000 }, () => {
         code: codeTest,
         nom_entreprise: "Test Impayé Grâce Dépassée",
         email_principal: `test-${codeTest}@test.com`,
-        forfait_id: forfait!.id,
+        forfait_id: forfait.id,
         statut_abonnement: StatutAbonnement.impaye,
         telephone_principal: "+22901000002",
         ville: "Cotonou",

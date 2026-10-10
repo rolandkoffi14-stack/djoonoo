@@ -8,6 +8,7 @@ import {
   connexionAction,
   validerDeuxFaConnexionAction,
 } from "@/app/actions/auth";
+import { siteConfig } from "@/config/site";
 import {
   Mail,
   Lock,
@@ -42,16 +43,18 @@ export default function ConnexionPage() {
       const res = await connexionAction(null, formData);
       if (res.error) {
         setErrorMsg(res.error);
+        setLoading(false);
       } else if (res.require2FA && res.userId) {
         setRequire2FA(true);
         setUserId(res.userId);
         setUserEmail(res.email || "");
+        setLoading(false);
       } else if (res.redirectUrl) {
-        router.push(res.redirectUrl);
+        // Redirection vers le dashboard : maintenir l'état de chargement actif
+        window.location.href = res.redirectUrl;
       }
     } catch {
       setErrorMsg("Une erreur inattendue est survenue. Vérifie ta connexion.");
-    } finally {
       setLoading(false);
     }
   }
@@ -66,13 +69,14 @@ export default function ConnexionPage() {
     try {
       const res = await validerDeuxFaConnexionAction(userId, totpCode);
       if (res.success && res.redirectUrl) {
-        router.push(res.redirectUrl);
+        // Redirection vers le dashboard : maintenir l'état de chargement actif
+        window.location.href = res.redirectUrl;
       } else {
         setErrorMsg(res.error || "Code d'authentification invalide.");
+        setTotpLoading(false);
       }
     } catch {
       setErrorMsg("Erreur lors de la validation 2FA.");
-    } finally {
       setTotpLoading(false);
     }
   }
@@ -241,7 +245,7 @@ export default function ConnexionPage() {
                       autoFocus
                       value={totpCode}
                       onChange={(e) => setTotpCode(e.target.value.replace(/[^0-9]/g, ""))}
-                      placeholder="Code à 6 chiffres"
+                      placeholder="000000"
                       className="w-full text-center tracking-[0.5em] font-mono font-extrabold text-2xl py-3 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D]"
                     />
                   </div>
@@ -278,7 +282,7 @@ export default function ConnexionPage() {
       </main>
 
       <footer className="border-t border-[#E5DACF] py-4 text-center text-xs text-[#8C7A6B]">
-        djoonoo — Tous droits réservés • ETS. 2KR DIGITAL
+        {siteConfig.app.nom} — Tous droits réservés • {siteConfig.entreprise.nom}
       </footer>
     </div>
   );

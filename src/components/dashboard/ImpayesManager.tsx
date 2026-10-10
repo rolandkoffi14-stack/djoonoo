@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useTransition, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Pagination from "@/components/ui/Pagination";
 import {
   Clock,
   Search,
@@ -76,6 +77,17 @@ interface ImpayesManagerProps {
   boutiqueNom: string;
   boutiqueCode: string;
   userRole: RoleUtilisateur;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+  totalElements?: number;
+  initialSearch?: string;
+  initialStatut?: string;
+  statsGlobales?: {
+    creancesTotales: number;
+    nbFactures: number;
+    nbClientsDebiteurs: number;
+  };
 }
 
 export default function ImpayesManager({
@@ -83,12 +95,47 @@ export default function ImpayesManager({
   boutiqueNom,
   boutiqueCode,
   userRole,
+  page = 1,
+  limit = 25,
+  totalPages = 1,
+  totalElements,
+  initialSearch = "",
+  initialStatut = "tous",
+  statsGlobales,
 }: ImpayesManagerProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  const [recherche, setRecherche] = useState("");
-  const [filtreType, setFiltreType] = useState<"tous" | "impaye" | "partiel">("tous");
+  const [recherche, setRecherche] = useState(initialSearch);
+  const [filtreType, setFiltreType] = useState<"tous" | "impaye" | "partiel">(
+    initialStatut === "impaye" || initialStatut === "partiel" ? initialStatut : "tous"
+  );
+
+  const appliquerFiltres = (nouveauStatut?: string, nouvelleRecherche?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const stat = nouveauStatut !== undefined ? nouveauStatut : filtreType;
+    const q = nouvelleRecherche !== undefined ? nouvelleRecherche : recherche;
+
+    if (stat && stat !== "tous") {
+      params.set("statut", stat);
+    } else {
+      params.delete("statut");
+    }
+
+    if (q.trim()) {
+      params.set("q", q.trim());
+    } else {
+      params.delete("q");
+    }
+
+    params.set("page", "1");
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
 
   // Modale Règlement
   const [venteARegler, setVenteARegler] = useState<ImpayeItem | null>(null);
@@ -112,25 +159,9 @@ export default function ImpayesManager({
     return { totalPaye, resteDu };
   };
 
-  // Filtrage
-  const impayesFiltres = useMemo(() => {
-    const q = recherche.toLowerCase().trim();
-    return impayes.filter((v) => {
-      if (v.statut_vente === "annulee") return false;
-      if (filtreType === "impaye" && v.statut_paiement !== "impaye") return false;
-      if (filtreType === "partiel" && v.statut_paiement !== "partiel") return false;
-
-      if (!q) return true;
-      const numMatch = v.numero_facture.toLowerCase().includes(q);
-      const clientNom = v.client?.nom.toLowerCase().includes(q);
-      const clientTel = v.client?.telephone.includes(q);
-      const vendeurNom = v.utilisateur.nom.toLowerCase().includes(q);
-      return numMatch || clientNom || clientTel || vendeurNom;
-    });
-  }, [impayes, recherche, filtreType]);
-
   // Statistiques consolidées des créances
   const stats = useMemo(() => {
+    if (statsGlobales) return statsGlobales;
     let creancesTotales = 0;
     let nbFactures = 0;
     const clientsDebiteursSet = new Set<string>();
@@ -150,7 +181,7 @@ export default function ImpayesManager({
       nbFactures,
       nbClientsDebiteurs: clientsDebiteursSet.size,
     };
-  }, [impayes]);
+  }, [impayes, statsGlobales]);
 
   // Ouvrir modale règlement
   function ouvrirModalReglement(vente: ImpayeItem) {
@@ -273,7 +304,7 @@ export default function ImpayesManager({
 
         {/* 3 Indicateurs clés des impayés */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#E5DACF]">
-          <div className="p-4 rounded-xl bg-white border border-[#E5DACF]">
+          <div className="p-4 rounded-xl bg-[#FAF6F1] border border-[#E5DACF]">
             <div className="flex items-center justify-between text-[#6D5D52] text-[11px] font-bold uppercase mb-1">
               <span>Créances en cours</span>
               <TrendingDown className="w-4 h-4 text-[#C1652D]" />
@@ -311,7 +342,13 @@ export default function ImpayesManager({
 
       {/* Barre de filtres et recherche */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-        <div className="relative flex-1 max-w-md">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            appliquerFiltres(filtreType, recherche);
+          }}
+          className="relative flex-1 max-w-md"
+        >
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C7A6B]" />
           <input
             type="text"
@@ -323,13 +360,16 @@ export default function ImpayesManager({
           {recherche && (
             <button
               type="button"
-              onClick={() => setRecherche("")}
+              onClick={() => {
+                setRecherche("");
+                appliquerFiltres(filtreType, "");
+              }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2B2119] cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-        </div>
+        </form>
 
         <div className="flex items-center gap-1.5 bg-[#E5DACF]/40 p-1 rounded-xl self-start sm:self-auto">
           {[
@@ -340,7 +380,10 @@ export default function ImpayesManager({
             <button
               key={onglet.id}
               type="button"
-              onClick={() => setFiltreType(onglet.id as any)}
+              onClick={() => {
+                setFiltreType(onglet.id as any);
+                appliquerFiltres(onglet.id, recherche);
+              }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 filtreType === onglet.id
                   ? "bg-[#FAF6F1] text-[#2B2119] shadow-xs"
@@ -355,7 +398,7 @@ export default function ImpayesManager({
 
       {/* Tableau des créances */}
       <div className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl overflow-hidden shadow-sm">
-        {impayesFiltres.length === 0 ? (
+        {impayes.length === 0 ? (
           <div className="p-12 text-center text-[#8C7A6B]">
             <CheckCircle2 className="w-12 h-12 text-[#C1652D] mx-auto mb-3 opacity-80" />
             <h3 className="font-bold text-sm text-[#2B2119]">Aucun impayé trouvé !</h3>
@@ -381,7 +424,7 @@ export default function ImpayesManager({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5DACF]/60">
-                {impayesFiltres.map((v) => {
+                {impayes.map((v) => {
                   const { totalPaye, resteDu } = getMontantsVente(v);
                   const est100Impaye = v.statut_paiement === "impaye" && v.paiements.length === 0;
 
@@ -486,6 +529,14 @@ export default function ImpayesManager({
             </table>
           </div>
         )}
+
+        {/* Pagination du tableau */}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalElements={totalElements ?? impayes.length}
+          limit={limit}
+        />
       </div>
 
       {/* ======================================================== */}

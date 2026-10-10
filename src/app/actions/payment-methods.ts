@@ -4,25 +4,30 @@ import { getCurrentSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+import { siteConfig } from "@/config/site";
+
 /**
- * Normalise un numéro Mobile Money (notamment Bénin +229)
+ * Normalise un numéro Mobile Money avec indicatif par défaut (siteConfig)
  */
 function normaliserTelephone(tel: string): string {
+  const indicatif = siteConfig.regional.indicatifTelDefaut; // ex: "+229"
+  const digitsIndicatif = indicatif.replace("+", ""); // ex: "229"
   const nettoye = tel.replace(/[\s\-\.]/g, "");
+
   if (nettoye.startsWith("+")) {
     return nettoye;
   }
-  if (nettoye.startsWith("00229")) {
-    return `+229${nettoye.slice(5)}`;
+  if (nettoye.startsWith(`00${digitsIndicatif}`)) {
+    return `${indicatif}${nettoye.slice(2 + digitsIndicatif.length)}`;
   }
-  if (nettoye.startsWith("229") && nettoye.length >= 11) {
+  if (nettoye.startsWith(digitsIndicatif) && nettoye.length >= 11) {
     return `+${nettoye}`;
   }
   if (nettoye.startsWith("01") && nettoye.length === 10) {
-    return `+229${nettoye.slice(2)}`;
+    return `${indicatif}${nettoye.slice(2)}`;
   }
   if (nettoye.length === 8) {
-    return `+229${nettoye}`;
+    return `${indicatif}${nettoye}`;
   }
   return nettoye.startsWith("+") ? nettoye : `+${nettoye}`;
 }

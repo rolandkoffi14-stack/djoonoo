@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { siteConfig } from "@/config/site";
 
-export default function CtaFinal() {
+interface CtaFinalProps {
+  dureeEssaiJours?: number;
+}
+
+export default function CtaFinal({
+  dureeEssaiJours = siteConfig.saas.dureeEssaiJoursDefaut,
+}: CtaFinalProps) {
   return (
     <section className="relative bg-[#C1652D] text-[#FAF6F1] py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
@@ -10,8 +17,8 @@ export default function CtaFinal() {
         </h2>
 
         <p className="mt-4 text-base sm:text-lg text-[#FAF6F1]/90 max-w-xl mx-auto">
-          Rejoins dès aujourd'hui les commerçants qui gagnent du temps et évitent les erreurs
-          au quotidien avec djoonoo.
+          Rejoins dès aujourd&apos;hui les commerçants qui gagnent du temps et évitent les erreurs
+          au quotidien avec {siteConfig.app.nom}.
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -25,7 +32,7 @@ export default function CtaFinal() {
         </div>
 
         <p className="mt-4 text-xs sm:text-sm text-[#FAF6F1]/80">
-          14 jours d'essai gratuit · Sans carte bancaire · Sans engagement
+          {dureeEssaiJours} jours d&apos;essai gratuit · Sans carte bancaire · Sans engagement
         </p>
       </div>
     </section>

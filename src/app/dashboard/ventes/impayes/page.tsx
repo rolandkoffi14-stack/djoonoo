@@ -4,18 +4,34 @@ import { cookies } from "next/headers";
 import { getCurrentSession } from "@/lib/auth";
 import { getScopedPrisma } from "@/lib/prisma";
 import ImpayesManager, { ImpayeItem } from "@/components/dashboard/ImpayesManager";
+import { parsePaginationParams } from "@/lib/pagination";
+import { StatutPaiementVente } from "@prisma/client";
 
 export const metadata = {
   title: "djoonoo — Suivi des Impayés & Créances",
   description: "Suivi des dettes clients, encaissement des règlements et annulation des ventes impayées",
 };
 
-export default async function ImpayesPage() {
+interface ImpayesPageProps {
+  searchParams?: Promise<{
+    page?: string;
+    limit?: string;
+    q?: string;
+    statut?: string;
+  }>;
+}
+
+export default async function ImpayesPage(props: ImpayesPageProps) {
   const session = await getCurrentSession();
 
   if (!session) {
     redirect("/connexion");
   }
+
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const { page, limit, skip } = parsePaginationParams(searchParams, 25);
+  const q = searchParams.q?.trim() || "";
+  const statut = searchParams.statut || "tous";
 
   const scoped = getScopedPrisma(session.compteId);
 
@@ -66,28 +82,83 @@ export default async function ImpayesPage() {
     whereCondition.utilisateur_id = session.userId;
   }
 
-  // 4. Récupération des ventes impayées ou partielles
-  const impayesDb = await scoped.ventes.findMany({
-    where: whereCondition,
-    orderBy: { date_vente: "desc" },
-    include: {
-      boutique: { select: { id: true, code: true, nom: true } },
-      utilisateur: { select: { id: true, nom: true } },
-      client: { select: { id: true, nom: true, telephone: true } },
-      paiements: {
-        select: { id: true, montant: true, mode_paiement: true, date_paiement: true },
-        orderBy: { date_paiement: "asc" },
-      },
-      lignes_vente: {
-        select: {
-          id: true,
-          quantite: true,
-          prix_unitaire_a_la_vente: true,
-          produit: { select: { nom: true } },
+  if (statut === "impaye" || statut === "partiel") {
+    whereCondition.statut_paiement = statut as StatutPaiementVente;
+  }
+
+  if (q) {
+    whereCondition.OR = [
+      { numero_facture: { contains: q, mode: "insensitive" } },
+      { client: { nom: { contains: q, mode: "insensitive" } } },
+      { client: { telephone: { contains: q } } },
+      { utilisateur: { nom: { contains: q, mode: "insensitive" } } },
+    ];
+  }
+
+  // 4. Double requête atomique avec pagination et calcul des statistiques consolidées
+  const baseStatsWhere: any = {
+    compte_id: session.compteId,
+    boutique_id: activeBoutique.id,
+    statut_paiement: { in: ["impaye", "partiel"] },
+    statut_vente: "validee",
+  };
+  if (session.role === "vendeur") {
+    baseStatsWhere.utilisateur_id = session.userId;
+  }
+
+  const [totalCount, impayesDb, statsVentes, statsPaiements, distinctClients] = await Promise.all([
+    scoped.ventes.count({ where: whereCondition }),
+    scoped.ventes.findMany({
+      where: whereCondition,
+      skip,
+      take: limit,
+      orderBy: { date_vente: "desc" },
+      include: {
+        boutique: { select: { id: true, code: true, nom: true } },
+        utilisateur: { select: { id: true, nom: true } },
+        client: { select: { id: true, nom: true, telephone: true } },
+        paiements: {
+          select: { id: true, montant: true, mode_paiement: true, date_paiement: true },
+          orderBy: { date_paiement: "asc" },
+        },
+        lignes_vente: {
+          select: {
+            id: true,
+            quantite: true,
+            prix_unitaire_a_la_vente: true,
+            produit: { select: { nom: true } },
+          },
         },
       },
-    },
-  });
+    }),
+    scoped.ventes.aggregate({
+      where: baseStatsWhere,
+      _sum: { montant_total: true },
+      _count: true,
+    }),
+    scoped.paiements.aggregate({
+      where: {
+        compte_id: session.compteId,
+        vente: baseStatsWhere,
+      },
+      _sum: { montant: true },
+    }),
+    scoped.ventes.findMany({
+      where: {
+        ...baseStatsWhere,
+        client_id: { not: null },
+      },
+      distinct: ["client_id"],
+      select: { client_id: true },
+    }),
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+  const montantVentesTotal = statsVentes._sum.montant_total || 0;
+  const montantPayeTotal = statsPaiements._sum.montant || 0;
+  const creancesTotales = Math.max(0, montantVentesTotal - montantPayeTotal);
+  const nbFactures = statsVentes._count || 0;
+  const nbClientsDebiteurs = distinctClients.length;
 
   const impayes: ImpayeItem[] = impayesDb.map((v) => ({
     id: v.id,
@@ -120,6 +191,17 @@ export default async function ImpayesPage() {
       boutiqueNom={activeBoutique.nom}
       boutiqueCode={activeBoutique.code}
       userRole={session.role}
+      page={page}
+      limit={limit}
+      totalPages={totalPages}
+      totalElements={totalCount}
+      initialSearch={q}
+      initialStatut={statut}
+      statsGlobales={{
+        creancesTotales,
+        nbFactures,
+        nbClientsDebiteurs,
+      }}
     />
   );
 }

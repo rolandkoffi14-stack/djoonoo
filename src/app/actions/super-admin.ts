@@ -4,7 +4,10 @@ import { prisma } from "@/lib/prisma";
 import {
   getSuperAdminSession,
   verifySuperAdminPassword,
+  hashSuperAdminPassword,
   verifySuperAdminTotp,
+  generateSuperAdminTotpSecret,
+  generateSuperAdminTotpQrCode,
   createSuperAdminSessionToken,
   setSuperAdminSessionCookie,
   destroySuperAdminSession,
@@ -404,6 +407,128 @@ export async function declencherCycleAbonnementsManuelAction() {
     return {
       success: false,
       error: "Erreur lors de l'exécution du cycle d'abonnements.",
+    };
+  }
+}
+
+/**
+ * Étape 1 Setup : Génère un secret TOTP unique et son QR Code pour le premier Super-Admin
+ */
+export async function genererTotpInitialisationSuperAdminAction(email: string) {
+  try {
+    const adminCount = await prisma.super_admins.count();
+    if (adminCount > 0) {
+      return {
+        success: false,
+        error: "La plateforme a déjà été initialisée. Accès verrouillé.",
+      };
+    }
+
+    const emailTrimmed = email.trim().toLowerCase();
+    if (!emailTrimmed || !emailTrimmed.includes("@")) {
+      return { success: false, error: "Veuillez renseigner une adresse email valide." };
+    }
+
+    const secret = generateSuperAdminTotpSecret();
+    const qrCodeDataUrl = await generateSuperAdminTotpQrCode(secret, emailTrimmed);
+
+    return {
+      success: true,
+      secret,
+      qrCodeDataUrl,
+    };
+  } catch (error) {
+    console.error("Erreur génération TOTP setup super-admin:", error);
+    return { success: false, error: "Impossible de générer le code 2FA d'initialisation." };
+  }
+}
+
+/**
+ * Étape 2 Setup : Valide les identifiants et le code 2FA, crée le premier Super-Admin et connecte
+ */
+export async function initialiserPremierSuperAdminAction(
+  prevState: any,
+  formData: FormData
+) {
+  try {
+    const adminCount = await prisma.super_admins.count();
+    if (adminCount > 0) {
+      return {
+        success: false,
+        error: "La plateforme a déjà été initialisée. Création interdite.",
+      };
+    }
+
+    const email = (formData.get("email") as string)?.trim().toLowerCase();
+    const motDePasse = (formData.get("mot_de_passe") as string)?.trim();
+    const motDePasseConfirmation = (formData.get("mot_de_passe_confirmation") as string)?.trim();
+    const totpSecret = (formData.get("totp_secret") as string)?.trim();
+    const code2fa = (formData.get("code_2fa") as string)?.trim();
+
+    if (!email || !motDePasse || !totpSecret || !code2fa) {
+      return { success: false, error: "Tous les champs sont strictement obligatoires." };
+    }
+
+    if (motDePasse !== motDePasseConfirmation) {
+      return { success: false, error: "Les deux mots de passe ne correspondent pas." };
+    }
+
+    // Exigence mot de passe robuste Super-Admin : au moins 12 caractères
+    if (motDePasse.length < 12) {
+      return {
+        success: false,
+        error: "Le mot de passe Super-Admin doit comporter au moins 12 caractères.",
+      };
+    }
+
+    // Validation du code TOTP en direct
+    const totpValide = verifySuperAdminTotp(code2fa, totpSecret);
+    if (!totpValide) {
+      return {
+        success: false,
+        error: "Code TOTP incorrect ou expiré. Veuillez vérifier votre application d'authentification.",
+      };
+    }
+
+    // Hachage cryptographique du mot de passe
+    const motDePasseHash = await hashSuperAdminPassword(motDePasse);
+
+    // Création atomique du premier Super-Admin
+    const admin = await prisma.super_admins.create({
+      data: {
+        email,
+        mot_de_passe_hash: motDePasseHash,
+        deux_fa_active: true,
+        deux_fa_secret: totpSecret,
+      },
+    });
+
+    // Journal d'audit de la plateforme
+    await prisma.journal_audit_plateforme.create({
+      data: {
+        super_admin_id: admin.id,
+        action: "initialisation_plateforme_premier_super_admin",
+        details: {
+          email: admin.email,
+          date: new Date().toISOString(),
+        },
+      },
+    });
+
+    // Établissement de la session Super-Admin
+    const token = await createSuperAdminSessionToken({
+      superAdminId: admin.id,
+      email: admin.email,
+      deuxFaVerifiee: true,
+    });
+    await setSuperAdminSessionCookie(token);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erreur initialisation premier super-admin:", error);
+    return {
+      success: false,
+      error: "Erreur lors de la création du compte administrateur.",
     };
   }
 }
