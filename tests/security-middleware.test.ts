@@ -9,6 +9,7 @@ describe("Middleware de Sécurité & Contrôle d'Accès (Phase 2 - Items 3.1 & 3
       "/connexion",
       "/inscription",
       "/super-admin/connexion",
+      "/super-admin/initialisation",
       "/cgu",
       "/confidentialite",
       "/invitation/token123",

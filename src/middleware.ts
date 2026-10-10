@@ -9,8 +9,8 @@ export function middleware(req: NextRequest) {
 
   // 1. Protection de la console Super-Admin
   if (pathname.startsWith("/super-admin")) {
-    // La seule page publique sous /super-admin est /super-admin/connexion
-    if (pathname === "/super-admin/connexion") {
+    // Les pages publiques sous /super-admin sont la connexion et l'initialisation initiale
+    if (pathname === "/super-admin/connexion" || pathname === "/super-admin/initialisation") {
       return NextResponse.next();
     }
 
