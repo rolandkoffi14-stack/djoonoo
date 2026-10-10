@@ -144,154 +144,156 @@ export default function AuditManager({
     appliquerFiltres(selectedCategorie, selectedUtilisateur, recherche);
   };
 
-  // Helper de formatage exhaustif pour les types d'actions
+  // Helper de formatage exhaustif pour les types d'actions (couleur uniforme neutre)
   const getActionBadge = (action: string) => {
+    const badgeColor = "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]";
+
     switch (action) {
       case "enregistrement_vente":
       case "creation_vente":
         return {
           label: "Vente Enregistrée",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: ShoppingCart,
         };
       case "annulation_vente":
         return {
           label: "Annulation Vente (Règle 10)",
-          color: "bg-rose-50 text-rose-800 border-rose-300 font-bold",
+          color: badgeColor,
           icon: XCircle,
         };
       case "reglement_impaye":
       case "reglement_dette":
         return {
           label: "Règlement Facture",
-          color: "bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold",
+          color: badgeColor,
           icon: CheckCircle2,
         };
       case "creation_produit":
         return {
           label: "Nouveau Produit",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Package,
         };
       case "modification_produit":
         return {
           label: "Modification Produit",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Package,
         };
       case "modification_prix_produit":
         return {
           label: "Changement de Prix",
-          color: "bg-amber-50 text-amber-800 border-amber-200",
+          color: badgeColor,
           icon: AlertTriangle,
         };
       case "reapprovisionnement_stock":
         return {
           label: "Réapprovisionnement Stock",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Package,
         };
       case "suppression_produit":
         return {
           label: "Suppression Produit",
-          color: "bg-rose-50 text-rose-800 border-rose-200",
+          color: badgeColor,
           icon: XCircle,
         };
       case "invitation_employe":
         return {
           label: "Nouvel Employé",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: User,
         };
       case "renvoi_invitation_employe":
         return {
           label: "Renvoi Invitation",
-          color: "bg-[#FAF6F1] text-[#6D5D52] border-[#E5DACF]",
+          color: badgeColor,
           icon: Clock,
         };
       case "activation_compte_collaborateur":
         return {
           label: "Compte Activé (2FA)",
-          color: "bg-emerald-50 text-emerald-800 border-emerald-200",
+          color: badgeColor,
           icon: CheckCircle2,
         };
       case "reactivation_collaborateur":
         return {
           label: "Réactivation Employé",
-          color: "bg-emerald-50 text-emerald-800 border-emerald-200",
+          color: badgeColor,
           icon: CheckCircle2,
         };
       case "desactivation_collaborateur":
         return {
           label: "Désactivation Employé",
-          color: "bg-rose-50 text-rose-800 border-rose-200 font-bold",
+          color: badgeColor,
           icon: XCircle,
         };
       case "transfert_collaborateur":
       case "transfert_employe":
         return {
           label: "Mutation Employé (H20)",
-          color: "bg-[#C1652D]/10 text-[#C1652D] border-[#C1652D]/30 font-bold",
+          color: badgeColor,
           icon: ArrowRightLeft,
         };
       case "creation_boutique":
         return {
           label: "Nouvelle Boutique",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Store,
         };
       case "modification_boutique":
         return {
           label: "Modification Boutique",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Store,
         };
       case "reactivation_boutique":
         return {
           label: "Réactivation Boutique",
-          color: "bg-emerald-50 text-emerald-800 border-emerald-200",
+          color: badgeColor,
           icon: Store,
         };
       case "desactivation_boutique":
         return {
           label: "Désactivation Boutique",
-          color: "bg-amber-50 text-amber-800 border-amber-200 font-bold",
+          color: badgeColor,
           icon: Store,
         };
       case "creation_client":
         return {
           label: "Nouveau Client",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Users,
         };
       case "modification_client":
         return {
           label: "Modification Client",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Users,
         };
       case "creation_compte":
         return {
           label: "Création Compte SaaS",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Key,
         };
       case "modification_entreprise":
         return {
           label: "Mise à jour Entreprise",
-          color: "bg-[#FAF6F1] text-[#2B2119] border-[#E5DACF]",
+          color: badgeColor,
           icon: Building2,
         };
       case "paiement_abonnement_fedapay":
         return {
           label: "Paiement Abonnement (FedaPay)",
-          color: "bg-emerald-50 text-emerald-800 border-emerald-200 font-bold",
+          color: badgeColor,
           icon: CreditCard,
         };
       default:
         return {
           label: action.replace(/_/g, " "),
-          color: "bg-[#FAF6F1] text-[#6D5D52] border-[#E5DACF]",
+          color: badgeColor,
           icon: FileText,
         };
     }
