@@ -1,10 +1,6 @@
 import React from "react";
-import { TableSkeleton } from "@/components/ui/Skeleton";
+import { SuperAdminAbonnementsSkeleton } from "@/components/super-admin/SuperAdminSkeletons";
 
 export default function SuperAdminAbonnementsLoading() {
-  return (
-    <div className="space-y-6">
-      <TableSkeleton colonnes={7} lignes={8} />
-    </div>
-  );
+  return <SuperAdminAbonnementsSkeleton />;
 }

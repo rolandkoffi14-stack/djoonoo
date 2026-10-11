@@ -839,7 +839,7 @@ export default function CaissePOS({
                   className="w-full pl-9 pr-8 py-2 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-xs text-[#2B2119] placeholder:text-[#8C7A6B] focus:outline-none focus:ring-2 focus:ring-[#C1652D]"
                 />
                 {isSearchingClient && (
-                  <Loader2 className="w-3.5 h-3.5 text-[#C1652D] animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+                  <Loader2 className="w-3.5 h-3.5 text-[#C1652D] animate-spin absolute right-3 top-1/2 -translate-y-1/2" aria-label="Recherche client en cours" />
                 )}
               </div>
 

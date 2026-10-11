@@ -5,7 +5,7 @@
   --djoonoo-accent-hover: #A85422;
   --djoonoo-accent-subtle: #F5EAE3;
   --djoonoo-bg: #FAF6F1;
-  --djoonoo-surface: #FFFFFF;
+  --djoonoo-surface: #FDFBF7;
   --djoonoo-surface-alt: #F3ECE2;
   --djoonoo-text: #2B2119;
   --djoonoo-text-muted: #6B5C52;
@@ -71,6 +71,25 @@ button:disabled, [role="button"][aria-disabled="true"], input:disabled {
 :focus-visible {
   outline: 2px solid var(--djoonoo-accent);
   outline-offset: 2px;
+}
+
+/* Standardisation éditoriale des icônes Lucide (Point 2) */
+svg.lucide {
+  stroke-width: 1.75;
+}
+
+/* Barème des 3 tailles d'icônes standardisées */
+.icon-sm {
+  width: 1rem;
+  height: 1rem;
+}
+.icon-md {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.icon-lg {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 @media print {

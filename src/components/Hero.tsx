@@ -46,7 +46,7 @@ export default function Hero() {
         {/* 4 cartes de réassurance élargies — Tous les textes sur une seule ligne */}
         <div className="mt-14 pt-8 border-t border-[rgba(43,33,25,0.1)] max-w-5xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F5EDE3]/60 border border-[rgba(43,33,25,0.08)] shadow-[0_1px_4px_rgba(43,33,25,0.02)]">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F5EDE3]/60 border border-[rgba(43,33,25,0.08)]">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF6F1] text-[#C1652D]">
                 <Banknote className="h-5 w-5" />
               </div>
@@ -55,7 +55,7 @@ export default function Hero() {
               </span>
             </div>
 
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F5EDE3]/60 border border-[rgba(43,33,25,0.08)] shadow-[0_1px_4px_rgba(43,33,25,0.02)]">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F5EDE3]/60 border border-[rgba(43,33,25,0.08)]">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF6F1] text-[#C1652D]">
                 <Smartphone className="h-5 w-5" />
               </div>
@@ -64,7 +64,7 @@ export default function Hero() {
               </span>
             </div>
 
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F5EDE3]/60 border border-[rgba(43,33,25,0.08)] shadow-[0_1px_4px_rgba(43,33,25,0.02)]">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F5EDE3]/60 border border-[rgba(43,33,25,0.08)]">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF6F1] text-[#C1652D]">
                 <Zap className="h-5 w-5" />
               </div>
@@ -73,7 +73,7 @@ export default function Hero() {
               </span>
             </div>
 
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F5EDE3]/60 border border-[rgba(43,33,25,0.08)] shadow-[0_1px_4px_rgba(43,33,25,0.02)]">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#F5EDE3]/60 border border-[rgba(43,33,25,0.08)]">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF6F1] text-[#C1652D]">
                 <Shield className="h-5 w-5" />
               </div>

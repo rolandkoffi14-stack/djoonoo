@@ -282,7 +282,7 @@ export default function ConnexionPage() {
       </main>
 
       <footer className="border-t border-[#E5DACF] py-4 text-center text-xs text-[#8C7A6B]">
-        {siteConfig.app.nom} — Tous droits réservés • {siteConfig.entreprise.nom}
+        {siteConfig.app.nom} · Tous droits réservés · {siteConfig.entreprise.nom}
       </footer>
     </div>
   );

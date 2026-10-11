@@ -15,7 +15,6 @@ import {
   Check,
   Eye,
   EyeOff,
-  Sparkles,
 } from "lucide-react";
 import {
   genererTotpInitialisationSuperAdminAction,
@@ -28,6 +27,7 @@ export default function SetupSuperAdminClient() {
   const [step, setStep] = useState<"credentials" | "totp">("credentials");
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [copiedSecret, setCopiedSecret] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -112,14 +112,9 @@ export default function SetupSuperAdminClient() {
       <div className="w-full max-w-lg">
         {/* En-tête */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#C1652D]/15 border border-[#C1652D]/30 text-xs font-mono text-[#C1652D] mb-4">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>PREMIÈRE INSTALLATION &bull; SETUP SUPER-ADMIN</span>
-          </div>
-
           <div className="relative h-10 w-36 mx-auto mb-2">
             <Image
-              src={siteConfig.app.logos.transparentClair}
+              src={siteConfig.app.logos.transparentSombre}
               alt={siteConfig.app.nom}
               fill
               className="object-contain"
@@ -132,7 +127,7 @@ export default function SetupSuperAdminClient() {
         </div>
 
         {/* Carte principale */}
-        <div className="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
           {error && (
             <div className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-start gap-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -143,22 +138,16 @@ export default function SetupSuperAdminClient() {
           {step === "credentials" ? (
             /* ÉTAPE 1 : EMAIL & MOT DE PASSE UNIQUE */
             <form onSubmit={handleProceedToTotp} className="space-y-5">
-              <div>
+              <div className="mb-2">
                 <span className="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 text-[10px] font-mono font-bold uppercase tracking-wider">
-                  Étape 1 sur 2 &bull; Identifiants Maître
+                  Étape 1 sur 2
                 </span>
-                <h2 className="text-lg font-bold text-white mt-2">
-                  Définit tes identifiants Super-Admin
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Ce compte aura les pleins pouvoirs d&apos;administration technique et de facturation.
-                </p>
               </div>
 
               {/* Adresse Email */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                  Adresse Email Personnelle / Pro *
+                  Adresse email
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -167,7 +156,7 @@ export default function SetupSuperAdminClient() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ex: roland@2krdigital.online"
+                    placeholder="Adresse email"
                     className="w-full pl-11 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
                   />
                 </div>
@@ -176,7 +165,7 @@ export default function SetupSuperAdminClient() {
               {/* Mot de Passe Fort */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                  Mot de Passe Fort (12 caractères minimum) *
+                  Mot de passe
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -186,13 +175,14 @@ export default function SetupSuperAdminClient() {
                     minLength={12}
                     value={motDePasse}
                     onChange={(e) => setMotDePasse(e.target.value)}
-                    placeholder="••••••••••••••••"
+                    placeholder="Mot de passe"
                     className="w-full pl-11 pr-11 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                    aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -202,18 +192,26 @@ export default function SetupSuperAdminClient() {
               {/* Confirmation */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                  Confirmer le Mot de Passe *
+                  Confirmer le mot de passe
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     required
                     value={motDePasseConfirmation}
                     onChange={(e) => setMotDePasseConfirmation(e.target.value)}
-                    placeholder="••••••••••••••••"
-                    className="w-full pl-11 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
+                    placeholder="Confirmer le mot de passe"
+                    className="w-full pl-11 pr-11 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? "Masquer la confirmation du mot de passe" : "Afficher la confirmation du mot de passe"}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -327,7 +325,7 @@ export default function SetupSuperAdminClient() {
         </div>
 
         <div className="mt-8 text-center text-xs text-slate-500">
-          {siteConfig.app.nom} &bull; Initialisation unique sans valeur par défaut (Zéro CWE-798)
+          djoonoo • Console Super-Admin
         </div>
       </div>
     </div>

@@ -44,6 +44,7 @@ export default function InscriptionClient({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [copiedSecret, setCopiedSecret] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Par défaut, sélectionner le forfait recommandé ou le premier forfait
   const forfaitParDefaut =
@@ -202,7 +203,7 @@ export default function InscriptionClient({
           )}
 
           {step === "infos" ? (
-            <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-[#E5DACF] space-y-6">
+            <div className="bg-[#FDFBF7] rounded-2xl p-6 sm:p-10 shadow-xl border border-[#E5DACF] space-y-6">
               <div>
                 <span className="px-3 py-1 rounded-full bg-[#C1652D]/10 text-[#C1652D] text-xs font-bold uppercase tracking-wider">
                   Étape 1 sur 2
@@ -234,7 +235,7 @@ export default function InscriptionClient({
                           type="text"
                           name="nom_entreprise"
                           required
-                          placeholder="Ex: Établissement Le Bonheur"
+                          placeholder="Nom ou raison sociale"
                           className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                         />
                       </div>
@@ -252,7 +253,7 @@ export default function InscriptionClient({
                           type="text"
                           name="nom_boutique"
                           required
-                          placeholder="Ex: Boutique Principale"
+                          placeholder="Nom de la boutique"
                           className="w-full px-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                         />
                       </div>
@@ -288,7 +289,7 @@ export default function InscriptionClient({
                             type="text"
                             name="ville"
                             required
-                            placeholder="Ex: Cotonou"
+                            placeholder="Ville d'implantation"
                             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                           />
                         </div>
@@ -305,7 +306,7 @@ export default function InscriptionClient({
                           type="text"
                           name="adresse_boutique"
                           required
-                          placeholder="Ex: Marché Dantokpa, Allée 4"
+                          placeholder="Adresse ou quartier"
                           className="w-full px-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                         />
                       </div>
@@ -331,7 +332,7 @@ export default function InscriptionClient({
                           type="text"
                           name="nom_patron"
                           required
-                          placeholder="Ex: Roland KOFFI"
+                          placeholder="Nom et prénoms"
                           className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                         />
                       </div>
@@ -351,7 +352,7 @@ export default function InscriptionClient({
                             type="email"
                             name="email"
                             required
-                            placeholder="patron@commerce.bj"
+                            placeholder="Adresse email"
                             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                           />
                         </div>
@@ -370,7 +371,7 @@ export default function InscriptionClient({
                             type="tel"
                             name="telephone_patron"
                             required
-                            placeholder="+229 01 ..."
+                            placeholder="Numéro de téléphone"
                             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                           />
                         </div>
@@ -391,13 +392,14 @@ export default function InscriptionClient({
                             type={showPassword ? "text" : "password"}
                             name="mot_de_passe"
                             required
-                            placeholder="••••••••••••"
+                            placeholder="Mot de passe"
                             className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2B2119]"
+                            aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2B2119] cursor-pointer"
                           >
                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
@@ -414,12 +416,20 @@ export default function InscriptionClient({
                         <div className="relative">
                           <Lock className="w-4 h-4 text-[#8C7A6B] absolute left-3.5 top-1/2 -translate-y-1/2" />
                           <input
-                            type={showPassword ? "text" : "password"}
+                            type={showConfirmPassword ? "text" : "password"}
                             name="mot_de_passe_confirmation"
                             required
-                            placeholder="••••••••••••"
-                            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
+                            placeholder="Confirmer le mot de passe"
+                            className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#E5DACF] bg-[#FAF6F1] text-[#2B2119] focus:outline-none focus:ring-2 focus:ring-[#C1652D]/30 focus:border-[#C1652D] text-sm"
                           />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            aria-label={showConfirmPassword ? "Masquer la confirmation du mot de passe" : "Afficher la confirmation du mot de passe"}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A6B] hover:text-[#2B2119] cursor-pointer"
+                          >
+                            {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
                         </div>
                         {fieldErrors.mot_de_passe_confirmation && (
                           <p className="text-xs text-rose-600 mt-1">{fieldErrors.mot_de_passe_confirmation}</p>
@@ -449,23 +459,25 @@ export default function InscriptionClient({
                           key={f.nom}
                           type="button"
                           onClick={() => setSelectedForfait(f.nom)}
-                          className={`relative text-left p-3 rounded-xl border-2 transition-all ${
+                          className={`relative text-left p-3.5 rounded-xl transition-all cursor-pointer ${
                             isSelected
-                              ? "border-[#C1652D] bg-[#C1652D]/5 ring-2 ring-[#C1652D]/20 shadow-sm"
-                              : "border-[#E5DACF] hover:border-neutral-300 bg-white"
+                              ? "border-2 border-[#C1652D] bg-[#FAF6F1]"
+                              : "border border-[#E5DACF] hover:border-[rgba(43,33,25,0.22)] bg-[#FAF6F1]"
                           }`}
                         >
-                          {f.badge && (
-                            <span className="absolute -top-2 right-2 text-[10px] font-bold uppercase bg-[#C1652D] text-white px-1.5 py-0.2 rounded-full">
-                              {f.badge}
-                            </span>
-                          )}
+                          <div className="min-h-[22px] mb-1">
+                            {f.badge && (
+                              <span className="inline-block rounded-full bg-[#C1652D]/10 border border-[#C1652D]/20 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[#C1652D] whitespace-nowrap">
+                                {f.badge}
+                              </span>
+                            )}
+                          </div>
                           <div className="font-bold text-sm text-[#2B2119]">{f.nom}</div>
                           <div className="text-xs font-semibold text-[#C1652D] mt-0.5">
                             {f.prix.toLocaleString("fr-FR")} {siteConfig.regional.devise}
                             <span className="text-[10px] text-[#6D5D52]">/mois</span>
                           </div>
-                          <div className="text-[11px] text-[#6D5D52] mt-1.5 leading-tight">
+                          <div className="text-[11px] text-[#6D5D52] mt-1.5 leading-tight space-y-0.5">
                             <div>{f.boutiques}</div>
                             <div>{f.employes}</div>
                           </div>
@@ -498,7 +510,7 @@ export default function InscriptionClient({
             </div>
           ) : (
             /* ÉTAPE 2 : ACTIVATION 2FA TOTP OBLIGATOIRE */
-            <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-[#E5DACF] space-y-6">
+            <div className="bg-[#FDFBF7] rounded-2xl p-6 sm:p-10 shadow-xl border border-[#E5DACF] space-y-6">
               <div>
                 <span className="px-3 py-1 rounded-full bg-[#C1652D]/10 text-[#C1652D] text-xs font-bold uppercase tracking-wider">
                   Étape 2 sur 2 • Sécurité Obligatoire
@@ -609,7 +621,7 @@ export default function InscriptionClient({
 
       {/* Pied de page épuré */}
       <footer className="border-t border-[#E5DACF] py-4 text-center text-xs text-[#8C7A6B]">
-        {siteConfig.app.nom} — Tous droits réservés • {siteConfig.entreprise.nom}
+        {siteConfig.app.nom} · Tous droits réservés · {siteConfig.entreprise.nom}
       </footer>
     </div>
   );

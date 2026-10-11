@@ -877,7 +877,7 @@ export default function ClientsManager({
                         </div>
 
                         {/* Lignes d'articles */}
-                        <div className="text-[11px] text-[#6D5D52] pl-2 border-l-2 border-[#E5DACF]">
+                        <div className="text-[11px] text-[#6D5D52] font-medium">
                           {v.lignes.map((l, idx) => (
                             <span key={idx} className="mr-3">
                               {l.quantite}x {l.produit_nom} (

@@ -27,7 +27,7 @@ export default function BannerAbonnement({
             </span>
             <div className="text-sm">
               <p className="font-semibold">
-                Mode lecture seule — Abonnement djoonoo expiré
+                Mode lecture seule : Abonnement djoonoo expiré
               </p>
               <p className="text-white/90 text-xs sm:text-sm">
                 Tes données restent consultables, mais les ventes, ajouts et modifications de stock sont bloqués.
@@ -62,7 +62,7 @@ export default function BannerAbonnement({
             </span>
             <div className="text-sm">
               <p className="font-semibold">
-                Délai de grâce en cours — Échéance d'abonnement dépassée
+                Délai de grâce en cours : Échéance d'abonnement dépassée
               </p>
               <p className="text-white/90 text-xs sm:text-sm">
                 {joursGraceRestants > 0

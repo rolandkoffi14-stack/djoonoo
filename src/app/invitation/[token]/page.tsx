@@ -148,7 +148,7 @@ export default function InvitationActivationPage() {
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-xl">
-        <div className="bg-white py-8 px-6 sm:px-10 border border-[#E5DACF] rounded-3xl shadow-xl space-y-6">
+        <div className="bg-[#FDFBF7] py-8 px-6 sm:px-10 border border-[#E5DACF] rounded-2xl shadow-xl space-y-6">
           {/* ======================================================== */}
           {/* 1. ÉTAT CHARGEMENT INITIAL                               */}
           {/* ======================================================== */}
@@ -208,6 +208,7 @@ export default function InvitationActivationPage() {
               </div>
               <div className="flex justify-center pt-2">
                 <Loader2 className="w-5 h-5 animate-spin text-[#C1652D]" />
+                <span className="sr-only">Redirection en cours...</span>
               </div>
             </div>
           )}

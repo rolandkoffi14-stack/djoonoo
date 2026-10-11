@@ -95,7 +95,7 @@ export default function Footer() {
 
         {/* Ligne du bas : Copyright dynamique */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6B5C52]">
-          <p>© {currentYear} {siteConfig.app.nom} — Tous droits réservés.</p>
+          <p>© {currentYear} {siteConfig.app.nom} · Tous droits réservés.</p>
           <p className="font-semibold text-[#2B2119]">{siteConfig.entreprise.nom}</p>
         </div>
       </div>

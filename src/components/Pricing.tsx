@@ -55,18 +55,18 @@ export default function Pricing({
                 key={forfait.id}
                 className={`relative flex flex-col justify-between rounded-2xl p-7 sm:p-8 transition-all ${
                   isFeatured
-                    ? "border-2 border-[#C1652D] bg-[#F5EDE3]/70 shadow-[0_4px_20px_rgba(193,101,45,0.12)]"
-                    : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1] hover:border-[rgba(43,33,25,0.22)]"
+                    ? "border-2 border-[#C1652D] bg-[#FAF6F1]"
+                    : "border border-[#E5DACF] bg-[#FAF6F1] hover:border-[rgba(43,33,25,0.22)]"
                 }`}
               >
                 <div>
-                  {forfait.badge && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                      <span className="rounded-full bg-[#C1652D] px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FAF6F1] shadow-sm">
+                  <div className="min-h-[28px] mb-2">
+                    {forfait.badge && (
+                      <span className="inline-block rounded-full bg-[#C1652D]/10 border border-[#C1652D]/20 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#C1652D]">
                         {forfait.badge}
                       </span>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   <div className="flex items-center justify-between gap-4 mb-3">
                     <h3 className="text-xl font-bold text-[#2B2119]">{forfait.nom}</h3>
@@ -109,8 +109,8 @@ export default function Pricing({
                   href="/inscription"
                   className={`w-full inline-flex items-center justify-center gap-2 rounded-xl py-3.5 px-6 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C1652D] ${
                     isFeatured
-                      ? "bg-[#C1652D] text-[#FAF6F1] shadow-[0_2px_8px_rgba(193,101,45,0.25)] hover:bg-[#A85422] active:scale-[0.98]"
-                      : "border border-[rgba(43,33,25,0.22)] bg-transparent text-[#2B2119] hover:bg-[rgba(43,33,25,0.05)]"
+                      ? "bg-[#C1652D] text-[#FAF6F1] hover:bg-[#A85422] active:scale-[0.98]"
+                      : "bg-[#2B2119] text-[#FAF6F1] hover:bg-[#3E3024] active:scale-[0.98]"
                   }`}
                 >
                   <span>Essai gratuit {dureeEssaiJours} jours</span>

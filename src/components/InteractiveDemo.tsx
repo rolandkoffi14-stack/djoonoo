@@ -122,7 +122,7 @@ export default function InteractiveDemo() {
                         onClick={() => setSelectedProduct(p)}
                         className={`text-left p-4 rounded-xl transition-all cursor-pointer select-none ${
                           isSelected
-                            ? "border-2 border-[#C1652D] bg-[#FAF6F1] shadow-[0_2px_12px_rgba(193,101,45,0.18)]"
+                            ? "border-2 border-[#C1652D] bg-[#FAF6F1]"
                             : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1]/80 hover:bg-[#FAF6F1] hover:border-[rgba(43,33,25,0.25)]"
                         }`}
                       >
@@ -157,7 +157,7 @@ export default function InteractiveDemo() {
                     onClick={() => setModePaiement("mtn_momo")}
                     className={`flex items-center justify-center gap-2 p-3.5 rounded-xl text-sm font-semibold transition-all cursor-pointer select-none ${
                       modePaiement === "mtn_momo"
-                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#C1652D] shadow-[0_2px_8px_rgba(193,101,45,0.15)] font-bold"
+                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#C1652D] font-bold"
                         : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1]/80 text-[#2B2119] hover:bg-[#FAF6F1]"
                     }`}
                   >
@@ -170,7 +170,7 @@ export default function InteractiveDemo() {
                     onClick={() => setModePaiement("moov_money")}
                     className={`flex items-center justify-center gap-2 p-3.5 rounded-xl text-sm font-semibold transition-all cursor-pointer select-none ${
                       modePaiement === "moov_money"
-                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#C1652D] shadow-[0_2px_8px_rgba(193,101,45,0.15)] font-bold"
+                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#C1652D] font-bold"
                         : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1]/80 text-[#2B2119] hover:bg-[#FAF6F1]"
                     }`}
                   >
@@ -183,7 +183,7 @@ export default function InteractiveDemo() {
                     onClick={() => setModePaiement("especes")}
                     className={`flex items-center justify-center gap-2 p-3.5 rounded-xl text-sm font-semibold transition-all cursor-pointer select-none ${
                       modePaiement === "especes"
-                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#C1652D] shadow-[0_2px_8px_rgba(193,101,45,0.15)] font-bold"
+                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#C1652D] font-bold"
                         : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1]/80 text-[#2B2119] hover:bg-[#FAF6F1]"
                     }`}
                   >
@@ -204,7 +204,7 @@ export default function InteractiveDemo() {
                     onClick={() => setTypeReglement("total")}
                     className={`p-3 rounded-xl border text-center transition-all cursor-pointer select-none ${
                       typeReglement === "total"
-                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#2B2119] font-bold shadow-sm"
+                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#2B2119] font-bold"
                         : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1]/70 text-[#6B5C52] hover:bg-[#FAF6F1]"
                     }`}
                   >
@@ -215,7 +215,7 @@ export default function InteractiveDemo() {
                     onClick={() => setTypeReglement("acompte")}
                     className={`p-3 rounded-xl border text-center transition-all cursor-pointer select-none ${
                       typeReglement === "acompte"
-                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#2B2119] font-bold shadow-sm"
+                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#2B2119] font-bold"
                         : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1]/70 text-[#6B5C52] hover:bg-[#FAF6F1]"
                     }`}
                   >
@@ -226,7 +226,7 @@ export default function InteractiveDemo() {
                     onClick={() => setTypeReglement("credit")}
                     className={`p-3 rounded-xl border text-center transition-all cursor-pointer select-none ${
                       typeReglement === "credit"
-                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#2B2119] font-bold shadow-sm"
+                        ? "border-2 border-[#C1652D] bg-[#FAF6F1] text-[#2B2119] font-bold"
                         : "border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1]/70 text-[#6B5C52] hover:bg-[#FAF6F1]"
                     }`}
                   >
@@ -236,7 +236,7 @@ export default function InteractiveDemo() {
               </div>
 
               {/* Récapitulatif instantané calculé sous les yeux */}
-              <div className="rounded-xl border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1] p-5 shadow-sm">
+              <div className="rounded-xl border border-[rgba(43,33,25,0.12)] bg-[#FAF6F1] p-5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[rgba(43,33,25,0.08)]">
                   <div>
                     <span className="text-xs text-[#6B5C52]">Article sélectionné</span>

@@ -110,7 +110,7 @@ export default function ModalChoixForfait({
                   {/* Badge en haut */}
                   {affichage.badge && (
                     <div
-                      className={`absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-extrabold uppercase px-3 py-0.5 rounded-full shadow-xs tracking-wider ${
+                      className={`absolute -top-3 left-1/2 -translate-x-1/2 text-[9.5px] font-bold uppercase px-2.5 py-0.5 rounded-full shadow-xs tracking-wide whitespace-nowrap ${
                         affichage.badge === "Recommandé"
                           ? "bg-[#C1652D] text-white"
                           : affichage.badge === "Forfait impayé"
@@ -128,7 +128,7 @@ export default function ModalChoixForfait({
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-bold text-[#2B2119]">{f.nom}</h3>
                       {isCurrent && !affichage.badge && (
-                        <span className="text-[11px] bg-[#2B2119] text-white font-medium px-2 py-0.5 rounded-full">
+                        <span className="text-[9.5px] bg-[#2B2119] text-white font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                           Actuel
                         </span>
                       )}

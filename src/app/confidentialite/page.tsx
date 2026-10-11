@@ -5,7 +5,7 @@ import { ArrowLeft, Lock } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: `${siteConfig.app.nom} — Politique de Confidentialité & Protection des Données`,
+  title: `${siteConfig.app.nom} · Politique de Confidentialité & Protection des Données`,
   description: `Politique de confidentialité et protection des données commerciales de ${siteConfig.app.nom} par ${siteConfig.entreprise.nom}`,
 };
 

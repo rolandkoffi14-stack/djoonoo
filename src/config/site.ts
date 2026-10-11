@@ -52,7 +52,7 @@ export const siteConfig = {
     nom: "djoonoo",
     slogan: "Ta boutique, à portée de main, où que tu sois.",
     description:
-      "djoonoo voit ta boutique pour toi. Ventes, stock, impayés — en un coup d'œil, où que tu sois.",
+      "djoonoo voit ta boutique pour toi. Ventes, stock, impayés, en un coup d'œil, où que tu sois.",
     descriptionCourte:
       "Solution de gestion des ventes, du stock et des impayés conçue pour les commerçants.",
     sousSloganFacture: "Plateforme de gestion commerciale & de caisse",
@@ -65,6 +65,8 @@ export const siteConfig = {
         "/brand/01_horizontal_logos/djoonoo_logo_clair_transparent.svg",
       transparentClairPng:
         "/brand/01_horizontal_logos/djoonoo_logo_clair_transparent@2x.png",
+      transparentSombre:
+        "/brand/01_horizontal_logos/djoonoo_logo_sombre_transparent.svg",
       favicon: "/brand/03_web_pwa/favicon.ico",
       appleTouchIcon: "/brand/03_web_pwa/apple-touch-icon.png",
     },

@@ -3,13 +3,14 @@
 import React, { useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Shield, KeyRound, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
+import { Shield, KeyRound, Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { connexionSuperAdminAction } from "@/app/actions/super-admin";
 import { siteConfig } from "@/config/site";
 
 export default function ConnexionSuperAdminClient() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -35,14 +36,9 @@ export default function ConnexionSuperAdminClient() {
       <div className="w-full max-w-md">
         {/* Header / Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-xs font-mono text-slate-300 mb-4">
-            <Shield className="w-3.5 h-3.5 text-[#C1652D]" />
-            <span>CONSOLE D&apos;ADMINISTRATION PLATEFORME</span>
-          </div>
-
           <div className="relative h-10 w-36 mx-auto mb-2">
             <Image
-              src={siteConfig.app.logos.transparentClair}
+              src={siteConfig.app.logos.transparentSombre}
               alt={siteConfig.app.nom}
               fill
               className="object-contain"
@@ -55,7 +51,7 @@ export default function ConnexionSuperAdminClient() {
         </div>
 
         {/* Carte de Connexion */}
-        <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-md">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
           {error && (
             <div className="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm flex items-start gap-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -67,7 +63,7 @@ export default function ConnexionSuperAdminClient() {
             {/* Email Super-Admin */}
             <div>
               <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Adresse Email Administrateur
+                Adresse email
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -75,7 +71,7 @@ export default function ConnexionSuperAdminClient() {
                   type="email"
                   name="email"
                   required
-                  placeholder="Adresse email administrateur"
+                  placeholder="Adresse email"
                   className="w-full pl-11 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
                 />
               </div>
@@ -84,17 +80,25 @@ export default function ConnexionSuperAdminClient() {
             {/* Mot de Passe */}
             <div>
               <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Mot de Passe Sécurisé
+                Mot de passe
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="mot_de_passe"
                   required
-                  placeholder="••••••••••••"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
+                  placeholder="Mot de passe"
+                  className="w-full pl-11 pr-11 py-3 bg-slate-800/60 border border-slate-700 rounded-2xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C1652D] focus:ring-1 focus:ring-[#C1652D] transition-colors"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -141,7 +145,7 @@ export default function ConnexionSuperAdminClient() {
 
         {/* Footer info */}
         <div className="mt-8 text-center text-xs text-slate-500">
-          {siteConfig.app.nom} &bull; Console Super-Admin isolée
+          djoonoo • Console Super-Admin
         </div>
       </div>
     </div>

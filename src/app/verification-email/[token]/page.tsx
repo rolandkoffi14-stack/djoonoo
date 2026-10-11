@@ -14,7 +14,7 @@ export default async function VerificationEmailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-[#FAF6F1] flex flex-col items-center justify-center p-4 selection:bg-[#C1652D]/20">
-      <div className="w-full max-w-md bg-white border border-[#E5DACF] rounded-2xl shadow-xl overflow-hidden p-8 text-center">
+      <div className="w-full max-w-md bg-[#FDFBF7] border border-[#E5DACF] rounded-2xl shadow-xl overflow-hidden p-8 text-center">
         {/* Logo djoonoo */}
         <div className="flex justify-center mb-6">
           <Link href="/">
@@ -75,7 +75,7 @@ export default async function VerificationEmailPage({ params }: PageProps) {
       </div>
 
       <footer className="mt-8 text-xs text-[#8C7A6B] text-center">
-        © {new Date().getFullYear()} {siteConfig.app.nom} — {siteConfig.app.sousSloganFacture}
+        © {new Date().getFullYear()} {siteConfig.app.nom} · {siteConfig.app.sousSloganFacture}
       </footer>
     </div>
   );

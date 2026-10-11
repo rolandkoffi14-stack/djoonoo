@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export const metadata = {
-  title: `${siteConfig.app.nom} — Conditions Générales d'Utilisation (CGU)`,
+  title: `${siteConfig.app.nom} · Conditions Générales d'Utilisation (CGU)`,
   description: `Conditions générales d'utilisation du service SaaS ${siteConfig.app.nom} par ${siteConfig.entreprise.nom}`,
 };
 

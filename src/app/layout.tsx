@@ -12,7 +12,7 @@ const montserrat = Montserrat({
 import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: `${siteConfig.app.nom} — ${siteConfig.app.slogan.toLowerCase()}`,
+  title: `${siteConfig.app.nom} · ${siteConfig.app.slogan.toLowerCase()}`,
   description: siteConfig.app.description,
   icons: {
     icon: siteConfig.app.logos.favicon,
