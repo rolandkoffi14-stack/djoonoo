@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache";
 import { ModePaiement, StatutPaiementVente } from "@prisma/client";
 import { VenteInputSchema } from "@/lib/validations";
 import { formatSafeError } from "@/lib/safe-action";
+import { realtimeHub } from "@/lib/realtime-hub";
 
 export interface LigneVenteInput {
   produit_id: string;
@@ -370,6 +371,12 @@ export async function enregistrerVenteAction(
     revalidatePath("/dashboard/produits");
     revalidatePath("/dashboard/ventes");
 
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "VENTE_CREEE",
+      boutiqueId: boutique.id,
+    });
+
     const recuData: RecuVenteData = {
       id: resultat.id,
       numero_facture: resultat.numero_facture,
@@ -603,6 +610,11 @@ export async function creerClientRapideAction(
 
     revalidatePath("/dashboard/clients");
     revalidatePath("/dashboard/caisse");
+
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "CLIENT_MODIFIE",
+    });
 
     return {
       success: true,

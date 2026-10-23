@@ -4,6 +4,7 @@ import { getCurrentSession } from "@/lib/auth";
 import { prisma, getScopedPrisma } from "@/lib/prisma";
 import { enregistrerAudit } from "@/lib/business-rules";
 import { revalidatePath } from "next/cache";
+import { realtimeHub } from "@/lib/realtime-hub";
 
 export interface ClientSearchResult {
   id: string;
@@ -208,6 +209,11 @@ export async function creerClientAction(payload: {
     revalidatePath("/dashboard/clients");
     revalidatePath("/dashboard/caisse");
 
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "CLIENT_MODIFIE",
+    });
+
     return {
       success: true,
       client: {
@@ -315,6 +321,11 @@ export async function modifierClientAction(
 
     revalidatePath("/dashboard/clients");
     revalidatePath("/dashboard/caisse");
+
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "CLIENT_MODIFIE",
+    });
 
     return { success: true };
   } catch (err: any) {

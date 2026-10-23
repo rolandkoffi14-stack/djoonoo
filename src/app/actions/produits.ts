@@ -7,6 +7,7 @@ import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
 import { ProduitInputSchema } from "@/lib/validations";
 import { formatSafeError } from "@/lib/safe-action";
+import { realtimeHub } from "@/lib/realtime-hub";
 
 export interface ProduitActionResult {
   success: boolean;
@@ -159,6 +160,12 @@ export async function creerProduitAction(
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/produits");
 
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "STOCK_MODIFIE",
+      boutiqueId: boutique.id,
+    });
+
     return {
       success: true,
       produit: {
@@ -277,6 +284,12 @@ export async function modifierProduitAction(
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/produits");
 
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "STOCK_MODIFIE",
+      boutiqueId: produit.boutique_id,
+    });
+
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -359,6 +372,12 @@ export async function reapprovisionnerStockAction(
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/produits");
 
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "STOCK_MODIFIE",
+      boutiqueId: produit.boutique_id,
+    });
+
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -428,6 +447,12 @@ export async function supprimerProduitAction(
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/produits");
+
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "STOCK_MODIFIE",
+      boutiqueId: produit.boutique_id,
+    });
 
     return { success: true };
   } catch (err: any) {

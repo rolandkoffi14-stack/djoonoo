@@ -53,6 +53,25 @@ export default function RapportsManager({
     activeBoutiqueId || "tous"
   );
 
+  React.useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
+  React.useEffect(() => {
+    const onRealtimeUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (
+        customEvent.detail?.type === "VENTE_CREEE" ||
+        customEvent.detail?.type === "VENTE_ANNULEE" ||
+        customEvent.detail?.type === "PAIEMENT_ENREGISTRE"
+      ) {
+        rechargerRapport(periode, boutiqueSelectionnee);
+      }
+    };
+    window.addEventListener("djoonoo:realtime-update", onRealtimeUpdate);
+    return () => window.removeEventListener("djoonoo:realtime-update", onRealtimeUpdate);
+  }, [periode, boutiqueSelectionnee]);
+
   function rechargerRapport(nouvellePeriode: PeriodeRapport, nouvelleBoutiqueId: string) {
     setPeriode(nouvellePeriode);
     setBoutiqueSelectionnee(nouvelleBoutiqueId);

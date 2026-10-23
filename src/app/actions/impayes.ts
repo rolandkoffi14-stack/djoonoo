@@ -6,6 +6,7 @@ import { enregistrerAudit } from "@/lib/business-rules";
 import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
 import { ModePaiement, StatutPaiementVente } from "@prisma/client";
+import { realtimeHub } from "@/lib/realtime-hub";
 
 export interface ReglementImpayePayload {
   vente_id: string;
@@ -141,6 +142,12 @@ export async function enregistrerReglementImpayeAction(
     revalidatePath("/dashboard/ventes");
     revalidatePath("/dashboard/ventes/impayes");
 
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "PAIEMENT_ENREGISTRE",
+      boutiqueId: vente.boutique_id,
+    });
+
     return {
       success: true,
       nouveauStatut,
@@ -249,6 +256,12 @@ export async function annulerVenteImpayeeAction(
     revalidatePath("/dashboard/produits");
     revalidatePath("/dashboard/ventes");
     revalidatePath("/dashboard/ventes/impayes");
+
+    realtimeHub.publish({
+      compteId: session.compteId,
+      type: "VENTE_ANNULEE",
+      boutiqueId: vente.boutique_id,
+    });
 
     return { success: true };
   } catch (err: any) {

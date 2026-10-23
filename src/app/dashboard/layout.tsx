@@ -6,6 +6,7 @@ import { prisma, getScopedPrisma } from "@/lib/prisma";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import BannerAbonnement from "@/components/BannerAbonnement";
+import RealtimeListener from "@/components/realtime/RealtimeListener";
 
 export const dynamic = "force-dynamic";
 
@@ -88,6 +89,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-[#FAF6F1] flex">
+      <RealtimeListener />
       {/* Sidebar latérale adaptative */}
       <Sidebar
         userRole={session.role}
