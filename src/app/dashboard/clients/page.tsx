@@ -26,12 +26,18 @@ export default async function ClientsPage(props: ClientsPageProps) {
     redirect("/connexion");
   }
 
+  // Section 2 : Vendeur strictement interdit d'accès au répertoire clients global
+  if (session.role === "vendeur") {
+    redirect("/dashboard/caisse");
+  }
+
   const searchParams = props.searchParams ? await props.searchParams : {};
   const { page, limit, skip } = parsePaginationParams(searchParams, 25);
   const q = searchParams.q?.trim() || "";
   const statut = (searchParams.statut as "tous" | "debiteurs" | "actifs") || "tous";
 
   const scoped = getScopedPrisma(session.compteId);
+  const targetBoutiqueId = session.role === "gerant" && session.boutiqueId ? session.boutiqueId : undefined;
 
   const whereCondition: any = { compte_id: session.compteId };
   if (q) {
@@ -41,19 +47,44 @@ export default async function ClientsPage(props: ClientsPageProps) {
     ];
   }
 
-  if (statut === "debiteurs") {
-    whereCondition.ventes = {
-      some: {
-        statut_vente: "validee",
-        statut_paiement: { in: ["impaye", "partiel"] },
-      },
-    };
-  } else if (statut === "actifs") {
-    whereCondition.ventes = {
-      some: {
-        statut_vente: "validee",
-      },
-    };
+  if (targetBoutiqueId) {
+    if (statut === "debiteurs") {
+      whereCondition.ventes = {
+        some: {
+          boutique_id: targetBoutiqueId,
+          statut_vente: "validee",
+          statut_paiement: { in: ["impaye", "partiel"] },
+        },
+      };
+    } else if (statut === "actifs") {
+      whereCondition.ventes = {
+        some: {
+          boutique_id: targetBoutiqueId,
+          statut_vente: "validee",
+        },
+      };
+    } else {
+      whereCondition.ventes = {
+        some: {
+          boutique_id: targetBoutiqueId,
+        },
+      };
+    }
+  } else {
+    if (statut === "debiteurs") {
+      whereCondition.ventes = {
+        some: {
+          statut_vente: "validee",
+          statut_paiement: { in: ["impaye", "partiel"] },
+        },
+      };
+    } else if (statut === "actifs") {
+      whereCondition.ventes = {
+        some: {
+          statut_vente: "validee",
+        },
+      };
+    }
   }
 
   // 1. Récupération paginée des clients, comptage total et métriques globales
@@ -73,7 +104,10 @@ export default async function ClientsPage(props: ClientsPageProps) {
       orderBy: { nom: "asc" },
       include: {
         ventes: {
-          where: { statut_vente: "validee" },
+          where: {
+            statut_vente: "validee",
+            ...(targetBoutiqueId ? { boutique_id: targetBoutiqueId } : {}),
+          },
           select: {
             montant_total: true,
             paiements: { select: { montant: true } },
@@ -81,12 +115,18 @@ export default async function ClientsPage(props: ClientsPageProps) {
         },
       },
     }),
-    scoped.clients.count({ where: { compte_id: session.compteId } }),
+    scoped.clients.count({
+      where: {
+        compte_id: session.compteId,
+        ...(targetBoutiqueId ? { ventes: { some: { boutique_id: targetBoutiqueId } } } : {}),
+      },
+    }),
     scoped.ventes.aggregate({
       where: {
         compte_id: session.compteId,
         statut_vente: "validee",
         client_id: { not: null },
+        ...(targetBoutiqueId ? { boutique_id: targetBoutiqueId } : {}),
       },
       _sum: { montant_total: true },
     }),
@@ -96,6 +136,7 @@ export default async function ClientsPage(props: ClientsPageProps) {
         vente: {
           statut_vente: "validee",
           client_id: { not: null },
+          ...(targetBoutiqueId ? { boutique_id: targetBoutiqueId } : {}),
         },
       },
       _sum: { montant: true },
@@ -107,6 +148,7 @@ export default async function ClientsPage(props: ClientsPageProps) {
           some: {
             statut_vente: "validee",
             statut_paiement: { in: ["impaye", "partiel"] },
+            ...(targetBoutiqueId ? { boutique_id: targetBoutiqueId } : {}),
           },
         },
       },

@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, StatutPaiementVente } from "@prisma/client";
+import { PrismaClient, Prisma, StatutPaiementVente, RoleUtilisateur } from "@prisma/client";
 
 export class StockInsuffisantError extends Error {
   constructor(public produitId: string) {
@@ -246,5 +246,88 @@ export async function genererCodeSKU(
   }
 
   return candidate;
+}
+
+export interface SessionRoleContext {
+  userId: string;
+  role: RoleUtilisateur;
+  boutiqueId?: string | null;
+}
+
+/**
+ * Construit les critères WHERE d'isolation des ventes selon le rôle (Section 2) :
+ * - Vendeur : strictement borné à sa boutique ET à ses propres ventes (utilisateur_id)
+ * - Gérant : strictement borné à sa boutique assignée (tous vendeurs confondus)
+ * - Patron : borné à la boutique cible demandée (ou toutes)
+ */
+export function construireFiltreVentesParRole(
+  session: SessionRoleContext,
+  targetBoutiqueId: string
+): { boutique_id: string; utilisateur_id?: string } {
+  const boutiqueIdFinale =
+    session.role === "patron" ? targetBoutiqueId : (session.boutiqueId || targetBoutiqueId);
+
+  if (session.role === "vendeur") {
+    return {
+      boutique_id: boutiqueIdFinale,
+      utilisateur_id: session.userId,
+    };
+  }
+
+  return {
+    boutique_id: boutiqueIdFinale,
+  };
+}
+
+/**
+ * Construit les critères WHERE d'isolation des créances et impayés selon le rôle
+ */
+export function construireFiltreImpayesParRole(
+  session: SessionRoleContext,
+  targetBoutiqueId: string
+): {
+  boutique_id: string;
+  utilisateur_id?: string;
+  statut_paiement: { in: StatutPaiementVente[] };
+  statut_vente: string;
+} {
+  const base = construireFiltreVentesParRole(session, targetBoutiqueId);
+  return {
+    ...base,
+    statut_paiement: { in: ["impaye", "partiel"] },
+    statut_vente: "validee",
+  };
+}
+
+/**
+ * Valide l'accès à un reçu ou facture selon le rôle (Section 2)
+ */
+export function verifierAccesFactureVente(
+  session: SessionRoleContext,
+  vente: { boutique_id: string; utilisateur_id: string }
+): { autorise: boolean; erreur?: string } {
+  if (session.role === "patron") {
+    return { autorise: true };
+  }
+
+  if (session.role === "gerant") {
+    if (vente.boutique_id !== session.boutiqueId) {
+      return {
+        autorise: false,
+        erreur: "Accès refusé : tu ne peux consulter que les factures de ta boutique.",
+      };
+    }
+    return { autorise: true };
+  }
+
+  // Rôle Vendeur : uniquement ses propres ventes
+  if (vente.utilisateur_id !== session.userId) {
+    return {
+      autorise: false,
+      erreur: "Accès refusé : tu ne peux consulter que les reçus de tes propres ventes.",
+    };
+  }
+
+  return { autorise: true };
 }
 

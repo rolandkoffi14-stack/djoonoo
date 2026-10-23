@@ -32,9 +32,11 @@ export async function GET(
     return new NextResponse("Facture introuvable", { status: 404 });
   }
 
-  // Contrôle strict de l'isolation multi-tenant pour les tenants ordinaires
-  if (!superAdminSession && facture.compte_id !== session?.compteId) {
-    return new NextResponse("Accès refusé", { status: 403 });
+  // Contrôle strict de l'isolation multi-tenant pour les tenants ordinaires (réservé au Patron)
+  if (!superAdminSession) {
+    if (facture.compte_id !== session?.compteId || session?.role !== "patron") {
+      return new NextResponse("Accès refusé", { status: 403 });
+    }
   }
 
   const annee = new Date(facture.date_echeance).getFullYear();

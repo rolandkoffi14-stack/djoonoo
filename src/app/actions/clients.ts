@@ -334,13 +334,28 @@ export async function getFicheClientDetailleeAction(
     return { success: false, error: "Session expirée." };
   }
 
+  // Section 2 : Vendeur strictement interdit d'accès à la fiche détaillée
+  if (session.role === "vendeur") {
+    return {
+      success: false,
+      error: "Action non autorisée pour le profil Vendeur. La consultation des fiches clients est réservée aux Gérants et Patrons (Section 2).",
+    };
+  }
+
   try {
     const scoped = getScopedPrisma(session.compteId);
+
+    // Pour le Gérant, filtrer strictement sur sa boutique assignée
+    const ventesWhere: any = {};
+    if (session.role === "gerant" && session.boutiqueId) {
+      ventesWhere.boutique_id = session.boutiqueId;
+    }
 
     const client = await scoped.clients.findFirst({
       where: { id: clientId, compte_id: session.compteId },
       include: {
         ventes: {
+          where: Object.keys(ventesWhere).length > 0 ? ventesWhere : undefined,
           orderBy: { date_vente: "desc" },
           include: {
             boutique: { select: { nom: true, code: true } },

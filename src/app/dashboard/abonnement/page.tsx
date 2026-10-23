@@ -16,6 +16,11 @@ export default async function AbonnementPage({
     redirect("/connexion");
   }
 
+  // Section 2 : L'espace d'abonnement et de facturation SaaS est strictement réservé au Patron
+  if (session.role !== "patron") {
+    redirect("/dashboard");
+  }
+
   const { status } = await searchParams;
 
   const [compte, forfaits, factures, nbBoutiquesActives, nbEmployes, methodesPaiement] = await Promise.all([

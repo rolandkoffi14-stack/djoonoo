@@ -71,6 +71,14 @@ export async function enregistrerReglementImpayeAction(
       return { success: false, error: "Action non autorisée pour cette boutique." };
     }
 
+    // Le Vendeur est strictement restreint à ses propres ventes (Section 2)
+    if (session.role === "vendeur" && vente.utilisateur_id !== session.userId) {
+      return {
+        success: false,
+        error: "Action non autorisée : tu ne peux encaisser de règlement que sur tes propres ventes.",
+      };
+    }
+
     // 2. Calcul du reste dû
     const totalDejaPaye = vente.paiements.reduce((acc, p) => acc + p.montant, 0);
     const resteDu = Math.max(0, vente.montant_total - totalDejaPaye);

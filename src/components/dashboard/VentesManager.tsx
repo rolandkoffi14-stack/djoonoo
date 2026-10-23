@@ -207,14 +207,16 @@ export default function VentesManager({
                 <Receipt className="w-5 h-5" />
               </span>
               <h1 className="text-2xl font-extrabold text-[#2B2119]">
-                Ventes & Factures — {boutiqueNom}
+                {userRole === "vendeur" ? "Mes Ventes" : "Ventes & Factures"} — {boutiqueNom}
               </h1>
               <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-[#E5DACF] text-[#6D5D52]">
                 {boutiqueCode}
               </span>
             </div>
             <p className="text-xs text-[#6D5D52]">
-              Historique complet des transactions, numéros de factures séquentiels et réimpression des reçus.
+              {userRole === "vendeur"
+                ? "Historique personnel de tes transactions enregistrées et réimpression de tes reçus."
+                : "Historique complet des transactions, numéros de factures séquentiels et réimpression des reçus."}
             </p>
           </div>
 

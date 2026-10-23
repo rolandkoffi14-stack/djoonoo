@@ -83,6 +83,7 @@ export default function Sidebar({
       case "vendeur":
       default:
         return [
+          { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
           { label: "Caisse POS", href: "/dashboard/caisse", icon: Calculator },
           { label: "Mes Ventes", href: "/dashboard/ventes", icon: Receipt },
           { label: "Suivi impayés", href: "/dashboard/ventes/impayes", icon: Clock },

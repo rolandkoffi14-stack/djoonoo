@@ -57,6 +57,28 @@ export default async function DashboardPage() {
   let nbImpayes = 0;
 
   if (activeBoutique) {
+    const whereVentesJour: any = {
+      compte_id: session.compteId,
+      boutique_id: activeBoutique.id,
+      date_vente: {
+        gte: new Date(new Date().setHours(0, 0, 0, 0)),
+      },
+      statut_vente: "validee",
+    };
+    if (session.role === "vendeur") {
+      whereVentesJour.utilisateur_id = session.userId;
+    }
+
+    const whereImpayes: any = {
+      compte_id: session.compteId,
+      boutique_id: activeBoutique.id,
+      statut_paiement: { in: ["impaye", "partiel"] },
+      statut_vente: "validee",
+    };
+    if (session.role === "vendeur") {
+      whereImpayes.utilisateur_id = session.userId;
+    }
+
     const [alertesRaw, ventesAujourdhuiAgg, ventesImpayees] = await Promise.all([
       // 1. Nombre de produits sous leur seuil d'alerte (SQL natif optimisé)
       prisma.$queryRaw<{ count: number }[]>`
@@ -68,25 +90,13 @@ export default async function DashboardPage() {
       `,
       // 2. Chiffre d'affaires et nombre de ventes du jour (SQL direct)
       scoped.ventes.aggregate({
-        where: {
-          compte_id: session.compteId,
-          boutique_id: activeBoutique.id,
-          date_vente: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)),
-          },
-          statut_vente: "validee",
-        },
+        where: whereVentesJour,
         _sum: { montant_total: true },
         _count: true,
       }),
-      // 3. Calcul exact des créances impayées de la boutique active
+      // 3. Calcul exact des créances impayées
       scoped.ventes.findMany({
-        where: {
-          compte_id: session.compteId,
-          boutique_id: activeBoutique.id,
-          statut_paiement: { in: ["impaye", "partiel"] },
-          statut_vente: "validee",
-        },
+        where: whereImpayes,
         select: {
           montant_total: true,
           paiements: { select: { montant: true } },
@@ -117,7 +127,7 @@ export default async function DashboardPage() {
               Bonjour, {session.nom}
             </h1>
             <p className="text-sm text-[#6D5D52] mt-1.5 max-w-xl">
-              Bienvenue sur ton tableau de bord <strong>djoonoo</strong>. Retrouve en un coup d&apos;œil l&apos;activité de {session.role === "patron" ? "tes boutiques" : "ta boutique"}, ton stock et tes créances.
+              Bienvenue sur ton tableau de bord <strong>djoonoo</strong>. Retrouve en un coup d&apos;œil l&apos;activité de {session.role === "patron" ? "tes boutiques" : session.role === "gerant" ? "ta boutique" : "tes ventes"}, ton stock et tes créances.
             </p>
           </div>
 
@@ -141,7 +151,7 @@ export default async function DashboardPage() {
           className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-5 shadow-sm hover:border-[#C1652D]/40 transition-all block group"
         >
           <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#6D5D52] mb-3">
-            <span>Ventes du jour</span>
+            <span>{session.role === "vendeur" ? "Mes Ventes du jour" : "Ventes du jour"}</span>
             <div className="w-8 h-8 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center group-hover:scale-105 transition-transform">
               <TrendingUp className="w-4 h-4" />
             </div>
@@ -151,7 +161,7 @@ export default async function DashboardPage() {
             <span className="text-base font-sans text-[#6D5D52] font-semibold">FCFA</span>
           </div>
           <div className="text-xs text-[#8C7A6B] mt-2">
-            {nbVentesAujourdhui} transaction{nbVentesAujourdhui > 1 ? "s" : ""} enregistrée{nbVentesAujourdhui > 1 ? "s" : ""} aujourd&apos;hui
+            {nbVentesAujourdhui} transaction{nbVentesAujourdhui > 1 ? "s" : ""} {session.role === "vendeur" ? "réalisée" : "enregistrée"}{nbVentesAujourdhui > 1 ? "s" : ""} aujourd&apos;hui
           </div>
         </Link>
 
@@ -181,11 +191,11 @@ export default async function DashboardPage() {
 
         {/* Impayés & Créances */}
         <Link
-          href="/dashboard/ventes"
+          href="/dashboard/ventes/impayes"
           className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-5 shadow-sm hover:border-red-300 transition-all block group"
         >
           <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#6D5D52] mb-3">
-            <span>Impayés à recouvrer</span>
+            <span>{session.role === "vendeur" ? "Mes Impayés à recouvrer" : "Impayés à recouvrer"}</span>
             <div className="w-8 h-8 rounded-xl bg-red-100 text-red-700 flex items-center justify-center group-hover:scale-105 transition-transform">
               <Clock className="w-4 h-4" />
             </div>
@@ -196,7 +206,7 @@ export default async function DashboardPage() {
           </div>
           <div className="text-xs text-[#8C7A6B] mt-2">
             {nbImpayes === 0
-              ? "Aucun crédit client en attente"
+              ? (session.role === "vendeur" ? "Aucune de tes ventes n'est en attente de règlement" : "Aucun crédit client en attente")
               : `${nbImpayes} créance(s) client en cours`}
           </div>
         </Link>
@@ -271,23 +281,43 @@ export default async function DashboardPage() {
 
         {/* Si Vendeur : Mes Ventes */}
         {session.role === "vendeur" && (
-          <Link
-            href="/dashboard/ventes"
-            className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center">
-                <TrendingUp className="w-5 h-5" />
+          <>
+            <Link
+              href="/dashboard/ventes"
+              className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 rounded-xl bg-[#C1652D]/10 text-[#C1652D] flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
-            </div>
-            <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
-              Mes Ventes
-            </h3>
-            <p className="text-xs text-[#6D5D52] leading-relaxed">
-              Consulte l'historique de tes encaissements et le suivi de tes règlements.
-            </p>
-          </Link>
+              <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
+                Mes Ventes
+              </h3>
+              <p className="text-xs text-[#6D5D52] leading-relaxed">
+                Consulte l'historique de tes encaissements et le suivi de tes règlements.
+              </p>
+            </Link>
+
+            <Link
+              href="/dashboard/ventes/impayes"
+              className="bg-[#FAF6F1] border border-[#E5DACF] rounded-2xl p-6 shadow-sm hover:border-[#C1652D]/40 transition-all group"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-[#8C7A6B] group-hover:text-[#C1652D] transition-colors" />
+              </div>
+              <h3 className="font-extrabold text-base text-[#2B2119] mb-1">
+                Suivi de mes impayés
+              </h3>
+              <p className="text-xs text-[#6D5D52] leading-relaxed">
+                Retrouve les crédits clients en attente de règlement sur tes ventes.
+              </p>
+            </Link>
+          </>
         )}
 
         {/* Caisse POS (Accessible à tous les rôles) */}

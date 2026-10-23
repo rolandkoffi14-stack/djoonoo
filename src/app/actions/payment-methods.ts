@@ -248,8 +248,8 @@ export async function supprimerMethodePaiementAction(
 
 export async function listerMethodesPaiementAction() {
   const session = await getCurrentSession();
-  if (!session) {
-    return { success: false, error: "Session non authentifiée." };
+  if (!session || session.role !== "patron") {
+    return { success: false, error: "Action réservée au Patron du compte." };
   }
 
   const data = await listerMethodesPaiementInterne(session.compteId);

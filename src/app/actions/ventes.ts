@@ -7,6 +7,7 @@ import {
   genererNumeroFacture,
   enregistrerAudit,
   StockInsuffisantError,
+  verifierAccesFactureVente,
 } from "@/lib/business-rules";
 import { verifierStatutAbonnementPourEcriture } from "@/lib/subscription-guard";
 import { revalidatePath } from "next/cache";
@@ -456,6 +457,16 @@ export async function getRecuVenteAction(venteId: string): Promise<VenteActionRe
 
     if (!vente) {
       return { success: false, error: "Facture introuvable." };
+    }
+
+    // Contrôle d'accès RBAC strict selon le rôle (Section 2)
+    const controleAcces = verifierAccesFactureVente(session, {
+      boutique_id: vente.boutique_id,
+      utilisateur_id: vente.utilisateur_id,
+    });
+
+    if (!controleAcces.autorise) {
+      return { success: false, error: controleAcces.erreur || "Accès refusé à cette facture." };
     }
 
     const montantPaye = vente.paiements.reduce((acc, p) => acc + p.montant, 0);

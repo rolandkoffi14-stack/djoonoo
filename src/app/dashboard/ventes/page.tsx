@@ -93,6 +93,24 @@ export default async function VentesPage(props: VentesPageProps) {
   }
 
   // 4. Double requête atomique avec pagination et agrégation SQL native
+  const whereStatsVentes: any = {
+    compte_id: session.compteId,
+    boutique_id: activeBoutique.id,
+    statut_vente: "validee",
+  };
+  if (session.role === "vendeur") {
+    whereStatsVentes.utilisateur_id = session.userId;
+  }
+
+  const whereStatsPaiements: any = {
+    compte_id: session.compteId,
+    vente: {
+      boutique_id: activeBoutique.id,
+      statut_vente: "validee",
+      ...(session.role === "vendeur" ? { utilisateur_id: session.userId } : {}),
+    },
+  };
+
   const [totalCount, ventesDb, statsVentes, statsPaiements] = await Promise.all([
     scoped.ventes.count({ where: whereCondition }),
     scoped.ventes.findMany({
@@ -111,22 +129,12 @@ export default async function VentesPage(props: VentesPageProps) {
       },
     }),
     scoped.ventes.aggregate({
-      where: {
-        compte_id: session.compteId,
-        boutique_id: activeBoutique.id,
-        statut_vente: "validee",
-      },
+      where: whereStatsVentes,
       _sum: { montant_total: true },
       _count: true,
     }),
     scoped.paiements.aggregate({
-      where: {
-        compte_id: session.compteId,
-        vente: {
-          boutique_id: activeBoutique.id,
-          statut_vente: "validee",
-        },
-      },
+      where: whereStatsPaiements,
       _sum: { montant: true },
     }),
   ]);
