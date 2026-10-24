@@ -127,8 +127,8 @@ export default function ConnexionPage() {
                 </div>
 
                 {errorMsg && (
-                  <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600 mt-0.5" />
+                  <div className="mb-6 p-4 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-sm flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0 text-[#A34141] mt-0.5" />
                     <div className="leading-relaxed">{errorMsg}</div>
                   </div>
                 )}
@@ -225,8 +225,8 @@ export default function ConnexionPage() {
                 </div>
 
                 {errorMsg && (
-                  <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-start gap-3">
-                    <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600 mt-0.5" />
+                  <div className="mb-6 p-4 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-sm flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0 text-[#A34141] mt-0.5" />
                     <div>{errorMsg}</div>
                   </div>
                 )}

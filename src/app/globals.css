@@ -19,6 +19,22 @@
   --statut-partiel-bg: #FEF3EB;
   --statut-impaye: #C53030;
   --statut-impaye-bg: #FDE8E8;
+
+  /* Feedback sémantique délavé unifié (succès, erreur, avertissement) */
+  --feedback-success-bg: #EAF3EC;
+  --feedback-success-border: #BBDBC0;
+  --feedback-success-text: #2D5A36;
+  --feedback-success-icon: #3B7A48;
+
+  --feedback-error-bg: #FDF1F1;
+  --feedback-error-border: #F3C7C7;
+  --feedback-error-text: #7C2D2D;
+  --feedback-error-icon: #A34141;
+
+  --feedback-warning-bg: #FEF8EC;
+  --feedback-warning-border: #F6E2B8;
+  --feedback-warning-text: #7B541C;
+  --feedback-warning-icon: #A06F28;
 }
 
 @theme {
@@ -90,6 +106,23 @@ svg.lucide {
 .icon-lg {
   width: 1.5rem;
   height: 1.5rem;
+}
+
+/* Feedback Sémantique Harmonisé & Délavé (Succès, Erreur, Avertissement) */
+.banner-feedback-success {
+  background-color: #EAF3EC;
+  border: 1px solid #BBDBC0;
+  color: #2D5A36;
+}
+.banner-feedback-error {
+  background-color: #FDF1F1;
+  border: 1px solid #F3C7C7;
+  color: #7C2D2D;
+}
+.banner-feedback-warning {
+  background-color: #FEF8EC;
+  border: 1px solid #F6E2B8;
+  color: #7B541C;
 }
 
 @media print {

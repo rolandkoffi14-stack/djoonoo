@@ -318,8 +318,8 @@ export default function BoutiquesManager({
 
             {/* Message d'erreur */}
             {erreur && (
-              <div className="my-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+              <div className="my-4 p-3 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-[#A34141]" />
                 <span>{erreur}</span>
               </div>
             )}
@@ -446,8 +446,8 @@ export default function BoutiquesManager({
             {/* Formulaire de modification */}
             <form onSubmit={handleModifierBoutique} className="space-y-4 pt-4">
               {erreurEdition && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <div className="p-3 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-[#A34141]" />
                   <span>{erreurEdition}</span>
                 </div>
               )}

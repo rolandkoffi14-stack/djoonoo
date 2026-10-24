@@ -193,8 +193,8 @@ export default function InscriptionClient({
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-6">
         <div className="w-full max-w-xl">
           {errorMsg && (
-            <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start gap-3 shadow-xs animate-in fade-in">
-              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <div className="mb-6 p-4 rounded-2xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-sm flex items-start gap-3 shadow-xs animate-in fade-in">
+              <AlertCircle className="w-5 h-5 text-[#A34141] shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold">Une attention est requise</p>
                 <p className="text-xs mt-0.5">{errorMsg}</p>

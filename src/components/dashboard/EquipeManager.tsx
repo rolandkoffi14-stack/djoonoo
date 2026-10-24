@@ -228,14 +228,14 @@ export default function EquipeManager({
 
       {/* Message de notification succès */}
       {messageSucces && (
-        <div className="p-3.5 rounded-xl bg-[#FAF6F1] border border-[#C1652D]/30 text-[#2B2119] text-xs flex items-center justify-between gap-2 shadow-xs animate-in fade-in slide-in-from-top-2">
+        <div className="p-3.5 rounded-xl bg-[#EAF3EC] border border-[#BBDBC0] text-[#2D5A36] text-xs flex items-center justify-between gap-2 shadow-xs animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
+            <CheckCircle2 className="w-4 h-4 text-[#3B7A48] shrink-0" />
             <span className="font-semibold">{messageSucces}</span>
           </div>
           <button
             onClick={() => setMessageSucces(null)}
-            className="p-1 text-[#6D5D52] hover:text-[#2B2119] rounded cursor-pointer"
+            className="p-1 text-[#2D5A36]/70 hover:text-[#2D5A36] rounded cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -441,8 +441,8 @@ export default function EquipeManager({
               </div>
 
               {erreur && (
-                <div className="my-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <div className="my-3 p-3 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-[#A34141]" />
                   <span>{erreur}</span>
                 </div>
               )}
@@ -640,8 +640,8 @@ export default function EquipeManager({
             </div>
 
             {erreurTransfert && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+              <div className="p-3 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-[#A34141]" />
                 <span>{erreurTransfert}</span>
               </div>
             )}

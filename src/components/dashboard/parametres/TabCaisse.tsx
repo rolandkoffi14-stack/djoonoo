@@ -46,8 +46,8 @@ export default function TabCaisse() {
         </div>
 
         {sauvegarde && (
-          <div className="mb-6 p-4 bg-[#E5DACF]/30 border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
+          <div className="mb-6 p-4 bg-[#EAF3EC] border border-[#BBDBC0] rounded-xl flex items-center gap-3 text-xs text-[#2D5A36] animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-[#3B7A48] shrink-0" />
             <span className="font-medium">Préférences de caisse enregistrées avec succès sur ce poste.</span>
           </div>
         )}

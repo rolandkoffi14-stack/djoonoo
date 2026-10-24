@@ -570,8 +570,8 @@ export default function ImpayesManager({
 
             <form onSubmit={handleValiderReglement} className="mt-4 space-y-4">
               {erreurReglement && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
+                <div className="p-3 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-xs flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-[#A34141] mt-0.5" />
                   <div>{erreurReglement}</div>
                 </div>
               )}
@@ -746,7 +746,7 @@ export default function ImpayesManager({
 
             <div className="mt-4 space-y-4 text-xs text-[#6D5D52]">
               {erreurAnnulation && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs">
+                <div className="p-3 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-xs">
                   {erreurAnnulation}
                 </div>
               )}

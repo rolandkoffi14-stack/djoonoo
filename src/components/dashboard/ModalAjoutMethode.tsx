@@ -77,8 +77,8 @@ export default function ModalAjoutMethode({
         {/* Formulaire */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {erreur && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2.5 text-xs text-rose-800">
-              <AlertCircle className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
+            <div className="p-3 bg-[#FDF1F1] border border-[#F3C7C7] rounded-xl flex items-start gap-2.5 text-xs text-[#7C2D2D]">
+              <AlertCircle className="w-4 h-4 text-[#A34141] mt-0.5 shrink-0" />
               <span>{erreur}</span>
             </div>
           )}

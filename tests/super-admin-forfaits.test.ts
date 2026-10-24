@@ -52,7 +52,8 @@ describe("Super-Admin - Gestion des Forfaits et Paiements", () => {
 
     // Nettoyage
     if (res.forfait?.id) {
-      await prisma.forfaits.delete({ where: { id: res.forfait.id } });
+      await prisma.comptes.deleteMany({ where: { forfait_id: res.forfait.id } }).catch(() => {});
+      await prisma.forfaits.delete({ where: { id: res.forfait.id } }).catch(() => {});
     }
   });
 

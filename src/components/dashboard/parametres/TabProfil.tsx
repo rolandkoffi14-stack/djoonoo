@@ -78,15 +78,15 @@ export default function TabProfil({
         </div>
 
         {message && (
-          <div className="mb-6 p-4 bg-[#E5DACF]/30 border border-[#C1652D]/30 rounded-xl flex items-center gap-3 text-xs text-[#2B2119] animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-[#C1652D] shrink-0" />
+          <div className="mb-6 p-4 bg-[#EAF3EC] border border-[#BBDBC0] rounded-xl flex items-center gap-3 text-xs text-[#2D5A36] animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-[#3B7A48] shrink-0" />
             <span className="font-medium">{message}</span>
           </div>
         )}
 
         {erreur && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-xs text-rose-800 animate-in fade-in">
-            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          <div className="mb-6 p-4 bg-[#FDF1F1] border border-[#F3C7C7] rounded-xl flex items-center gap-3 text-xs text-[#7C2D2D] animate-in fade-in">
+            <AlertCircle className="w-4 h-4 text-[#A34141] shrink-0" />
             <span className="font-medium">{erreur}</span>
           </div>
         )}

@@ -215,8 +215,8 @@ export default function CheckoutClient({
       <div className="w-full lg:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-between">
         <div className="max-w-md mx-auto w-full space-y-8">
           {erreur && (
-            <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-xs text-rose-800">
-              <AlertCircle className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
+            <div className="p-4 bg-[#FDF1F1] border border-[#F3C7C7] rounded-2xl flex items-start gap-3 text-xs text-[#7C2D2D]">
+              <AlertCircle className="w-4 h-4 text-[#A34141] mt-0.5 shrink-0" />
               <div>
                 <p className="font-bold">Erreur de paiement</p>
                 <p className="mt-0.5">{erreur}</p>

@@ -69,14 +69,14 @@ export default function ParametresManager({
         <div
           className={`p-4 rounded-2xl border text-sm flex items-center gap-2.5 ${
             message.type === "success"
-              ? "bg-[#FAF6F1] border-[#C1652D]/30 text-[#2B2119]"
-              : "bg-rose-50 border-rose-200 text-rose-800"
+              ? "bg-[#EAF3EC] border-[#BBDBC0] text-[#2D5A36]"
+              : "bg-[#FDF1F1] border-[#F3C7C7] text-[#7C2D2D]"
           }`}
         >
           {message.type === "success" ? (
-            <CheckCircle2 className="w-4 h-4 text-[#C1652D]" />
+            <CheckCircle2 className="w-4 h-4 text-[#3B7A48]" />
           ) : (
-            <AlertCircle className="w-4 h-4 text-rose-600" />
+            <AlertCircle className="w-4 h-4 text-[#A34141]" />
           )}
           <span>{message.text}</span>
         </div>

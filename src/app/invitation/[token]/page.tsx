@@ -195,7 +195,7 @@ export default function InvitationActivationPage() {
           {/* ======================================================== */}
           {!chargementInitial && activationReussie && (
             <div className="space-y-5 text-center py-6 animate-in zoom-in-95 duration-200">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#C1652D]/10 text-[#C1652D] border border-[#C1652D]/20 flex items-center justify-center shadow-xs">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#EAF3EC] text-[#3B7A48] border border-[#BBDBC0] flex items-center justify-center shadow-xs">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
               <div className="space-y-1.5">
@@ -250,7 +250,7 @@ export default function InvitationActivationPage() {
               </div>
 
               {erreurSoumission && (
-                <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-medium">
+                <div className="p-3.5 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-xs font-medium">
                   {erreurSoumission}
                 </div>
               )}
@@ -294,21 +294,21 @@ export default function InvitationActivationPage() {
                         <div className="flex gap-1 h-1.5 w-full">
                           <div
                             className={`flex-1 rounded-full transition-colors ${
-                              scoreForce >= 1 ? "bg-[#C1652D]/40" : "bg-stone-200"
+                              scoreForce >= 1 ? "bg-[#D96B6B]" : "bg-stone-200"
                             }`}
                           />
                           <div
                             className={`flex-1 rounded-full transition-colors ${
-                              scoreForce >= 2 ? "bg-[#C1652D]/70" : "bg-stone-200"
+                              scoreForce >= 2 ? "bg-[#DE9F43]" : "bg-stone-200"
                             }`}
                           />
                           <div
                             className={`flex-1 rounded-full transition-colors ${
-                              scoreForce >= 3 ? "bg-[#C1652D]" : "bg-stone-200"
+                              scoreForce >= 3 ? "bg-[#5CA86D]" : "bg-stone-200"
                             }`}
                           />
                         </div>
-                        <p className="text-[10px] text-[#8C7A6B]">
+                        <p className={`text-[10px] ${scoreForce === 3 ? "text-[#2D5A36] font-semibold" : "text-[#8C7A6B]"}`}>
                           {scoreForce === 3
                             ? "Mot de passe robuste (longueur, majuscule et chiffre)."
                             : "Conseil : utilisez 8+ caractères, au moins une majuscule et un chiffre."}
@@ -374,7 +374,7 @@ export default function InvitationActivationPage() {
                           className="p-1 rounded text-[#C1652D] hover:bg-[#FAF6F1]"
                           title="Copier la clé"
                         >
-                          {cleCopiee ? <Check className="w-3.5 h-3.5 text-[#C1652D]" /> : <Copy className="w-3.5 h-3.5" />}
+                          {cleCopiee ? <Check className="w-3.5 h-3.5 text-[#3B7A48]" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       </div>
                     </div>

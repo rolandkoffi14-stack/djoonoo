@@ -555,7 +555,7 @@ export default function ClientsManager({
 
             <form onSubmit={handleSubmitClient} className="mt-4 space-y-4">
               {erreurForm && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs">
+                <div className="p-3 rounded-xl bg-[#FDF1F1] border border-[#F3C7C7] text-[#7C2D2D] text-xs">
                   {erreurForm}
                 </div>
               )}
