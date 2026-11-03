@@ -106,7 +106,7 @@ export function verifierCleLicence(
 /**
  * Récupère les informations de licence active du compte
  */
-export async function getLicenceActive(): Promise<{
+export async function getLicenceActive(nomEntrepriseOuCompteId?: string): Promise<{
   active: boolean;
   nomEntreprise?: string;
   maxBoutiques: number | null;
@@ -128,25 +128,71 @@ export async function getLicenceActive(): Promise<{
       };
     }
 
-    // Récupérer le compte unique
-    const compte = await prisma.comptes.findFirst({
-      select: { nom_entreprise: true },
-    });
-
-    const res = verifierCleLicence(cle, compte?.nom_entreprise);
-    if (!res.valide || !res.payload) {
+    // 2. Vérifier la validité cryptographique de la clé
+    const verification = verifierCleLicence(cle);
+    if (!verification.valide || !verification.payload) {
       return {
         active: false,
         maxBoutiques: 1,
         cle,
-        erreur: res.erreur,
+        erreur: verification.erreur,
       };
+    }
+
+    // 3. Vérification de cohérence avec l'entreprise
+    if (nomEntrepriseOuCompteId) {
+      let nomCible = nomEntrepriseOuCompteId;
+      if (nomCible.includes("-")) {
+        const compte = await prisma.comptes.findUnique({
+          where: { id: nomCible },
+          select: { nom_entreprise: true },
+        });
+        if (compte) nomCible = compte.nom_entreprise;
+      }
+
+      const matchRes = verifierCleLicence(cle, nomCible);
+      if (!matchRes.valide) {
+        return {
+          active: false,
+          maxBoutiques: 1,
+          cle,
+          erreur: matchRes.erreur,
+        };
+      }
+    } else {
+      // Standalone : chercher le compte titulaire de la licence dans la base
+      const compte = await prisma.comptes.findFirst({
+        where: {
+          nom_entreprise: {
+            equals: verification.payload.nomEntreprise,
+            mode: "insensitive",
+          },
+        },
+      });
+
+      // Si aucun compte trouvé sous ce nom, vérifier s'il n'y a qu'un compte unique
+      if (!compte) {
+        const premierCompte = await prisma.comptes.findFirst({
+          select: { nom_entreprise: true },
+        });
+        if (premierCompte) {
+          const matchRes = verifierCleLicence(cle, premierCompte.nom_entreprise);
+          if (!matchRes.valide) {
+            return {
+              active: false,
+              maxBoutiques: 1,
+              cle,
+              erreur: matchRes.erreur,
+            };
+          }
+        }
+      }
     }
 
     return {
       active: true,
-      nomEntreprise: res.payload.nomEntreprise,
-      maxBoutiques: res.payload.maxBoutiques,
+      nomEntreprise: verification.payload.nomEntreprise,
+      maxBoutiques: verification.payload.maxBoutiques,
       cle,
     };
   } catch (err: any) {

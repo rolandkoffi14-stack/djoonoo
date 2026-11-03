@@ -9,6 +9,7 @@
  *   npx tsx scripts/generer-licence.ts "ETS ALAFIA & FILS" illimite
  */
 
+import "dotenv/config";
 import { genererCleLicence, LicensePayload } from "../src/lib/license";
 
 const nomEntreprise = process.argv[2];
