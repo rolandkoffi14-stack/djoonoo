@@ -11,9 +11,8 @@ vi.mock("next/headers", () => ({
 }));
 
 import { clearSessionCookie } from "../src/lib/auth";
-import { destroySuperAdminSession } from "../src/lib/super-admin-auth";
 
-describe("Sentinelle Sécurité — Révocation des Sessions Utilisateurs & Super-Admin (Point 3)", () => {
+describe("Sentinelle Sécurité — Révocation des Sessions Utilisateurs (Point 3)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -28,21 +27,6 @@ describe("Sentinelle Sécurité — Révocation des Sessions Utilisateurs & Supe
     // 2. Écrasement explicite avec maxAge: 0 et path: "/" (OWASP session termination)
     expect(mockCookieStore.set).toHaveBeenCalledWith(
       "djoonoo_session",
-      "",
-      expect.objectContaining({
-        maxAge: 0,
-        path: "/",
-        httpOnly: true,
-      })
-    );
-  });
-
-  it("doit supprimer et révoquer explicitement le cookie Super-Admin avec maxAge 0 et path /", async () => {
-    await destroySuperAdminSession();
-
-    expect(mockCookieStore.delete).toHaveBeenCalledWith("djoonoo_superadmin_session");
-    expect(mockCookieStore.set).toHaveBeenCalledWith(
-      "djoonoo_superadmin_session",
       "",
       expect.objectContaining({
         maxAge: 0,

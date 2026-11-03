@@ -24,6 +24,7 @@ import { siteConfig } from "@/config/site";
 import { AuthLoginSchema, Auth2FASchema, MotDePasseFortSchema } from "@/lib/validations";
 import crypto from "crypto";
 import { envoyerEmailVerificationPatron } from "@/lib/email";
+import { verifierCleLicence } from "@/lib/license";
 
 // Stockage temporaire en mémoire pour l'étape d'activation 2FA lors de l'inscription
 const pendingRegistrations = new Map<
@@ -200,13 +201,13 @@ export async function inscrirePatronAction(
               nom_entreprise: nomEntreprise,
               email_principal: email,
               forfait_id: forfait!.id,
-              statut_abonnement: "essai",
+              statut_abonnement: "actif",
               telephone_principal: telephone,
               ville: ville,
               adresse_siege: adresseSiege,
-              date_fin_essai: dateFinEssai,
+              date_fin_essai: null,
               date_debut_periode_courante: dateDebut,
-              date_fin_periode_courante: dateFinEssai,
+              date_fin_periode_courante: null,
             },
           });
 
@@ -329,7 +330,7 @@ export async function inscrirePatronAction(
     codeCompte: codeCompteFinal,
     codeBoutique: codeBoutiqueFinal,
     totpSecret,
-    statutAbonnement: "essai",
+    statutAbonnement: "actif",
   });
 
   return {
@@ -344,6 +345,54 @@ export async function inscrirePatronAction(
       codeBoutique: codeBoutiqueFinal,
     },
   };
+}
+
+/**
+ * Action d'initialisation unique de l'entreprise et de son Patron avec validation de licence à vie
+ */
+export async function initialiserEntrepriseAction(
+  prevState: InscriptionState | null,
+  formData: FormData
+): Promise<InscriptionState> {
+  // 1. Vérifier si l'entreprise a déjà été initialisée
+  const compteExistant = await prisma.comptes.findFirst({ select: { id: true } });
+  if (compteExistant) {
+    return {
+      success: false,
+      error: "Cette instance djoonoo est déjà initialisée avec une entreprise. Veuillez vous connecter.",
+    };
+  }
+
+  // 2. Extraire et valider la clé de licence
+  const cleLicence = (formData.get("cle_licence") as string)?.trim();
+  const nomEntreprise = (formData.get("nom_entreprise") as string)?.trim();
+
+  if (!cleLicence) {
+    return {
+      success: false,
+      error: "La clé de licence officielle djoonoo est obligatoire pour activer votre logiciel.",
+      fieldErrors: { cle_licence: "Saisis la clé de licence fournie lors de l'achat." },
+    };
+  }
+
+  const verifLicence = verifierCleLicence(cleLicence, nomEntreprise);
+  if (!verifLicence.valide || !verifLicence.payload) {
+    return {
+      success: false,
+      error: verifLicence.erreur || "La clé de licence saisie est invalide ou ne correspond pas à cette entreprise.",
+      fieldErrors: { cle_licence: verifLicence.erreur || "Clé de licence invalide." },
+    };
+  }
+
+  // 3. Sauvegarder la clé de licence dans les paramètres de la plateforme
+  await prisma.parametres_plateforme.upsert({
+    where: { cle: "cle_licence" },
+    update: { valeur: cleLicence },
+    create: { cle: "cle_licence", valeur: cleLicence, description: "Clé de licence perpétuelle djoonoo" },
+  });
+
+  // 4. Exécuter l'inscription Patron
+  return inscrirePatronAction(prevState, formData);
 }
 
 /**

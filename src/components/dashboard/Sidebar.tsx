@@ -66,7 +66,6 @@ export default function Sidebar({
           { label: "Rapports & Finances", href: "/dashboard/rapports", icon: TrendingUp },
           { label: "Équipe & Rôles", href: "/dashboard/equipe", icon: UserCheck },
           { label: "Journal d'Audit", href: "/dashboard/audit", icon: ShieldCheck },
-          { label: "Abonnement", href: "/dashboard/abonnement", icon: CreditCard },
           { label: "Paramètres", href: "/dashboard/parametres", icon: Settings },
         ];
       case "gerant":

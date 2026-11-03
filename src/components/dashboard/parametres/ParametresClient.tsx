@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, ShieldCheck, Building2, Store, Printer } from "lucide-react";
+import { User, ShieldCheck, Building2, Store, Printer, KeyRound } from "lucide-react";
 import TabProfil from "./TabProfil";
 import TabSecurite from "./TabSecurite";
 import TabEntreprise from "./TabEntreprise";
 import TabBoutique, { BoutiqueItem } from "./TabBoutique";
 import TabCaisse from "./TabCaisse";
+import TabLicence, { LicenceInfoProps } from "./TabLicence";
 
 export interface ParametresUserProps {
   id: string;
@@ -34,9 +35,10 @@ interface ParametresClientProps {
   user: ParametresUserProps;
   entreprise: ParametresEntrepriseProps;
   boutiques: BoutiqueItem[];
+  licence?: LicenceInfoProps;
 }
 
-export default function ParametresClient({ user, entreprise, boutiques }: ParametresClientProps) {
+export default function ParametresClient({ user, entreprise, boutiques, licence }: ParametresClientProps) {
   const [activeTab, setActiveTab] = useState<string>("profil");
 
   // Liste des onglets disponibles selon le rôle
@@ -49,6 +51,9 @@ export default function ParametresClient({ user, entreprise, boutiques }: Parame
     if (user.role === "patron") {
       tabs.push({ id: "entreprise", label: "Mon Entreprise", icon: Building2 });
       tabs.push({ id: "boutique", label: "Boutiques", icon: Store });
+      if (licence) {
+        tabs.push({ id: "licence", label: "Licence & Logiciel", icon: KeyRound });
+      }
     } else {
       // Gérant ou Vendeur
       tabs.push({ id: "boutique", label: "Ma Boutique", icon: Store });
@@ -119,6 +124,10 @@ export default function ParametresClient({ user, entreprise, boutiques }: Parame
         )}
 
         {activeTab === "caisse" && <TabCaisse />}
+
+        {activeTab === "licence" && licence && user.role === "patron" && (
+          <TabLicence licence={licence} />
+        )}
       </div>
     </div>
   );

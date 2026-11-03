@@ -1,18 +1,12 @@
-import InscriptionClient from "@/components/auth/InscriptionClient";
-import { getForfaitsCatalogue, getPlateformeParametres } from "@/lib/plateforme-config";
+import { redirect } from "next/navigation";
+import { estEntrepriseInitialisee } from "@/lib/plateforme-config";
 
 export const dynamic = "force-dynamic";
 
 export default async function InscriptionPage() {
-  const [forfaits, { dureeEssaiJours }] = await Promise.all([
-    getForfaitsCatalogue(),
-    getPlateformeParametres(),
-  ]);
-
-  return (
-    <InscriptionClient
-      forfaits={forfaits}
-      dureeEssaiJours={dureeEssaiJours}
-    />
-  );
+  const initialisee = await estEntrepriseInitialisee();
+  if (initialisee) {
+    redirect("/connexion");
+  }
+  redirect("/initialisation");
 }

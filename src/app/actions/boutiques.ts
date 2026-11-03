@@ -78,12 +78,14 @@ export async function creerBoutiqueAction(
       return { success: false, error: "Compte introuvable." };
     }
 
-    const { forfait, _count } = compte;
-    // Si max_boutiques !== null, vérifier le plafond (NULL = illimité)
-    if (forfait.max_boutiques !== null && _count.boutiques >= forfait.max_boutiques) {
+    const { _count } = compte;
+    // Vérification des quotas de la licence à vie (NULL = illimité)
+    const { getLicenceActive } = await import("@/lib/license");
+    const licence = await getLicenceActive();
+    if (licence.maxBoutiques !== null && _count.boutiques >= licence.maxBoutiques) {
       return {
         success: false,
-        error: `Limite de ton forfait atteinte : Ton forfait ${forfait.nom} autorise un maximum de ${forfait.max_boutiques} boutique(s). Passe au forfait supérieur pour ouvrir un nouveau point de vente.`,
+        error: `Limite de ta licence atteinte : Ta licence autorise un maximum de ${licence.maxBoutiques} boutique(s). Contacte l'administrateur ou l'éditeur pour étendre ta licence en multi-boutiques.`,
       };
     }
 

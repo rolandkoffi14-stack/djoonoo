@@ -3,81 +3,57 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
+/**
+ * Composant de synchronisation temps-réel optimisé pour Vercel / Serverless.
+ * Rafraîchit les données lors du retour sur l'onglet (visibilitychange / focus)
+ * et effectue un rafraîchissement périodique léger quand l'onglet est actif.
+ */
 export default function RealtimeListener() {
   const router = useRouter();
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    let eventSource: EventSource | null = null;
-    let retryTimeout: NodeJS.Timeout | null = null;
-    let isComponentMounted = true;
+    let intervalId: NodeJS.Timeout | null = null;
 
-    function connecter() {
-      if (!isComponentMounted) return;
+    const triggerRefresh = () => {
+      if (document.visibilityState !== "visible") return;
 
-      try {
-        eventSource = new EventSource("/api/realtime/stream");
-
-        eventSource.addEventListener("update", (event: MessageEvent) => {
-          try {
-            const data = JSON.parse(event.data);
-
-            // Dispatch global d'un CustomEvent pour les composants nécessitant une mise à jour d'état local (ex: Rapports)
-            window.dispatchEvent(
-              new CustomEvent("djoonoo:realtime-update", { detail: data })
-            );
-
-            // Throttling / Debounce de 250ms pour rafraîchir les Server Components sans saturer
-            if (debounceTimerRef.current) {
-              clearTimeout(debounceTimerRef.current);
-            }
-
-            debounceTimerRef.current = setTimeout(() => {
-              router.refresh();
-            }, 250);
-          } catch (err) {
-            console.error("[RealtimeListener] Erreur parsing message update:", err);
-          }
-        });
-
-        eventSource.onerror = () => {
-          if (eventSource) {
-            eventSource.close();
-            eventSource = null;
-          }
-          // Tentative de reconnexion après 5 secondes si déconnecté
-          if (isComponentMounted && !retryTimeout) {
-            retryTimeout = setTimeout(() => {
-              retryTimeout = null;
-              connecter();
-            }, 5000);
-          }
-        };
-      } catch (err) {
-        console.error("[RealtimeListener] Erreur d'initialisation SSE:", err);
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
       }
-    }
 
-    connecter();
+      debounceTimerRef.current = setTimeout(() => {
+        router.refresh();
+      }, 300);
+    };
 
-    // Gestion de la visibilité de l'onglet : rafraîchissement au retour sur l'onglet
+    // 1. Rafraîchissement automatique au retour sur l'onglet
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
-          connecter();
-        }
-        router.refresh();
+        triggerRefresh();
       }
     };
 
+    // 2. Rafraîchissement au focus de la fenêtre
+    const handleFocus = () => {
+      triggerRefresh();
+    };
+
+    // 3. Rafraîchissement périodique (toutes les 45s) si l'utilisateur est actif sur l'onglet
+    intervalId = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        triggerRefresh();
+      }
+    }, 45000);
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
 
     return () => {
-      isComponentMounted = false;
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      if (retryTimeout) clearTimeout(retryTimeout);
-      if (eventSource) eventSource.close();
+      if (intervalId) clearInterval(intervalId);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [router]);
 

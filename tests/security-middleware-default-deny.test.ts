@@ -34,14 +34,11 @@ describe("Sentinelle Sécurité — Middleware en Refus par Défaut / Liste Blan
   it("doit autoriser sans cookie toutes les routes de la liste blanche publique", () => {
     const whiteList = [
       "/",
-      "/tarifs",
       "/connexion",
-      "/inscription",
+      "/initialisation",
       "/cgu",
       "/confidentialite",
       "/invitation/tok123456",
-      "/api/webhooks/fedapay",
-      "/api/cron/abonnements",
     ];
 
     for (const path of whiteList) {

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import ParametresClient from "@/components/dashboard/parametres/ParametresClient";
+import { getLicenceActive } from "@/lib/license";
 
 export const dynamic = "force-dynamic";
 
@@ -31,13 +32,16 @@ export default async function DashboardParametresPage() {
   }
 
   // 3. Récupérer la ou les boutiques selon le rôle
-  const boutiques = await prisma.boutiques.findMany({
-    where:
-      session.role === "patron"
-        ? { compte_id: session.compteId, statut: "actif" }
-        : { id: user.boutique_id || undefined, statut: "actif" },
-    orderBy: { code: "asc" },
-  });
+  const [boutiques, licenceActive] = await Promise.all([
+    prisma.boutiques.findMany({
+      where:
+        session.role === "patron"
+          ? { compte_id: session.compteId, statut: "actif" }
+          : { id: user.boutique_id || undefined, statut: "actif" },
+      orderBy: { code: "asc" },
+    }),
+    getLicenceActive(),
+  ]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -81,6 +85,7 @@ export default async function DashboardParametresPage() {
           secteur_activite: b.secteur_activite,
           statut: b.statut,
         }))}
+        licence={licenceActive}
       />
     </div>
   );

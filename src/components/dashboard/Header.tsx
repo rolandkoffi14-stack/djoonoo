@@ -79,22 +79,11 @@ export default function Header({
 
       {/* Droite : Abonnement & Action rapide */}
       <div className="flex items-center gap-3">
-        {/* Badge Statut Abonnement */}
-        {statutAbonnement === "essai" ? (
-          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C1652D]/10 text-[#C1652D] text-xs font-semibold">
-            <Clock className="w-3.5 h-3.5" />
-            <span>Essai gratuit ({joursEssaiRestants}j restants)</span>
-          </div>
-        ) : statutAbonnement === "actif" ? (
-          <div className="hidden sm:inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
-            <span>Abonnement Actif</span>
-          </div>
-        ) : (
-          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-xs font-semibold">
-            <Clock className="w-3.5 h-3.5 text-orange-600" />
-            <span>À régulariser</span>
-          </div>
-        )}
+        {/* Badge Statut Licence */}
+        <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Licence Activée</span>
+        </div>
 
         {/* Bouton Nouvelle Vente */}
         <Link

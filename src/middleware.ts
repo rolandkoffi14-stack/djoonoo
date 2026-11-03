@@ -6,15 +6,10 @@ import { NextRequest, NextResponse } from "next/server";
  */
 const EXACT_PUBLIC_PATHS = new Set([
   "/",
-  "/tarifs",
   "/connexion",
-  "/inscription",
+  "/initialisation",
   "/cgu",
   "/confidentialite",
-  "/super-admin/connexion",
-  "/super-admin/initialisation",
-  "/api/webhooks/fedapay",
-  "/api/cron/abonnements",
   "/favicon.ico",
   "/robots.txt",
   "/sitemap.xml",
@@ -50,28 +45,16 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Gestion du périmètre Super-Admin privé
-  if (pathname.startsWith("/super-admin")) {
-    const superAdminCookie = req.cookies.get("djoonoo_superadmin_session")?.value;
-    if (!superAdminCookie) {
-      const loginUrl = new URL("/super-admin/connexion", req.url);
-      return NextResponse.redirect(loginUrl);
-    }
-    return NextResponse.next();
-  }
-
-  // 3. Gestion des routes API privées (retour JSON 401 au lieu d'une redirection HTML)
+  // 2. Gestion des routes API privées (retour JSON 401 au lieu d'une redirection HTML)
   if (pathname.startsWith("/api/")) {
     const sessionCookie = req.cookies.get("djoonoo_session")?.value;
-    const superAdminCookie = req.cookies.get("djoonoo_superadmin_session")?.value;
-
-    if (!sessionCookie && !superAdminCookie) {
+    if (!sessionCookie) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
     return NextResponse.next();
   }
 
-  // 4. TOUTES LES AUTRES ROUTES (Default-Deny) : Exigent le cookie djoonoo_session commerçant
+  // 3. TOUTES LES AUTRES ROUTES (Default-Deny) : Exigent le cookie djoonoo_session
   const sessionCookie = req.cookies.get("djoonoo_session")?.value;
   if (!sessionCookie) {
     const loginUrl = new URL("/connexion", req.url);

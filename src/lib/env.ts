@@ -18,40 +18,6 @@ export function getJwtSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export function getSuperAdminJwtSecret(): Uint8Array {
-  const secret =
-    process.env.SUPERADMIN_AUTH_SECRET ||
-    process.env.AUTH_SECRET ||
-    process.env.NEXTAUTH_SECRET;
-
-  if (!secret) {
-    throw new Error(
-      "[SÉCURITÉ CRITIQUE] SUPERADMIN_AUTH_SECRET (ou AUTH_SECRET) est manquant. Impossible de sécuriser la console Super-Admin."
-    );
-  }
-  if (secret.length < 32) {
-    throw new Error(
-      `[SÉCURITÉ CRITIQUE] SUPERADMIN_AUTH_SECRET doit comporter au moins 32 caractères (actuel: ${secret.length} car.).`
-    );
-  }
-  return new TextEncoder().encode(secret);
-}
-
-export function getCronSecret(): string {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) {
-    throw new Error(
-      "[SÉCURITÉ CRITIQUE] CRON_SECRET est manquant dans l'environnement. Impossible d'autoriser les déclenchements de tâches planifiées."
-    );
-  }
-  if (secret.length < 16) {
-    throw new Error(
-      `[SÉCURITÉ CRITIQUE] CRON_SECRET doit comporter au moins 16 caractères (actuel: ${secret.length} car.).`
-    );
-  }
-  return secret;
-}
-
 export function validateEnv() {
   const isTest = process.env.NODE_ENV === "test";
 
@@ -59,7 +25,6 @@ export function validateEnv() {
   const requiredVars = [
     "DATABASE_URL",
     "AUTH_SECRET",
-    "CRON_SECRET",
   ];
 
   for (const varName of requiredVars) {
@@ -69,10 +34,6 @@ export function validateEnv() {
     }
   }
 
-  // Vérifier la conformité des secrets
+  // Vérifier la conformité du secret JWT
   getJwtSecret();
-  if (process.env.SUPERADMIN_AUTH_SECRET) {
-    getSuperAdminJwtSecret();
-  }
-  getCronSecret();
 }
