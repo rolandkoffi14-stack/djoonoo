@@ -154,7 +154,7 @@ export default function InitialisationClient() {
         </h2>
         <p className="mt-1 text-sm text-[#6D5D52]">
           {step === "infos"
-            ? "Configurez votre entreprise et activez votre licence à vie."
+            ? "Configurez votre entreprise et activez votre licence."
             : "Scannez le QR Code pour lier votre application d'authentification."}
         </p>
       </div>
@@ -184,7 +184,7 @@ export default function InitialisationClient() {
                     name="cle_licence"
                     id="cle_licence"
                     required
-                    placeholder="DJN-LFT.eyJub21FbnRyZXByaXNl... (fournie à l'achat)"
+                    placeholder="DJN-LFT.eyJub21FbnRyZXByaXNl..."
                     className={`block w-full font-mono text-xs rounded-xl border px-3.5 py-2.5 bg-white text-[#2B2119] shadow-2xs focus:ring-2 focus:ring-[#C1652D] focus:outline-hidden ${
                       fieldErrors.cle_licence ? "border-red-400" : "border-[#E5DACF]"
                     }`}
@@ -193,7 +193,16 @@ export default function InitialisationClient() {
                     <p className="mt-1 text-xs text-red-600 font-medium">{fieldErrors.cle_licence}</p>
                   ) : (
                     <p className="mt-1 text-[11px] text-[#8C7A6B]">
-                      Clé de licence délivrée lors de votre achat comptant.
+                      Clé de licence délivrée par{" "}
+                      <a
+                        href={`https://wa.me/${siteConfig.entreprise.telephone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent("Bonjour djoonoo, je souhaite obtenir ma clé de licence pour activer mon logiciel.")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-bold text-[#C1652D] hover:underline"
+                      >
+                        djoonoo
+                      </a>
+                      .
                     </p>
                   )}
                 </div>
@@ -209,21 +218,21 @@ export default function InitialisationClient() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <label htmlFor="nom_entreprise" className="block text-xs font-bold text-[#2B2119]">
-                      Nom officiel de l'entreprise / commerce *
+                      Nom commercial ou raison social *
                     </label>
                     <input
                       type="text"
                       name="nom_entreprise"
                       id="nom_entreprise"
                       required
-                      placeholder="Ex: Établissement Alafia & Frères"
+                      placeholder="Nom commercial ou raison social"
                       className="mt-1 block w-full rounded-xl border border-[#E5DACF] px-3.5 py-2.5 text-sm bg-white text-[#2B2119] focus:ring-2 focus:ring-[#C1652D] focus:outline-hidden"
                     />
                   </div>
 
                   <div>
                     <label htmlFor="ville" className="block text-xs font-bold text-[#2B2119]">
-                      Ville d'activité *
+                      Siège social de l'entreprise *
                     </label>
                     <div className="relative mt-1">
                       <MapPin className="w-4 h-4 text-[#8C7A6B] absolute left-3 top-3" />
@@ -232,7 +241,7 @@ export default function InitialisationClient() {
                         name="ville"
                         id="ville"
                         required
-                        placeholder="Ex: Cotonou, Porto-Novo"
+                        placeholder="Siège social de l'entreprise"
                         className="block w-full pl-9 rounded-xl border border-[#E5DACF] px-3.5 py-2.5 text-sm bg-white text-[#2B2119] focus:ring-2 focus:ring-[#C1652D] focus:outline-hidden"
                       />
                     </div>
@@ -264,14 +273,14 @@ export default function InitialisationClient() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="nom_patron" className="block text-xs font-bold text-[#2B2119]">
-                      Nom complet *
+                      Nom et prénom *
                     </label>
                     <input
                       type="text"
                       name="nom_patron"
                       id="nom_patron"
                       required
-                      placeholder="Prénom et Nom"
+                      placeholder="Nom et prénom"
                       className="mt-1 block w-full rounded-xl border border-[#E5DACF] px-3.5 py-2.5 text-sm bg-white text-[#2B2119] focus:ring-2 focus:ring-[#C1652D] focus:outline-hidden"
                     />
                   </div>
@@ -295,7 +304,7 @@ export default function InitialisationClient() {
 
                   <div className="sm:col-span-2">
                     <label htmlFor="email" className="block text-xs font-bold text-[#2B2119]">
-                      Adresse e-mail (identifiant de connexion) *
+                      Email *
                     </label>
                     <div className="relative mt-1">
                       <Mail className="w-4 h-4 text-[#8C7A6B] absolute left-3 top-3" />
@@ -304,7 +313,7 @@ export default function InitialisationClient() {
                         name="email"
                         id="email"
                         required
-                        placeholder="patron@moncommerce.com"
+                        placeholder="Email"
                         className="block w-full pl-9 rounded-xl border border-[#E5DACF] px-3.5 py-2.5 text-sm bg-white text-[#2B2119] focus:ring-2 focus:ring-[#C1652D] focus:outline-hidden"
                       />
                     </div>
