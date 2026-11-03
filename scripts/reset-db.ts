@@ -67,6 +67,10 @@ async function resetDatabase() {
     const countComptes = await prisma.comptes.deleteMany();
     console.log(`- comptes : ${countComptes.count} supprimé(s)`);
 
+    // 11. Paramètres plateforme & Clé de licence
+    const countParams = await prisma.parametres_plateforme.deleteMany();
+    console.log(`- parametres_plateforme : ${countParams.count} supprimé(s)`);
+
     console.log("✅ Toutes les données utilisateurs et super-admins ont été supprimées avec succès !");
   } catch (error) {
     console.error("❌ Erreur lors de la réinitialisation de la base :", error);
